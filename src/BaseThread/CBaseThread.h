@@ -1,0 +1,41 @@
+#ifndef CBASETHREAD_H
+#define CBASETHREAD_H
+
+#include <zephyr/kernel.h> // or the appropriate header file that defines k_msgq
+
+#include "Logger/CLogger.h"
+
+#define DEFAULT_THREAD_STACK_SIZE 1024
+
+class CBaseThread
+{
+
+
+public:
+
+    static k_msgq blinkQueueMessage;
+
+    static k_msgq sensorQueueMessage;
+
+    static k_msgq registerQueueMessage;
+
+    static k_msgq loggerQueueMessage;
+
+    static k_msgq firmwareUpdateQueueMessage;
+
+    static k_msgq configurationQueueMessage;
+
+    static k_sem net_conn_sem;
+
+    
+
+    CBaseThread();
+
+    virtual ~CBaseThread();
+
+    static void handlerRun(void *args1, void *args2, void *args3);
+
+    virtual void runHandler(void) = 0;
+    
+};
+#endif // CBASETHREAD_H

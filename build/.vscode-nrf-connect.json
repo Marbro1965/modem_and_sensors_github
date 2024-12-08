@@ -1,0 +1,17 @@
+{
+  "board": "actinius_icarus/nrf9160/ns",
+  "boardRevision": "",
+  "boardDir": "c:/ncs/v2.7.0/zephyr/boards/actinius/icarus",
+  "shouldBuild": true,
+  "optimizations": "none",
+  "cmakeArgs": [],
+  "confFiles": [],
+  "buildDirectory": "build",
+  "kconfigFragments": [],
+  "snippets": [],
+  "dtcOverlays": [],
+  "extraDtcOverlays": [
+    "boards\\nrf9160dk_nrf9160_ns.overlay"
+  ],
+  "sysbuild": true
+}

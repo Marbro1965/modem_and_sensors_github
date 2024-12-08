@@ -1,0 +1,36 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/ncs/toolchains/ce3b5ff664/opt/zephyr-sdk/arm-zephyr-eabi/bin",
+                "C:/ncs/v2.7.0/zephyr/include",
+                "C:/ncs/v2.7.0/zephyr/include/zephyr",
+                "C:/ncs/v2.7.0/nrfxlib",
+                "C:/ncs/v2.7.0/zephyr/include/zephyr/drivers",
+                "C:/ncs/v2.7.0/zephyr/include/zephyr/kernel",
+                "C:/ncs/v2.7.0/zephyr/include/zephyr/usb",
+                "C:/ncs/v2.7.0/zephyr/arch",             
+                "C:/ncs/v2.7.0/nrfxlib/nrf_modem/include",
+                "C:/ncs/v2.7.0/nrf/include",
+                "C:/ncs/v2.7.0/nrf/include/modem",
+                "c:/NCS/v2.7.0/zephyr/drivers",
+                "c:/NCS/v2.7.0/zephyr/kernel",
+                "C:/ncs/v2.7.0/modules/lib/cjson"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "CONFIG_SYS_CLOCK_TICKS_PER_SEC=1000",
+                "ARCH_STACK_PTR_ALIGN=4"
+            ],
+            "configurationProvider": "nordic-semiconductor.nrf-connect",
+            "compilerPath": "C:/ncs/toolchains/ce3b5ff664/opt/zephyr-sdk/arm-zephyr-eabi/bin/arm-zephyr-eabi-gcc.exe",
+            "cppStandard": "gnu++11",
+            "cStandard": "gnu11"
+        }
+    ],
+    "version": 4
+}
