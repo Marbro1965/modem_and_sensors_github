@@ -28,6 +28,8 @@
 #include <zephyr/random/rand32.h>
 #include <zephyr/drivers/gpio.h>
 
+#include "initializer.h"
+
 static void connect_mqtt();
 
 #define GPIO_NODE 			DT_NODELABEL(gpio0)
@@ -453,8 +455,12 @@ int main(void)
 		printk("Error getting GPIO device binding\r\n");
 	}
 	init_leds();
-	k_thread_create(&thread1_data, thread1_stack, STACK_SIZE, thread1_func, NULL, NULL, NULL, 1,
-			0, K_NO_WAIT);
+
+
+	// k_thread_create(&thread1_data, thread1_stack, STACK_SIZE, thread1_func, NULL, NULL, NULL, 1,
+	// 		0, K_NO_WAIT);
+
+	initialize();
 
 	k_thread_create(&thread2_data, thread2_stack, STACK_SIZE, thread2_func, NULL, NULL, NULL, 2,
 			0, K_NO_WAIT);
