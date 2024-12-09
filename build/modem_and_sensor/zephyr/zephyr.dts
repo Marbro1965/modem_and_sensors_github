@@ -265,6 +265,16 @@
 					reg = < 0x19 >;
 					irq-gpios = < &gpio0 0x1c 0x0 >, < &gpio0 0x1d 0x0 >;
 				};
+				si7060: si7060@32 {
+					compatible = "silabs,si7060";
+					label = "si7060";
+					reg = < 0x32 >;
+				};
+				bme688_1: bme688-1@76 {
+					compatible = "bosch,bme680";
+					label = "bme688_1";
+					reg = < 0x76 >;
+				};
 			};
 			i2c3: i2c@b000 {
 				compatible = "nordic,nrf-twim";
@@ -328,11 +338,6 @@
 					has-dpd;
 					t-enter-dpd = < 0xdac >;
 					t-exit-dpd = < 0xdac >;
-				};
-				bme680@0 {
-					compatible = "bosch,bme680";
-					reg = < 0x0 >;
-					spi-max-frequency = < 0x7a1200 >;
 				};
 			};
 			pwm0: pwm@21000 {
@@ -627,7 +632,7 @@
 	sim_select: sim-select {
 		compatible = "actinius-sim-select";
 		sim-gpios = < &gpio0 0x8 0x0 >;
-		sim = "esim";
+		sim = "external";
 	};
 	reserved-memory {
 		#address-cells = < 0x1 >;

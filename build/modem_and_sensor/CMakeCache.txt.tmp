@@ -220,7 +220,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=bme68x
+CMAKE_PROJECT_NAME:STATIC=bme68x_iaq_sensor_mqtt_helper
 
 //Value Computed by CMake
 CMAKE_PROJECT_VERSION:STATIC=3.6.99
@@ -313,7 +313,7 @@ DTC:FILEPATH=C:/ncs/toolchains/ce3b5ff664/opt/bin/dtc.exe
 // parameter. These settings will override the settings in the
 // board's .dts file. Multiple files may be listed, e.g. DTC_OVERLAY_FILE="dts1.overlay
 // dts2.overlay"
-DTC_OVERLAY_FILE:STRING=
+DTC_OVERLAY_FILE:STRING=C:/ncs/modem_and_sensor/boards/actinius_icarus_ns.overlay
 
 //No help, variable specified on the command line.
 FORCED_CONF_FILE:FILEPATH=C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/.config.sysbuild
@@ -441,6 +441,15 @@ bme68x_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 bme68x_SOURCE_DIR:STATIC=C:/ncs/modem_and_sensor
 
+//Value Computed by CMake
+bme68x_iaq_sensor_mqtt_helper_BINARY_DIR:STATIC=C:/ncs/modem_and_sensor/build/modem_and_sensor
+
+//Value Computed by CMake
+bme68x_iaq_sensor_mqtt_helper_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+bme68x_iaq_sensor_mqtt_helper_SOURCE_DIR:STATIC=C:/ncs/modem_and_sensor
+
 
 ########################
 # INTERNAL cache entries
@@ -559,7 +568,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=213
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=214
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -630,6 +639,4 @@ _Python3_EXECUTABLE:INTERNAL=C:/ncs/toolchains/ce3b5ff664/opt/bin/python.exe
 //Python3 Properties
 _Python3_INTERPRETER_PROPERTIES:INTERNAL=Python;3;9;13;64;;cp39-win_amd64.pyd;C:\ncs\toolchains\ce3b5ff664\opt\bin\Lib;C:\ncs\toolchains\ce3b5ff664\opt\bin\Lib;C:\ncs\toolchains\ce3b5ff664\opt\bin\Lib\site-packages;C:\ncs\toolchains\ce3b5ff664\opt\bin\Lib\site-packages
 _Python3_INTERPRETER_SIGNATURE:INTERNAL=b9c3b7e893fe914881ac333250d089bb
-//Test check_fmacro_prefix_map_C__ncs_modem_and_sensor_CMAKE_SOURCE_DIR_C__nostartfiles__nostdlib__isystem__c__ncs_toolchains_ce3b5ff664_opt_zephyr_sdk_arm_zephyr_eabi_bin____lib_gcc_arm_zephyr_eabi_12_2_0_include___isystem__c__ncs_toolchains_ce3b5ff664_opt_zephyr_sdk_arm_zephyr_eabi_bin____lib_gcc_arm_zephyr_eabi_12_2_0_include_fixed___Wl___unresolved_symbols_ignore_in_object_files__Wl___entry_0
-check_fmacro_prefix_map_C__ncs_modem_and_sensor_CMAKE_SOURCE_DIR_C__nostartfiles__nostdlib__isystem__c__ncs_toolchains_ce3b5ff664_opt_zephyr_sdk_arm_zephyr_eabi_bin____lib_gcc_arm_zephyr_eabi_12_2_0_include___isystem__c__ncs_toolchains_ce3b5ff664_opt_zephyr_sdk_arm_zephyr_eabi_bin____lib_gcc_arm_zephyr_eabi_12_2_0_include_fixed___Wl___unresolved_symbols_ignore_in_object_files__Wl___entry_0:INTERNAL=1
 

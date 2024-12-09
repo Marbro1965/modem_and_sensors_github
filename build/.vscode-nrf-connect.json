@@ -11,7 +11,7 @@
   "snippets": [],
   "dtcOverlays": [],
   "extraDtcOverlays": [
-    "boards\\nrf9160dk_nrf9160_ns.overlay"
+    "boards\\actinius_icarus_ns.overlay"
   ],
   "sysbuild": true
 }

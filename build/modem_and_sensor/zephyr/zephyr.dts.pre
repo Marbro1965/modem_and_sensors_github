@@ -1094,20 +1094,42 @@ arduino_spi: &spi3 { };
 };
 # 8 "C:/ncs/v2.7.0/zephyr/boards/actinius/icarus/actinius_icarus_nrf9160_ns_2_0_0.overlay" 2
 # 0 "<command-line>" 2
-# 1 "./boards/nrf9160dk_nrf9160_ns.overlay" 1
+# 1 "C:/ncs/modem_and_sensor/boards/actinius_icarus_ns.overlay" 1
+# 28 "C:/ncs/modem_and_sensor/boards/actinius_icarus_ns.overlay"
+&i2c2 {
+    si7060: si7060@32 {
+        compatible = "silabs,si7060";
+        label = "si7060";
+        reg = <0x32>;
+    };
+ bme688_1: bme688-1@76 {
+        compatible = "bosch,bme680";
+        label = "bme688_1";
+        reg = <0x76>;
+    };
+};
 
+&sim_select {
+    sim = "external";
+};
+# 0 "<command-line>" 2
+# 1 "./boards/actinius_icarus_ns.overlay" 1
+# 28 "./boards/actinius_icarus_ns.overlay"
+&i2c2 {
+    si7060: si7060@32 {
+        compatible = "silabs,si7060";
+        label = "si7060";
+        reg = <0x32>;
+    };
+ bme688_1: bme688-1@76 {
+        compatible = "bosch,bme680";
+        label = "bme688_1";
+        reg = <0x76>;
+    };
+};
 
-
-
-
- &arduino_spi {
- status = "okay";
-
-        bme680@0 {
-                compatible = "bosch,bme680";
-                reg = <0x0 >;
-  spi-max-frequency = <((8) * 1000 * 1000)>;
-        };
+&sim_select {
+    sim = "external";
 };
 # 0 "<command-line>" 2
 # 1 "C:/ncs/v2.7.0/zephyr/misc/empty_file.c"

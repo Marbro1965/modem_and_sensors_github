@@ -272,6 +272,9 @@ C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/drivers/sensor/sensirion/C
 C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/drivers/sensor/sensirion/CMakeFiles/rebuild_cache.dir
 C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/drivers/sensor/silabs/CMakeFiles/edit_cache.dir
 C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/drivers/sensor/silabs/CMakeFiles/rebuild_cache.dir
+C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/drivers/sensor/silabs/si7060/CMakeFiles/drivers__sensor__silabs__si7060.dir
+C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/drivers/sensor/silabs/si7060/CMakeFiles/edit_cache.dir
+C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/drivers/sensor/silabs/si7060/CMakeFiles/rebuild_cache.dir
 C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/drivers/sensor/st/CMakeFiles/edit_cache.dir
 C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/drivers/sensor/st/CMakeFiles/rebuild_cache.dir
 C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/drivers/sensor/st/lis2dh/CMakeFiles/drivers__sensor__st__lis2dh.dir

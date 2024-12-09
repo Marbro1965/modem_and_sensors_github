@@ -416,6 +416,8 @@ void thread2_func(void *arg1, void *arg2, void *arg3)
 		LOG_ERR("no device found");
 		return 0;
 	}
+
+	k_sleep(K_MSEC(5000));
 	if (!device_is_ready(dev)) {
 		LOG_ERR("device is not ready");
 		return 0;
@@ -449,12 +451,12 @@ void thread2_func(void *arg1, void *arg2, void *arg3)
 
 int main(void)
 {
-	// gpio_dev = DEVICE_DT_GET(GPIO_NODE);
+	gpio_dev = DEVICE_DT_GET(GPIO_NODE);
 
-	// if (!gpio_dev) {
-	// 	printk("Error getting GPIO device binding\r\n");
-	// }
-	// init_leds();
+	if (!gpio_dev) {
+		printk("Error getting GPIO device binding\r\n");
+	}
+	init_leds();
 
 
 	k_thread_create(&thread1_data, thread1_stack, STACK_SIZE, thread1_func, NULL, NULL, NULL, 1,
@@ -462,8 +464,8 @@ int main(void)
 
 	//initialize();
 
-	// k_thread_create(&thread2_data, thread2_stack, STACK_SIZE, thread2_func, NULL, NULL, NULL, 2,
-	// 		0, K_NO_WAIT);
+	k_thread_create(&thread2_data, thread2_stack, STACK_SIZE, thread2_func, NULL, NULL, NULL, 2,
+			0, K_NO_WAIT);
 
 	// const struct device *const dev = DEVICE_DT_GET_ANY(bosch_bme680);
 
