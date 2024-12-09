@@ -8,6 +8,8 @@
 
 #include <zephyr/logging/log.h>
 
+#include <modem/lte_lc.h>
+
 LOG_MODULE_REGISTER(modem_setup_thread, CONFIG_APP_LOG_LEVEL);
 
 CModemSetupThread *CModemSetupThread::instance = nullptr;
@@ -34,7 +36,20 @@ void CModemSetupThread::runHandler(void)
         k_sleep(K_SECONDS(1));
     }
 }
+void CModemSetupThread::configure_psm() {
 
+    const char *tau = "00000101";         // Example TAU value 5 secondi
+
+    const char *active_time = "00000011"; // Example active time value 3 secondi
+
+    int ret = lte_lc_psm_param_set(tau, active_time);
+
+    if (ret) {
+        printk("Failed to set PSM parameters, error: %d\n", ret);
+    } else {
+        printk("PSM parameters set successfully: TAU=5s, Active Time=5s\n");
+    }
+}
 void CModemSetupThread::initModem(void)
 {
 
@@ -45,6 +60,8 @@ void CModemSetupThread::initModem(void)
     // int ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
 
    	int err;
+
+    configure_psm();
 
     err = nrf_modem_lib_init();
 
@@ -140,7 +157,25 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
     	case LTE_LC_EVT_CELL_UPDATE:
             printk("LTE cell changed: Cell ID: %d, Tracking area: %d\n", evt->cell.id,
                  evt->cell.tac);
+                 
+                 
     		break;
+
+        // case LTE_LC_EVT_RSRP_UPDATE:
+        //     printk("RSRP update: %d dBm\n", evt->rsrp);
+        //     if (evt->rsrp < RSRP_THRESHOLD) {
+        //         printf("Warning: Weak signal strength (RSRP=%d dBm)\n", evt->rsrp);
+        //     // Add recovery or alert logic here
+        //     }
+        //     break;            
+        // case LTE_LC_EVT_CONNECTED:
+        //         printk("Connected to LTE network\n");
+        //         break;
+
+        // case LTE_LC_EVT_DISCONNECTED:
+        //     printk("Disconnected from LTE network\n");
+        //     break;
+
 	    default:
 		    break;
 	}

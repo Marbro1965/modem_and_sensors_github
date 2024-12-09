@@ -44,6 +44,8 @@ public:
  
     static void lte_handler(const struct lte_lc_evt *const evt);
 
+    static void configure_psm();
+
     //static void location_event_handler(const struct location_event_data *event_data);
 
     static CModemSetupThread *instance;
