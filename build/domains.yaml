@@ -1,7 +1,0 @@
-default: modem_and_sensor
-build_dir: C:/ncs/modem_and_sensor/build
-domains:
-  - name: modem_and_sensor
-    build_dir: C:/ncs/modem_and_sensor/build/modem_and_sensor
-flash_order:
-  - modem_and_sensor

@@ -1,0 +1,32 @@
+# Ignore build directories
+build/
+_build/
+
+# Ignore object files and binaries
+*.o
+*.a
+*.out
+*.hex
+*.bin
+*.elf
+
+# Ignore dependency files
+*.d
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+
+# Ignore IDE specific files except launch.json and settings.json
+.vscode/
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/c_cpp_properties.json
+.idea/
+
+# Ignore other unnecessary files
+*.bak
+*.swp
+
+# Keep .txt files
+!*.txt

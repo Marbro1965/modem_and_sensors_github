@@ -43,6 +43,18 @@ void initSemaphore(void){
 
 }
 
+K_THREAD_STACK_DEFINE(thread_logger_stack, DEFAULT_THREAD_STACK_SIZE);
+ 
+K_THREAD_STACK_DEFINE(thread_leds_stack, DEFAULT_THREAD_STACK_SIZE);
+
+K_THREAD_STACK_DEFINE(thread_sensor_stack, DEFAULT_THREAD_STACK_SIZE);
+
+struct k_thread thread_logger_data;
+
+struct k_thread thread_leds_data;
+
+struct k_thread thread_sensor_data;
+
 void initialize(void){
 
     initMessageQueue();
@@ -51,8 +63,21 @@ void initialize(void){
 
     CLogger::getInstance()->log("Creazione dei threads\n");
 
-    CFactoryThread::getInstance()->createThreads();
+//    CFactoryThread::getInstance()->createThreads();
 
+ 
+    CLoggerThread *pLoggerThread = new CLoggerThread();
+ 
+    k_tid_t id1 = k_thread_create(&thread_logger_data,thread_logger_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pLoggerThread, NULL, NULL, 5, 0, K_NO_WAIT);
+
+
+    
+
+    CLedsThread *pLedsThread = new CLedsThread();
+
+    k_tid_t id2 = k_thread_create(&thread_leds_data,thread_leds_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pLedsThread, NULL, NULL, 6, 0, K_NO_WAIT);
+    
+ 
 
 
 }
