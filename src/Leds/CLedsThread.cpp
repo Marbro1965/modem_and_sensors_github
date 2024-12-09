@@ -103,6 +103,8 @@ int CLedsThread::init(void)
 void CLedsThread::runHandler(void)
 {
 
+	CLogger::getInstance()->log("Esecuzione del thread CLedsThread\n");
+
 	struct my_msg msg;
 
 	int ret = -1;
@@ -112,10 +114,6 @@ void CLedsThread::runHandler(void)
 	bool bBlink = false;
 
 	bool toggle = true;
-
-    msg.data = TURN_LED_GREEN_BLINKING;
-	
-	ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
 
     init();
 
@@ -130,11 +128,27 @@ void CLedsThread::runHandler(void)
 			if (msg.data == TURN_LED_GREEN_BLINKING){
 
 				bBlink = true;
+				currentColor = GREEN;
 				turn_leds_on_with_color(GREEN);
 				// Start the timer with a duration of 1000 ms and a period of 1000 ms
     			k_timer_start(&my_timer, K_MSEC(100), K_MSEC(100));
 
+			} else if (msg.data == TURN_LED_BLUE_BLINKING){
+
+				currentColor = BLUE;
+				bBlink = true;
+				turn_leds_on_with_color(BLUE);
+				// Start the timer with a duration of 1000 ms and a period of 1000 ms
+    			k_timer_start(&my_timer, K_MSEC(100), K_MSEC(100));
+
+			}else if (msg.data == TURN_LED_BLUE){
+
+				bBlink = false;
+				turn_leds_on_with_color(BLUE);
+				k_timer_stop(&my_timer);
+
 			}
+
 			
 			if (msg.data == TURN_LED_OFF){
 				turn_leds_off();
@@ -152,7 +166,7 @@ void CLedsThread::timer_expiry_function(struct k_timer *timer)
     // Add code to handle timer expiry
 	
 	
-	CLogger::getInstance()->log("Timer expired\n");
+//	CLogger::getInstance()->log("Timer expired\n");
 
 	CLedsThread *me = (CLedsThread*)(timer->user_data);
 
@@ -162,7 +176,7 @@ void CLedsThread::timer_expiry_function(struct k_timer *timer)
 		me->bToggle = false;
 	}else
 	{
-		//me->turn_leds_on_with_color(GREEN);
+		me->turn_leds_on_with_color(me->currentColor);
 		me->bToggle = true;
 	}
 

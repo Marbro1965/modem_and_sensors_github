@@ -53,15 +53,15 @@ void CModemSetupThread::configure_psm() {
 void CModemSetupThread::initModem(void)
 {
 
-    // struct my_msg msg;
+    struct my_msg msg;
     
-    // msg.data = TURN_LED_GREEN;
+    msg.data = TURN_LED_BLUE_BLINKING;
 
-    // int ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
+    int ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
 
    	int err;
 
-    configure_psm();
+    //configure_psm();
 
     err = nrf_modem_lib_init();
 
@@ -113,34 +113,21 @@ void CModemSetupThread::initModem(void)
 
 void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
 {
+
+    struct my_msg msg;
+    
+    msg.data = TURN_LED_BLUE_BLINKING;
+
 	switch (evt->type) {
     	case LTE_LC_EVT_NW_REG_STATUS:
-            if (evt->nw_reg_status == LTE_LC_NW_REG_NOT_REGISTERED ||
-                evt->nw_reg_status == LTE_LC_NW_REG_SEARCHING ||
-                evt->nw_reg_status == LTE_LC_NW_REG_REGISTRATION_DENIED ||
-                evt->nw_reg_status == LTE_LC_NW_REG_UNKNOWN) {
+            if ((evt->nw_reg_status != LTE_LC_NW_REG_REGISTERED_HOME) &&
+                (evt->nw_reg_status != LTE_LC_NW_REG_REGISTERED_ROAMING)) {
+                break;
+            }
 
-                printk("LTE network disconnected"); 
-
-                instance->disconnectFromWiFi(); 
-
-                instance->modem_state = MODEM_STATE_DISCONNECTED;
-
-            } else if (evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_HOME ||
-                    evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_ROAMING) {
-
-                printk("LTE network connected");
-
-                instance->connectToWiFi(); 
-
-                printk("Network registration status: %s\n",
-                     evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_HOME ? "Connected - home"
-                                             : "Connected - roaming");
-
-                instance->modem_state = MODEM_STATE_CONNECTED;            
-                
-//                instance->startLocation();
-    		}
+            printk("Network registration status: %s\n",
+                evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_HOME ? "Connected - home"
+                                        : "Connected - roaming");
 	    	break;
     	case LTE_LC_EVT_PSM_UPDATE:
             printk("PSM parameter update: TAU: %d s, Active time: %d s\n", evt->psm_cfg.tau,
@@ -153,6 +140,8 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
     	case LTE_LC_EVT_RRC_UPDATE:
             printk("RRC mode: %s\n",
                  evt->rrc_mode == LTE_LC_RRC_MODE_CONNECTED ? "Connected" : "Idle\n");
+
+            msg.data = TURN_LED_BLUE;
             break;
     	case LTE_LC_EVT_CELL_UPDATE:
             printk("LTE cell changed: Cell ID: %d, Tracking area: %d\n", evt->cell.id,
@@ -160,26 +149,11 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
                  
                  
     		break;
-
-        // case LTE_LC_EVT_RSRP_UPDATE:
-        //     printk("RSRP update: %d dBm\n", evt->rsrp);
-        //     if (evt->rsrp < RSRP_THRESHOLD) {
-        //         printf("Warning: Weak signal strength (RSRP=%d dBm)\n", evt->rsrp);
-        //     // Add recovery or alert logic here
-        //     }
-        //     break;            
-        // case LTE_LC_EVT_CONNECTED:
-        //         printk("Connected to LTE network\n");
-        //         break;
-
-        // case LTE_LC_EVT_DISCONNECTED:
-        //     printk("Disconnected from LTE network\n");
-        //     break;
-
 	    default:
 		    break;
 	}
 
+    int ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
 
 }
 

@@ -26,7 +26,7 @@ int CSensorThread::init(void)
 
 	//LOG_INF("App started");
 
-	k_sleep(K_SECONDS(5));
+	//k_sleep(K_SECONDS(5));
 
 	if (dev == NULL) {
 		//LOG_ERR("no device found");
@@ -44,7 +44,8 @@ int CSensorThread::init(void)
 void CSensorThread::runHandler(void)
 {
     // This is the handler for the sensor thread
-
+	CLogger::getInstance()->log("Esecuzione del thread CSensorThread\n");
+	
 	if (1==init())
 	{
 		//LOG_INF("Sensor thread initialized");
@@ -73,7 +74,7 @@ void CSensorThread::runHandler(void)
 
 		int ret = k_msgq_put(&CBaseThread::sensorQueueMessage, &msg, K_NO_WAIT);
 
-		k_sleep(K_MSEC(1000));
+		k_sleep(K_MSEC(5000));
 	}
 
 

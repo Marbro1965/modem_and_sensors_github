@@ -49,11 +49,16 @@ K_THREAD_STACK_DEFINE(thread_leds_stack, DEFAULT_THREAD_STACK_SIZE);
 
 K_THREAD_STACK_DEFINE(thread_sensor_stack, DEFAULT_THREAD_STACK_SIZE);
 
+K_THREAD_STACK_DEFINE(thread_modem_stack, 4096);
+
+
 struct k_thread thread_logger_data;
 
 struct k_thread thread_leds_data;
 
 struct k_thread thread_sensor_data;
+
+struct k_thread thread_modem_data;
 
 void initialize(void){
 
@@ -79,5 +84,15 @@ void initialize(void){
     
  
 
+
+    CSensorThread *pSensorThread = new CSensorThread();
+
+    k_tid_t id3 = k_thread_create(&thread_sensor_data,thread_sensor_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pSensorThread, NULL, NULL, 7, 0, K_NO_WAIT);
+
+
+
+    CModemSetupThread *pModemThread = new CModemSetupThread();
+
+    k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 4096, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 1, 0, K_NO_WAIT);
 
 }

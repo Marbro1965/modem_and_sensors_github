@@ -27,12 +27,14 @@ struct messageSensor{
 
 enum my_msgq_type {
     TURN_LED_GREEN,
+    TURN_LED_BLUE,
     TURN_LED_OFF,
     WIFI_CONNECT,
     WIFI_DISCONNECT,
     NOTIFY_NEW_CONFIGURATION,
     NOTIFY_NEW_FIRMWARE,
-    TURN_LED_GREEN_BLINKING
+    TURN_LED_GREEN_BLINKING,
+    TURN_LED_BLUE_BLINKING,
 };
 
 struct my_msg {

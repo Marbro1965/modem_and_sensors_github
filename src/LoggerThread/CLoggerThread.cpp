@@ -4,7 +4,7 @@
 
 #include <zephyr/logging/log.h>
 
-//LOG_MODULE_REGISTER(clogger_thread, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(clogger_thread, LOG_LEVEL_INF);
 
 
 CLoggerThread::CLoggerThread()
@@ -27,6 +27,8 @@ int CLoggerThread::init(void)
 }
 void CLoggerThread::runHandler(void)
 {
+    CLogger::getInstance()->log("Esecuzione del thread CLoggerThread\n");
+
     int ret = 0;
 
     init();
@@ -38,10 +40,12 @@ void CLoggerThread::runHandler(void)
         
         if (ret == 0)
         {
-           printk("Logger: %s\n",pt);
+           //printk(&pt[0]);
+
+           LOG_INF("Message received: %s", &pt[0]);
         }
 
-        k_sleep(K_MSEC(10));
+        k_sleep(K_MSEC(100));
     }
 }
 

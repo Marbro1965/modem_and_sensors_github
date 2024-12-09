@@ -36,7 +36,7 @@ class CLedsThread : public CBaseThread
 
     int init(void);
 
-    
+    led_color_t currentColor = RED;
     
 public:
         
