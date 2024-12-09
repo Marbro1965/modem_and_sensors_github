@@ -29,6 +29,8 @@ CModemSetupThread::~CModemSetupThread()
 
 void CModemSetupThread::runHandler(void)
 {
+    CLogger::getInstance()->log("Modem setup thread started\n");
+
     initModem();
 
     while(true)
@@ -120,31 +122,39 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
 
 	switch (evt->type) {
     	case LTE_LC_EVT_NW_REG_STATUS:
-            if ((evt->nw_reg_status != LTE_LC_NW_REG_REGISTERED_HOME) &&
-                (evt->nw_reg_status != LTE_LC_NW_REG_REGISTERED_ROAMING)) {
-                break;
+            // if ((evt->nw_reg_status != LTE_LC_NW_REG_REGISTERED_HOME) &&
+            //     (evt->nw_reg_status != LTE_LC_NW_REG_REGISTERED_ROAMING)) {
+            //     break;
+            // }
+
+            // printk("Network registration status: %s\n",
+            //     evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_HOME ? "Connected - home"
+            //                             : "Connected - roaming");
+            if (evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_HOME ||
+                evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_ROAMING) {
+                CLogger::getInstance()->log("LTE connected");
+                msg.data = TURN_LED_BLUE;
+            } else {
+                CLogger::getInstance()->log("LTE not connected, status: %d", evt->nw_reg_status);
             }
 
-            printk("Network registration status: %s\n",
-                evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_HOME ? "Connected - home"
-                                        : "Connected - roaming");
 	    	break;
     	case LTE_LC_EVT_PSM_UPDATE:
-            printk("PSM parameter update: TAU: %d s, Active time: %d s\n", evt->psm_cfg.tau,
+            CLogger::getInstance()->log("PSM parameter update: TAU: %d s, Active time: %d s\n", evt->psm_cfg.tau,
                  evt->psm_cfg.active_time);
             break;
 	    case LTE_LC_EVT_EDRX_UPDATE:
-            printk("eDRX parameter update: eDRX: %.2f s, PTW: %.2f s\n",
+            CLogger::getInstance()->log("eDRX parameter update: eDRX: %.2f s, PTW: %.2f s\n",
                  (double)evt->edrx_cfg.edrx, (double)evt->edrx_cfg.ptw);
             break;
     	case LTE_LC_EVT_RRC_UPDATE:
-            printk("RRC mode: %s\n",
+            CLogger::getInstance()->log("RRC mode: %s\n",
                  evt->rrc_mode == LTE_LC_RRC_MODE_CONNECTED ? "Connected" : "Idle\n");
-
             msg.data = TURN_LED_BLUE;
+            
             break;
     	case LTE_LC_EVT_CELL_UPDATE:
-            printk("LTE cell changed: Cell ID: %d, Tracking area: %d\n", evt->cell.id,
+            CLogger::getInstance()->log("LTE cell changed: Cell ID: %d, Tracking area: %d\n", evt->cell.id,
                  evt->cell.tac);
                  
                  

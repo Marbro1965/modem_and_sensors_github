@@ -18,10 +18,10 @@ _build/
 *.tmp
 
 # Ignore IDE specific files except launch.json and settings.json
-.vscode/
-!.vscode/launch.json
-!.vscode/settings.json
-!.vscode/c_cpp_properties.json
+#.vscode/
+#!.vscode/launch.json
+#!.vscode/settings.json
+#!.vscode/c_cpp_properties.json
 .idea/
 
 # Ignore other unnecessary files

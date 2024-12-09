@@ -68,27 +68,20 @@ void initialize(void){
 
     CLogger::getInstance()->log("Creazione dei threads\n");
 
-//    CFactoryThread::getInstance()->createThreads();
 
- 
     CLoggerThread *pLoggerThread = new CLoggerThread();
  
-    k_tid_t id1 = k_thread_create(&thread_logger_data,thread_logger_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pLoggerThread, NULL, NULL, 5, 0, K_NO_WAIT);
+    k_tid_t id1 = k_thread_create(&thread_logger_data,thread_logger_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pLoggerThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
-
-    
 
     CLedsThread *pLedsThread = new CLedsThread();
 
     k_tid_t id2 = k_thread_create(&thread_leds_data,thread_leds_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pLedsThread, NULL, NULL, 6, 0, K_NO_WAIT);
     
  
-
-
     CSensorThread *pSensorThread = new CSensorThread();
 
     k_tid_t id3 = k_thread_create(&thread_sensor_data,thread_sensor_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pSensorThread, NULL, NULL, 7, 0, K_NO_WAIT);
-
 
 
     CModemSetupThread *pModemThread = new CModemSetupThread();
