@@ -9,7 +9,8 @@
 int main(void)
 {
 
-	initialize();
+	//inizializza i threads
+ 	initialize();
 
 	return 0;
 }

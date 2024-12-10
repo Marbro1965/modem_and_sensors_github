@@ -47,6 +47,10 @@ zephyr_include_directories($ENV{ZEPHYR_BASE}/../modules/lib/date_time/)
 
 zephyr_include_directories($ENV{ZEPHYR_BASE}/../drivers)
 
+#zephyr_include_directories($ENV{ZEPHYR_BASE}/include)
+
+#zephyr_include_directories($ENV{ZEPHYR_BASE}/subsys/net/lib/sockets)
+
 #zephyr_include_directories($ENV{ZEPHYR_BASE}/../drivers/sensors)
 
 

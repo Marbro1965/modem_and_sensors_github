@@ -12,6 +12,8 @@
 
 #include "LoggerThread/CLoggerThread.h"
 
+#include "structures.h"
+
 #define MQTT_BROKER_PORT     1883
 
 #define TIME_DIVISOR	   	1000
@@ -19,7 +21,7 @@
 
 CMqttHelperThread* CMqttHelperThread::instance = nullptr;
 
-const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "test.mosquitto.org";
+const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "93.65.12.248";
 
 const char* CMqttHelperThread::MQTT_TOPIC  = "bsec/test";
 
@@ -65,7 +67,6 @@ void CMqttHelperThread::init_mqtt_helper(void)
 
 void CMqttHelperThread::connect_mqtt(void)
 {
-
 	int err = 0;
 
 	struct mqtt_utf8 password = {.utf8 = (const uint8_t *)"", .size = 0};
@@ -99,20 +100,23 @@ void CMqttHelperThread::runHandler(void){
 
     init_mqtt_helper();
 
+    uint32_t events = k_event_wait(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG, false, K_FOREVER);
+
+    if (events & LTE_CONNECTED_FLAG) {
+		connect_mqtt();
+	}
     while(true)
     {
-        uint32_t events = k_event_wait(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG, false, K_FOREVER);
-
-        if (events & LTE_CONNECTED_FLAG) {
-            // Handle the event
-            CLogger::getInstance()->log("LTE connected event received\n");
-			if (STATE_CONNECTED == status) {
-				//publish_message();
-			} else {
-				
-			}
-
+		
+		if (STATE_CONNECTED == status) {
+			// Handle the event
+			CLogger::getInstance()->log("Publish a message\n");
+			//publish_message();
+		} else {
+			
 		}
+
+
         k_sleep(K_SECONDS(10));
     }
 }
@@ -162,80 +166,82 @@ void CMqttHelperThread::on_error(enum mqtt_helper_error error)
 
 int CMqttHelperThread::publish_message()
 {
-	// struct mqtt_publish_param param;
-	//turn_leds_on_with_color(BLUE);
-	cJSON *root, *sensor, *value;
+    struct messageSensor msg;
+  
 
-	/* create root node and array */
-	root = cJSON_CreateObject();
-	sensor = cJSON_CreateArray();
+   // char tempValue[50];
+    int jsonIndex = 0;
 
-	/* add sensors array to root */
-	cJSON_AddItemToObject(root, "TF1", sensor);
+    int ret = k_msgq_get(&CBaseThread::sensorQueueMessage, &msg, K_NO_WAIT);
 
-	if (!date_time_now(&date_time_ms)) {
-		date_time_ms /= TIME_DIVISOR;
-	} else {
-		date_time_ms = k_uptime_get() / TIME_DIVISOR;
-	}
+    if (0 == ret) {
 
-	char tempValue[50];
-	cJSON_AddItemToArray(sensor, value = cJSON_CreateObject());
+        // Start building JSON object
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex, "{");
 
-	sprintf(tempValue, "%ld", 250001);
-	cJSON_AddItemToObject(value, "serial", cJSON_CreateString(tempValue));
+        if (!date_time_now(&date_time_ms)) {
+            date_time_ms /= TIME_DIVISOR;
+        } else {
+            date_time_ms = k_uptime_get() / TIME_DIVISOR;
+        }
 
-	sprintf(tempValue, "%ld", (int32_t)(date_time_ms));
-	cJSON_AddItemToObject(value, "time", cJSON_CreateString(tempValue));
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+                              "\"TF1\":[{\"serial\":\"%ld\",", 250001);
 
-	sprintf(tempValue, "%5.0lf", altitude);
-	cJSON_AddItemToObject(value, "altitude", cJSON_CreateString(tempValue));
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+                              "\"time\":\"%ld\",", (int32_t)(date_time_ms));
 
-	sprintf(tempValue, "%3.6lf", latitude);
-	cJSON_AddItemToObject(value, "latitude", cJSON_CreateString(tempValue));
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+                              "\"altitude\":\"%5.0lf\",", altitude);
 
-	sprintf(tempValue, "%3.6lf", longitude);
-	cJSON_AddItemToObject(value, "longitude", cJSON_CreateString(tempValue));
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+                              "\"latitude\":\"%3.6lf\",", latitude);
 
-	sprintf(tempValue, "%d", iaq.val1);
-	cJSON_AddItemToObject(value, "iqa", cJSON_CreateString(tempValue));
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+                              "\"longitude\":\"%3.6lf\",", longitude);
 
-	sprintf(tempValue, "%d.%1d", humidity.val1, humidity.val2);
-	cJSON_AddItemToObject(value, "humidity", cJSON_CreateString(tempValue));
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+                              "\"iqa\":\"%d\",", msg.iaq.val1);
 
-	sprintf(tempValue, "%d.%1d", temp.val1, temp.val2);
-	cJSON_AddItemToObject(value, "ambient_temperature", cJSON_CreateString(tempValue));
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+                              "\"humidity\":\"%d.%1d\",", msg.humidity.val1, msg.humidity.val2);
 
-	sprintf(tempValue, "%d.%1d", press.val1, press.val2);
-	cJSON_AddItemToObject(value, "pressure", cJSON_CreateString(tempValue));
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+                              "\"ambient_temperature\":\"%d.%1d\",", msg.temp.val1, msg.temp.val2);
 
-	sprintf(tempValue, "%d.%1d", voc.val1, voc.val2);
-	cJSON_AddItemToObject(value, "voc", cJSON_CreateString(tempValue));
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+                              "\"pressure\":\"%d.%1d\",", msg.press.val1, msg.press.val2);
 
-	sprintf(tempValue, "%d.%1d", co2.val1, co2.val2);
-	cJSON_AddItemToObject(value, "co2", cJSON_CreateString(tempValue));
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+                              "\"voc\":\"%d.%1d\",", msg.voc.val1, msg.voc.val2);
 
-	out = cJSON_PrintUnformatted(root);
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+                              "\"co2\":\"%d.%1d\"}", msg.co2.val1, msg.co2.val2);
 
-	//LOG_INF("size %d %s \n", strlen(out), out);
+        // Close JSON array and object
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex, "]}");
 
-	struct mqtt_publish_param param;
-	param.message.payload.data = (uint8_t*)out;
-	param.message.payload.len = strlen(out);
-	param.message.topic.qos = MQTT_QOS_1_AT_LEAST_ONCE;
-	param.message_id = k_uptime_get_32();
-	param.message.topic.topic.utf8 = (uint8_t *)MQTT_TOPIC;
-	param.message.topic.topic.size = strlen(MQTT_TOPIC);
-	param.dup_flag = 0;
-	param.retain_flag = 0;
-	
-	int err = 0;
-	err = mqtt_helper_publish(&param);
-	if (err) {
-	//	LOG_WRN("Failed to send payload, err: %d", err);
-		// return;
-	}
-	//turn_leds_off();
+        if (jsonIndex >= sizeof(jsonBuffer)) {
+            CLogger::getInstance()->log("JSON buffer overflow");
+            return -ENOMEM;
+        }
 
-	return err;
+        // Prepare MQTT parameters
+        struct mqtt_publish_param param;
+        param.message.payload.data = (uint8_t*)jsonBuffer;
+        param.message.payload.len = strlen(jsonBuffer);
+        param.message.topic.qos = MQTT_QOS_1_AT_LEAST_ONCE;
+        param.message_id = k_uptime_get_32();
+        param.message.topic.topic.utf8 = (uint8_t *)MQTT_TOPIC;
+        param.message.topic.topic.size = strlen(MQTT_TOPIC);
+        param.dup_flag = 0;
+        param.retain_flag = 0;
+
+        int err = mqtt_helper_publish(&param);
+        if (err) {
+            CLogger::getInstance()->log("Failed to send payload, err: %d", err);
+        }
+    }
+
+    return ret;
 }

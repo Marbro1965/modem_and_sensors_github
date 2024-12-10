@@ -4,11 +4,11 @@
 
 #define     MSG_SENSOR_MAX_MSGS 10
 
-#define MSGQ_MAX_MSGS 10
+#define     MSGQ_MAX_MSGS 10
 
-#define MSGQ_MAX_MSGS_LOGGER 10
+#define     MSGQ_MAX_MSGS_LOGGER 5
 
-#define MSGQ_ALIGN 4
+#define     MSGQ_ALIGN 4
 
 struct messageSensor{
 

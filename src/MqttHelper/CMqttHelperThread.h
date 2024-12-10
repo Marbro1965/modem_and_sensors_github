@@ -29,12 +29,11 @@ class CMqttHelperThread: public CBaseThread
 
     char *out;
 
-    struct sensor_value temp, press, humidity, iaq, co2, voc;
-
     double latitude = 45.52030739893742;  
     double altitude = 120;		      
     double longitude = 9.072246426109826; 
 
+    char jsonBuffer[1024]; // Adjust size as needed based on expected payload size
 
     void init_mqtt_helper(void);
 

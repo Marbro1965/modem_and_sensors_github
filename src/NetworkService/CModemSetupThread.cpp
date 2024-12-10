@@ -135,14 +135,14 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
             if (evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_HOME ||
                 evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_ROAMING) {
 
-                //k_event_post(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG);
+                k_event_post(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG);
 
                 CLogger::getInstance()->log("LTE connected");
                 msg.data = TURN_LED_BLUE;
 
             } else {
 
-                //k_event_post(&CBaseThread::lte_event_flags, LTE_DISCONNECTED_FLAG);
+                k_event_post(&CBaseThread::lte_event_flags, LTE_DISCONNECTED_FLAG);
 
                 CLogger::getInstance()->log("LTE not connected, status: %d", evt->nw_reg_status);
             }
@@ -182,6 +182,8 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
 	    default:
 		    break;
 	}
+
+    msg.data = TURN_LED_OFF;
 
     int ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
 
