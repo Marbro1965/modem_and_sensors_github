@@ -7,6 +7,10 @@
 
 #define DEFAULT_THREAD_STACK_SIZE 1024
 
+#define LTE_CONNECTED_FLAG      0x01        // Flag indicating LTE connection
+
+#define LTE_DISCONNECTED_FLAG   0x00        // Flag indicating LTE connection
+
 class CBaseThread
 {
 
@@ -27,7 +31,7 @@ public:
 
     static k_sem net_conn_sem;
 
-    
+    static k_event lte_event_flags;
 
     CBaseThread();
 

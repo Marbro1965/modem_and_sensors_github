@@ -24,12 +24,16 @@ FILE(GLOB_RECURSE app_sources src/*.c src/*.cpp src/*.h src/**/*.c src/**/*.cpp 
 
 #FILE(GLOB app_sources src/*.c)
 
+
+
 # NORDIC SDK APP START
 target_sources(app PRIVATE ${app_sources})
 
 target_include_directories(app PRIVATE
     src
 )
+
+
 
 zephyr_include_directories($ENV{ZEPHYR_BASE}/../nrf/include)
 

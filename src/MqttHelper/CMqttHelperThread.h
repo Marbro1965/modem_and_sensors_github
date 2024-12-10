@@ -36,6 +36,8 @@ class CMqttHelperThread: public CBaseThread
     double longitude = 9.072246426109826; 
 
 
+    void init_mqtt_helper(void);
+
     void connect_mqtt(void);
 
     int publish_message();

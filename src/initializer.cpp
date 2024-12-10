@@ -38,9 +38,11 @@ void initMessageQueue(void){
 
 }
 
+
 void initSemaphore(void){
 
-
+    k_event_init(&CBaseThread::lte_event_flags);
+    
 }
 
 K_THREAD_STACK_DEFINE(thread_logger_stack, DEFAULT_THREAD_STACK_SIZE);

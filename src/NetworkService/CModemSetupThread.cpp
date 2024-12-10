@@ -14,6 +14,8 @@ LOG_MODULE_REGISTER(modem_setup_thread, CONFIG_APP_LOG_LEVEL);
 
 CModemSetupThread *CModemSetupThread::instance = nullptr;
 
+//extern struct k_event my_event;
+
 CModemSetupThread::CModemSetupThread()
 {
 
@@ -47,9 +49,9 @@ void CModemSetupThread::configure_psm() {
     int ret = lte_lc_psm_param_set(tau, active_time);
 
     if (ret) {
-        printk("Failed to set PSM parameters, error: %d\n", ret);
+        CLogger::getInstance()->log("Failed to set PSM parameters, error: %d\n", ret);
     } else {
-        printk("PSM parameters set successfully: TAU=5s, Active Time=5s\n");
+        CLogger::getInstance()->log("PSM parameters set successfully: TAU=5s, Active Time=5s\n");
     }
 }
 void CModemSetupThread::initModem(void)
@@ -68,18 +70,18 @@ void CModemSetupThread::initModem(void)
     err = nrf_modem_lib_init();
 
     if (err) {
-         printk("Failed to initialize modem library: %d", err);   
+         CLogger::getInstance()->log("Failed to initialize modem library: %d", err);   
          return;
     }
 
     err = lte_lc_connect_async(&CModemSetupThread::lte_handler);
 
 	if (err) {
-	 	printk("Failed to connect to LTE network, error: %d\n", err);
+	 	CLogger::getInstance()->log("Failed to connect to LTE network, error: %d\n", err);
 	 	return ;
 	}
 
-    printk("Connecting async to LTE network\n");
+    CLogger::getInstance()->log("Connecting async to LTE network\n");
 
 }
 
@@ -132,9 +134,16 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
             //                             : "Connected - roaming");
             if (evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_HOME ||
                 evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_ROAMING) {
+
+                //k_event_post(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG);
+
                 CLogger::getInstance()->log("LTE connected");
                 msg.data = TURN_LED_BLUE;
+
             } else {
+
+                //k_event_post(&CBaseThread::lte_event_flags, LTE_DISCONNECTED_FLAG);
+
                 CLogger::getInstance()->log("LTE not connected, status: %d", evt->nw_reg_status);
             }
 
@@ -150,8 +159,19 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
     	case LTE_LC_EVT_RRC_UPDATE:
             CLogger::getInstance()->log("RRC mode: %s\n",
                  evt->rrc_mode == LTE_LC_RRC_MODE_CONNECTED ? "Connected" : "Idle\n");
-            msg.data = TURN_LED_BLUE;
-            
+
+            if (evt->rrc_mode == LTE_LC_RRC_MODE_CONNECTED)
+            {
+                //k_event_post(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG);
+
+                msg.data = TURN_LED_BLUE;
+
+            } else{
+
+                //k_event_post(&CBaseThread::lte_event_flags, LTE_DISCONNECTED_FLAG);
+
+                msg.data = TURN_LED_OFF;
+            }
             break;
     	case LTE_LC_EVT_CELL_UPDATE:
             CLogger::getInstance()->log("LTE cell changed: Cell ID: %d, Tracking area: %d\n", evt->cell.id,

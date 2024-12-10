@@ -14,6 +14,8 @@ k_msgq CBaseThread::firmwareUpdateQueueMessage{};
 
 k_msgq CBaseThread::configurationQueueMessage{};
 
+k_event CBaseThread::lte_event_flags{};
+
 
 k_sem CBaseThread::net_conn_sem{};          // Initialize the static member variable
 

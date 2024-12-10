@@ -10,6 +10,8 @@
 
 #include <zephyr/kernel.h>
 
+#include "LoggerThread/CLoggerThread.h"
+
 #define MQTT_BROKER_PORT     1883
 
 #define TIME_DIVISOR	   	1000
@@ -24,18 +26,18 @@ const char* CMqttHelperThread::MQTT_TOPIC  = "bsec/test";
 CMqttHelperThread::CMqttHelperThread(){
 
     instance = this;
-    
-	out = &out_vec[0];
+	
 }
 
 CMqttHelperThread::~CMqttHelperThread(){
 
 }
 
-void CMqttHelperThread::connect_mqtt(void)
-{
 
+void CMqttHelperThread::init_mqtt_helper(void)
+{
 	int err = 0;
+
 	struct mqtt_helper_cfg cfg = {
 		.cb =
 			{
@@ -52,11 +54,19 @@ void CMqttHelperThread::connect_mqtt(void)
 	if (err)
 	{
 
-		printk("Errore nell'inizializzazione del client MQTT: %d\n", err);
+		CLogger::getInstance()->log("Errore nell'inizializzazione del client MQTT: %d\n", err);
 		return;
 	}
-	
-	printk("Client MQTT inizializzato correttamente!\n");
+
+	CLogger::getInstance()->log("Client MQTT inizializzato correttamente!\n");
+
+
+}
+
+void CMqttHelperThread::connect_mqtt(void)
+{
+
+	int err = 0;
 
 	struct mqtt_utf8 password = {.utf8 = (const uint8_t *)"", .size = 0};
 
@@ -77,31 +87,33 @@ void CMqttHelperThread::connect_mqtt(void)
 	err = mqtt_helper_connect(&conn_params);
 	if (err)
 	{
-		printk("Failed connecting to MQTT, error code: %d", err);
+		CLogger::getInstance()->log("Failed connecting to MQTT, error code: %d", err);
 	}
 	
-	printk("Connessione al broker MQTT riuscita!\n");
+	CLogger::getInstance()->log("Connessione al broker MQTT riuscita!\n");
 }
 
 void CMqttHelperThread::runHandler(void){
     
-	struct k_mutex sendData;
+	CLogger::getInstance()->log("MQTT Helper Thread started\n");
 
-	k_mutex_init(&sendData);
-
-    connect_mqtt();
+    init_mqtt_helper();
 
     while(true)
     {
-        /* Puoi aggiungere altri controlli o logica qui */
-		if (sending && status == STATE_CONNECTED) {
-			k_mutex_lock(&sendData, K_FOREVER);
-			//publish_message();
-			sending = false;
-			k_mutex_unlock(&sendData);
-		}
+        uint32_t events = k_event_wait(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG, false, K_FOREVER);
 
-        k_sleep(K_SECONDS(1));
+        if (events & LTE_CONNECTED_FLAG) {
+            // Handle the event
+            CLogger::getInstance()->log("LTE connected event received\n");
+			if (STATE_CONNECTED == status) {
+				//publish_message();
+			} else {
+				
+			}
+
+		}
+        k_sleep(K_SECONDS(10));
     }
 }
 
@@ -110,22 +122,14 @@ void CMqttHelperThread::runHandler(void){
 
 void CMqttHelperThread::on_mqtt_connack(enum mqtt_conn_return_code return_code, bool session_present)
 {
-	// ARG_UNUSED(return_code);
-
-	// LOG_INF("MQTT CONENSSO");
-	// turn_leds_off();
 	instance->status = STATE_CONNECTED;
-
-	// smf_set_state(SMF_CTX(&s_obj), &state[MQTT_CONNECTED]);
 }
 
 void CMqttHelperThread::on_mqtt_disconnect(int result)
 {
-//	ARG_UNUSED(result);
 	instance->status = STATE_DISCONNECTED;
-//	LOG_INF("MQTT DISCONENSSO");
 	instance->connect_mqtt();
-	// smf_set_state(SMF_CTX(&s_obj), &state[MQTT_DISCONNECTED]);
+	
 }
 
 void CMqttHelperThread::on_mqtt_publish(struct mqtt_helper_buf topic, struct mqtt_helper_buf payload)
