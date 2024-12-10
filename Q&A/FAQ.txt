@@ -1,0 +1,611 @@
+1. E' necessario creare una boards?
+
+2. Puo' essere un copia incolla della boards?
+
+3. Quale overlay utilizzare per il build della scheda?
+
+4. Prevedere un thread di acquisizione file di configurazione. La configurazione avviene dopo notifica da MQTT Server. E' necessario "subscriber" ad un topic che chiameremo
+configurationXXXX dove XXXX e' un numero seriale.
+
+5. Prevedere un topic di acquisizione nuovo subscriber. L'aggiornamento avviene dopo notifica da MQTTServer. E' necessario "subscriber" ad un topic che chiameremo updateXXXX dove
+XXX e' un numero seriale.
+
+6. Il numero seriale del prodotto viene "moldato" nel dispositivo. dove? in fase di collaudo finale?
+
+7. Prevediamo l'aggiornamento remoto. Di seguito quanto "suggerito" da chatGPT.
+	Questa e' la domanda sottoposta a ChatGPT:
+	I am in the application and I receive a notification by mqtt which I am subscribed.
+	This notification tells me there is a new firmware on my server and I connect to server and download the new firmware and save in flash.
+	Flash has two partition so i must choose in which partition save the new software.
+	Then I reset by watchdog and the boot must change the image...
+	Is this scenario possible?
+
+	E questa e' la risposta fornita, piuttosto articolata
+	
+	Yes, your scenario is possible and a common use case for Firmware Over-The-Air (FOTA) updates.
+	Here's a beginner-friendly explanation of the process tailored to your scenario:
+
+	Overview
+	Current Setup:
+	You receive an MQTT notification about a new firmware.
+	Your application downloads the firmware and stores it in flash memory.
+	Your flash has two partitions: one for the current firmware (slot0) and one for the new firmware (slot1).
+	After saving the firmware, the device resets, and the bootloader switches to the new firmware.
+	
+	What You Need:
+
+	A bootloader (like MCUboot) to handle swapping firmware images between slot0 and slot1.
+	Application logic to download and save the firmware.
+	Proper flash partitioning for storing and swapping images.
+	
+	
+	Step-by-Step Explanation
+	
+	1. Flash Partition Setup
+	Your flash memory needs to be divided into partitions:
+	slot0: Holds the currently running firmware.
+	slot1: Used to store the new firmware during the update.
+	Scratch Partition (optional): Used for swapping if partitions are not aligned.
+	Here's how the partition table might look (pm_static.yml):
+
+	yaml
+
+	flash_primary:
+	  address: 0x00000000
+	  size: 0x100000  # Total size: 1MB
+
+	slot0_partition:
+	  address: 0x00000000
+	  size: 0x40000    # 256KB
+
+	slot1_partition:
+	  address: 0x00040000
+	  size: 0x40000    # 256KB
+
+	scratch_partition:
+	  address: 0x00080000
+	  size: 0x20000    # 128KB
+	  
+	  
+	2. Application Workflow
+	Your application needs to:
+
+	Subscribe to an MQTT topic for update notifications.
+	Download the new firmware using HTTP or another protocol.
+	Save the firmware to the slot1 partition.
+	Trigger a device reset to let the bootloader handle the update.
+	
+	
+	Example Code Outline
+
+	#include <zephyr.h>
+	#include <net/mqtt.h>
+	#include <net/http_client.h>
+	#include <dfu/mcuboot.h>
+	#include <flash.h>
+
+	// Download and save firmware to `slot1`
+	void download_firmware(const char *url) {
+		// Initialize HTTP client
+		// Connect to the server and fetch the firmware
+		// Write firmware to `slot1` using Zephyr's Flash API
+	}
+
+	// Handle MQTT notification
+	void on_mqtt_message(const char *topic, const char *message) {
+		if (strcmp(topic, "firmware/update") == 0) {
+			const char *url = message;  // Assume the message contains the firmware URL
+			printk("Firmware update available: %s\n", url);
+			load_firmware(url);
+
+			// Confirm that the bootloader should try the new image
+			boot_request_upgrade(false);
+			// Reset device
+			sys_reboot(SYS_REBOOT_WARM);
+		}
+	}
+	
+	3. Bootloader Workflow
+	The bootloader ensures that:
+
+	On reset, it checks if a new firmware is present in slot1.
+	If valid, it swaps slot1 and slot0 so the new firmware runs.
+	If the new firmware fails, it can revert to the old firmware.
+	Configurations for MCUboot
+	Add the following to your application’s prj.conf:
+
+	CONFIG_BOOTLOADER_MCUBOOT=y
+	CONFIG_FLASH=y
+	CONFIG_FLASH_MAP=y
+	CONFIG_IMG_MANAGER=y
+	CONFIG_BOOT_SWAP_USING_SCRATCH=y
+	CONFIG_IMG_ERASE_PROGRESSIVELY=y
+	
+	4. Firmware Signing and Validation
+	MCUboot requires signed images for security:
+
+	Use imgtool to sign the firmware image:
+	imgtool sign --key path/to/private_key.pem --align 4 --version 1.0.0 \
+		--slot-size 0x40000 path/to/firmware.bin signed_firmware.bin
+	Ensure the bootloader validates the signature during a swap.
+	
+	5. Testing the Workflow
+	Flash the bootloader and initial application firmware to slot0.
+	Use your MQTT client to send a notification with the firmware URL.
+	Verify that:
+	The firmware is downloaded and saved to slot1.
+	The device resets and boots into the new firmware.
+	Revert functionality works if the new firmware is invalid.
+	What Happens During FOTA
+	Before Reset:
+
+	Running firmware in slot0.
+	New firmware downloaded to slot1.
+	Bootloader prepares to swap during the next boot.
+	After Reset:
+
+	Bootloader swaps slot0 with slot1.
+	Validates the new firmware.
+	If valid, confirms and boots into slot1.
+	If invalid, reverts to slot0.
+	This scenario ensures a safe and reliable firmware update process. Let me know if you'd like detailed code or help with any specific part!
+	
+	My next question to ChatGPT was:
+	Ok, so now it starts from slot 1 and if I need a new update it will write on slot0 and I have a nother swap?
+	
+	And that's the reply
+	
+	Yes, that's correct! After the device is running the firmware in slot1, if you need another update,
+	the process would involve writing the new firmware to slot0. When the device resets, the bootloader will swap
+	the images again to make the new firmware in slot0 the active one.
+
+	How It Works:
+	Initial State:
+
+	slot0: Active (running) firmware.
+	slot1: New firmware downloaded for update.
+	Bootloader swaps slot0 and slot1 on reset.
+	After First Update:
+
+	slot1: Active firmware (newly installed).
+	slot0: Previous firmware (can be erased or kept as a backup).
+	New Update Process:
+
+	Your application downloads the next firmware into slot0.
+	On reset, the bootloader swaps slot1 and slot0 again, making the new firmware active.
+	Key Details for Success:
+	Image Validation: The bootloader checks if the new firmware is valid before swapping. 
+	If the firmware in slot0 is invalid, the device will continue running the firmware in slot1 (or revert to a backup if configured).
+	Flash Management: Make sure to erase the partition where the new firmware will be written (slot0 or slot1) before saving the new image to avoid conflicts.
+	Versioning: Use version numbers in your firmware so the bootloader and application can track which image is newer and ensure proper update behavior.
+	
+	Code Example (Downloading and Writing to Slot 0)
+	#include <zephyr.h>
+	#include <dfu/mcuboot.h>
+	#include <flash.h>
+	#include <fs/fs.h>
+	#include <net/http_client.h>
+
+	#define SLOT0_PARTITION_ADDRESS 0x00000000 // Replace with actual address of slot0
+
+	void download_and_save_firmware(const char *url) {
+		// Simulated HTTP download logic
+		uint8_t firmware_data[1024]; // Buffer for downloaded chunks
+		size_t firmware_size = 0; // Total size of firmware
+		struct flash_area *fa;
+
+		// Open the flash area for slot0
+		if (flash_area_open(FLASH_AREA_ID(slot0_partition), &fa) != 0) {
+			printk("Error: Unable to open slot0 partition.\n");
+			return;
+		}
+
+		// Erase the flash area before writing
+		if (flash_area_erase(fa, 0, fa->fa_size) != 0) {
+			printk("Error: Unable to erase slot0 partition.\n");
+			flash_area_close(fa);
+			return;
+		}
+
+		// Simulate firmware download and write to flash
+		while (/* downloading chunks */) {
+			// Write the downloaded chunk to flash
+			if (flash_area_write(fa, firmware_size, firmware_data, sizeof(firmware_data)) != 0) {
+				printk("Error: Unable to write firmware to flash.\n");
+				flash_area_close(fa);
+				return;
+			}
+			firmware_size += sizeof(firmware_data);
+		}
+
+		flash_area_close(fa);
+
+		// Signal the bootloader to perform a swap
+		boot_request_upgrade(false);
+
+		// Reset the device to trigger the update
+		sys_reboot(SYS_REBOOT_WARM);
+	}
+	
+	This setup ensures a continuous update process, alternating between slot0 and slot1 for storing and running firmware.
+	
+	My last question was:
+	There is one left doubt about this process. Suppose that the firmware I update is all certificated but unfortunately does not work,
+	get in stuck. What are your suggestion to revert to the previous working slot?
+	
+	And this is the ChatGPT reply
+	Great question! Ensuring your device can revert to the previous firmware if the newly updated one gets stuck is an essential part of a robust FOTA system.
+	Here's how you can implement a fail-safe mechanism for firmware updates:
+
+	MCUboot Built-in Revert Mechanism
+	MCUboot already provides a feature called "test mode" for new firmware.
+	This ensures that the device will only permanently switch to the new firmware after confirming that it works correctly.
+	If the new firmware does not confirm its success (e.g., it crashes or gets stuck), the bootloader will automatically revert to the previous firmware.
+
+	How It Works:
+	New Firmware Loaded in slot1:
+
+	When the bootloader swaps the new firmware to slot0, it marks it as "test mode".
+	The new firmware must explicitly confirm that it is working correctly by calling boot_write_img_confirmed().
+	Confirmation Required:
+
+	If the new firmware does not call boot_write_img_confirmed() (e.g., it crashes, gets stuck, or resets without confirming), the bootloader will revert to the previous firmware on the next boot.
+	Reverting:
+
+	The bootloader swaps back the previous firmware (originally in slot0) to become active again.
+	Configuration for Revert in MCUboot
+	To enable this mechanism in your project, add the following configuration in prj.conf:
+
+	# Enable image manager for swapping and confirmation
+	CONFIG_IMG_MANAGER=y
+	CONFIG_MCUBOOT_IMG_MANAGER=y
+
+	# Enable bootloader support for reverting if confirmation fails
+	CONFIG_BOOT_SWAP_USING_SCRATCH=y
+	CONFIG_MCUBOOT_SWAP_MOVE=y
+	Confirming the New Firmware
+	Your application must confirm that the new firmware is working correctly by calling the boot_write_img_confirmed() function. If this step is missed, the bootloader will revert the firmware on the next reboot.
+
+	Add the confirmation logic in your application:
+
+	#include <dfu/mcuboot.h>
+
+	void check_and_confirm_firmware() {
+		if (boot_is_img_confirmed() == 0) {
+			printk("Firmware already confirmed.\n");
+		} else {
+			printk("Confirming new firmware.\n");
+			if (boot_write_img_confirmed() != 0) {
+				printk("Error: Failed to confirm firmware.\n");
+			}
+		}
+	}
+	Call this function after your application successfully initializes (e.g., in main()):
+
+	void main(void) {
+		printk("Booting new firmware.\n");
+
+		// Check and confirm the firmware
+		check_and_confirm_firmware();
+
+		// Your application logic here...
+	}
+	What Happens if the New Firmware Fails?
+	Failure Scenarios:
+
+	The new firmware crashes or gets stuck.
+	The device resets before calling boot_write_img_confirmed().
+	Bootloader Behavior:
+
+	On the next reboot, the bootloader notices that the new firmware is still in "test mode."
+	It automatically reverts to the previous firmware.
+	Result:
+
+	The device boots the previous (working) firmware, ensuring minimal downtime.
+	Additional Safeguards
+	To further enhance reliability, consider the following:
+
+	Watchdog Timer:
+
+	Implement a hardware watchdog timer to detect when the new firmware gets stuck (e.g., infinite loop or no activity).
+	If the watchdog triggers a reset, the bootloader can revert to the previous firmware.
+	Rollback Counter:
+
+	Maintain a counter in non-volatile storage (e.g., flash or NVS) to track the number of reboots without confirmation.
+	If the counter exceeds a threshold (e.g., 3 reboots), assume the new firmware is faulty and revert.
+	Example:
+
+	int rollback_counter = get_rollback_counter();
+
+	if (rollback_counter >= MAX_RETRIES) {
+		printk("Reverting to previous firmware.\n");
+		// Bootloader will handle the revert automatically
+	} else {
+		increment_rollback_counter();
+	}
+	Diagnostic Information:
+
+	Log diagnostic data (e.g., crash reports, reset reasons) to help debug why the firmware failed.
+	Use Zephyr's logging framework or a persistent storage solution.
+	Testing the Revert Process
+	Flash the bootloader and an initial firmware in slot0.
+	Download a new firmware to slot1.
+	Simulate a failure in the new firmware:
+	Crash the application deliberately.
+	Skip the call to boot_write_img_confirmed().
+	Reset the device and verify that the bootloader reverts to the previous firmware.
+	Summary
+	MCUboot's test mode ensures a fail-safe update process by requiring explicit confirmation of new firmware.
+	If the new firmware fails, the bootloader automatically reverts to the previous working version.
+	Use additional mechanisms like watchdog timers and rollback counters for extra reliability.
+	Let me know if you need further clarification or help implementing any of these steps!
+
+	This is the last question. do I have to make a partition in flash or should I use a SD flash card to store the new image to swap?
+	
+	And this is the reply of chatGPT
+	
+	Great question! Whether to use the internal flash or an external SD card (or other storage mediums) depends on the constraints
+	and requirements of your specific device and application. Let’s break it down to help you decide.
+
+	Option 1: Internal Flash
+	Storing the firmware images in partitions within the internal flash is the most common approach for embedded systems using MCUboot or similar bootloaders.
+
+	Advantages of Using Internal Flash:
+	Faster Access:
+	Reading and writing from internal flash is typically faster than accessing an SD card.
+	Simplicity:
+	MCUboot and Zephyr’s flash management libraries (e.g., Flash Area) are designed to work seamlessly with internal flash, requiring fewer customizations.
+	Lower Power Consumption:
+	Internal flash operations generally consume less power compared to external peripherals like SD cards.
+	Robustness:
+	Fewer hardware components mean less risk of failure or disconnection.
+	Challenges of Internal Flash:
+	Limited Space:
+	If your firmware image is large, internal flash might not have enough capacity for two images (slot0 and slot1) plus a scratch partition.
+	Flash Wear:
+	Repeated writes and erases during updates can wear out the internal flash over time.
+	When to Choose Internal Flash:
+	Your device has enough internal flash for the dual-slot setup.
+	Power efficiency and simplicity are critical.
+	Your application doesn’t need large firmware images.
+	
+	Option 2: External SD Card
+	Using an SD card to store the new firmware image is a viable option, especially for devices with limited internal flash.
+
+	Advantages of Using an SD Card:
+	Larger Storage Capacity:
+	SD cards provide significantly more space, making them suitable for large firmware images or multiple images.
+	Preserves Internal Flash:
+	Using an SD card reduces wear on internal flash and keeps it dedicated for other purposes.
+	Flexible Updates:
+	Firmware can be delivered and stored easily via removable SD cards, simplifying logistics in some scenarios.
+	Challenges of Using an SD Card:
+	Complexity:
+	You need additional drivers and logic to read the image from the SD card and copy it to internal flash before swapping.
+	Speed:
+	SD cards may be slower than internal flash, especially for large writes.
+	Hardware Dependency:
+	SD card readers introduce additional points of failure, such as card corruption or physical disconnection.
+	Power Usage:
+	SD cards often require more power during read/write operations compared to internal flash.
+	When to Choose an SD Card:
+	Your device has limited internal flash that cannot accommodate two firmware slots.
+	You want the ability to store multiple images or logs beyond just the firmware.
+	Your application can tolerate slightly higher power consumption and complexity.
+	How the Two Approaches Work with MCUboot
+	1. Internal Flash Workflow:
+	The bootloader directly reads from the slot1 partition during the swap process.
+	The update process involves writing the new firmware to slot1 and resetting the device for the swap.
+	2. SD Card Workflow:
+	The new firmware is downloaded or delivered to the SD card.
+	The application copies the firmware from the SD card into the internal flash slot1 using the flash API.
+	After the firmware is stored in slot1, the update process proceeds as usual (reset, swap, confirm).
+	Example Code for Copying from SD to Flash:
+	
+	#include <zephyr.h>
+	#include <fs/fs.h>
+	#include <dfu/mcuboot.h>
+	#include <flash.h>
+
+	void copy_firmware_from_sd_to_flash(const char *sd_path) {
+		struct flash_area *fa;
+		uint8_t buffer[1024];
+		ssize_t read_size;
+
+		// Open SD card file
+		struct fs_file_t file;
+		fs_file_t_init(&file);
+		if (fs_open(&file, sd_path, FS_O_READ) != 0) {
+			printk("Error: Unable to open firmware file on SD card.\n");
+			return;
+		}
+
+    // Open slot1 flash partition
+    if (flash_area_open(FLASH_AREA_ID(slot1_partition), &fa) != 0) {
+        printk("Error: Unable to open slot1 partition.\n");
+        fs_close(&file);
+        return;
+    }
+
+    // Erase slot1 partition before writing
+    if (flash_area_erase(fa, 0, fa->fa_size) != 0) {
+        printk("Error: Unable to erase slot1 partition.\n");
+        flash_area_close(fa);
+        fs_close(&file);
+        return;
+    }
+
+    // Read firmware from SD and write to flash
+    size_t offset = 0;
+    while ((read_size = fs_read(&file, buffer, sizeof(buffer))) > 0) {
+        if (flash_area_write(fa, offset, buffer, read_size) != 0) {
+            printk("Error: Unable to write firmware to flash.\n");
+            break;
+        }
+        offset += read_size;
+    }
+
+    fs_close(&file);
+    flash_area_close(fa);
+    printk("Firmware copied to slot1.\n");
+
+    // Request firmware upgrade
+    boot_request_upgrade(false);
+}
+	Recommendation
+	Use Internal Flash if:
+
+	Your firmware fits comfortably within the available internal flash space.
+	You want a simpler and more reliable setup.
+	Power consumption and performance are critical.
+	Use SD Card if:
+
+	Your firmware is too large for dual slots in internal flash.
+	You need extra storage capacity for logs, files, or multiple firmware versions.
+	Your application can handle the added complexity and power usage.
+	Let me know if you need further clarification or help setting up either approach!
+
+	Ovviamente ChatGPT NON ha interpretato correttamente la mia richeista e ho dovuto 
+	promptarla diversamente!
+	
+	You wrote  SD Card Workflow:
+	The new firmware is downloaded or delivered to the SD card.
+	The application copies the firmware from the SD card into the internal flash slot1 using the flash API.
+	After the firmware is stored in slot1, the update process proceeds as usual (reset, swap, confirm).
+	It is obviously wrong. I use SD card because I do not want to have slot0 and slot1, they are too small.
+	The firmware is just some greater than slot 1 so i must save in sd and then at boot move this code over slot0.
+	
+	Dopo questa precisazione ecco la risposta di ChatGPT
+	
+	Thank you for clarifying your use case! You're correct that if you're using an SD card to bypass the size limitations of slot0 and slot1,
+	the workflow would indeed be different. Let me revise the explanation to align with your scenario where the SD card is used as an intermediate storage medium for firmware updates.
+
+	Revised SD Card Workflow
+	In this scenario, the SD card is used to store the new firmware due to the size constraints of the internal flash.
+	The bootloader will read the firmware directly from the SD card at boot time and write it to slot0 (or its equivalent).
+	Here's how the process works:
+
+	1. Application-Level Update Process
+	Download Firmware to SD Card:
+	The application downloads the new firmware (e.g., via MQTT, HTTP, or other protocols) and stores it as a file on the SD card.
+	Prepare for Bootloader Update:
+	The application writes metadata to a designated location (e.g., a specific sector in internal flash or a file on the SD card) to indicate that a new firmware update is ready.
+	This metadata includes:
+	The path to the firmware on the SD card.
+	A flag indicating that the bootloader should perform the update.
+	2. Bootloader Workflow
+	When the device resets, the bootloader handles the update process:
+	Check for Update Flag:
+	bootloader checks if an update flag is set in the metadata.
+	If no update flag is set, it boots the existing firmware in slot0 as usual.
+	Read Firmware from SD Card:
+
+	If an update flag is set, the bootloader:
+	Locates the firmware file on the SD card (using the metadata).
+	Reads the firmware in chunks from the SD card.
+	Write Firmware to slot0:
+
+	The bootloader erases the slot0 partition and writes the new firmware from the SD card into slot0.
+	Boot the New Firmware:
+
+	After successfully writing the firmware to slot0, the bootloader validates it.
+	If valid, the bootloader boots the new firmware from slot0.
+	Revert Handling (Optional):
+
+	If the new firmware needs to be tested before being confirmed, the bootloader can still mark it as a "test image" and rely on a confirmation process (e.g., boot_write_img_confirmed()).
+	Advantages of This Workflow
+	No need for a dual-slot configuration in internal flash, as the SD card acts as the temporary storage for the new firmware.
+	Enables updates even for large firmware images that exceed the size of a single slot.
+	Bootloader Implementation
+	You would need to modify the bootloader to support reading from the SD card and writing to slot0. Here's an outline of what needs to be implemented:
+
+	1. SD Card Support in Bootloader
+	Ensure the bootloader includes drivers and file system support for the SD card. For example:
+
+	Use Zephyr's fs subsystem to handle FAT file systems on the SD card.
+	Include the necessary SPI or SDIO drivers for interfacing with the SD card.
+	2. Firmware Update Logic
+	Implement logic in the bootloader to:
+
+	Read metadata to check if an update is pending.
+	Open and read the firmware file from the SD card.
+	Erase and write the firmware to the slot0 partition.
+	3. Update Validation
+	After writing the firmware to slot0, validate the image to ensure it is complete and uncorrupted before booting.
+
+	Code Example for Bootloader Reading from SD Card
+	Here’s a simplified example of how the bootloader could copy firmware from the SD card to slot0:
+
+	#include <zephyr.h>
+	#include <fs/fs.h>
+	#include <flash.h>
+	#include <dfu/mcuboot.h>
+
+	#define SLOT0_PARTITION_ADDRESS 0x00000000 // Replace with actual slot0 address
+	#define UPDATE_METADATA_ADDRESS 0x10000   // Replace with metadata address
+
+	void bootloader_update_from_sd() {
+		struct fs_file_t firmware_file;
+		struct flash_area *fa;
+		uint8_t buffer[1024];
+		ssize_t read_size;
+
+		// Check if an update flag is set in the metadata
+		if (!update_flag_is_set(UPDATE_METADATA_ADDRESS)) {
+			printk("No update pending. Booting existing firmware.\n");
+			return;
+		}
+
+		// Open the firmware file on the SD card
+		fs_file_t_init(&firmware_file);
+		if (fs_open(&firmware_file, "/sdcard/firmware.bin", FS_O_READ) != 0) {
+			printk("Error: Unable to open firmware file on SD card.\n");
+			return;
+		}
+
+		// Open the slot0 partition
+		if (flash_area_open(FLASH_AREA_ID(slot0_partition), &fa) != 0) {
+			printk("Error: Unable to open slot0 partition.\n");
+			fs_close(&firmware_file);
+			return;
+		}
+
+		// Erase the slot0 partition before writing
+		if (flash_area_erase(fa, 0, fa->fa_size) != 0) {
+			printk("Error: Unable to erase slot0 partition.\n");
+			flash_area_close(fa);
+			fs_close(&firmware_file);
+			return;
+		}
+
+		// Read the firmware file and write it to slot0
+		size_t offset = 0;
+		while ((read_size = fs_read(&firmware_file, buffer, sizeof(buffer))) > 0) {
+			if (flash_area_write(fa, offset, buffer, read_size) != 0) {
+				printk("Error: Unable to write firmware to slot0.\n");
+				break;
+			}
+			offset += read_size;
+		}
+
+		fs_close(&firmware_file);
+		flash_area_close(fa);
+
+		printk("Firmware update completed. Booting new firmware.\n");
+	}
+	Summary
+	The SD card is used as temporary storage for the firmware, bypassing the need for dual slots in internal flash.
+	At boot time, the bootloader moves the firmware from the SD card to slot0 before booting.
+	This approach is suitable for devices with limited internal flash and large firmware images.
+	Let me know if you’d like help refining the implementation or additional details about configuring the bootloader!
+	
+	
+
+
+
+
+
+
+
+
+
