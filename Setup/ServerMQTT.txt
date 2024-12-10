@@ -1,0 +1,31 @@
+1. Download da https://mosquitto.org/download/ Mosquitto 64bit e installazione
+2. Download https://mqtt-explorer.com/ MQTTExplorer e installazione
+3. Impostazione rete (privata)
+4. Accesso da altre macchine della rete (aggiungere Mosquitto alle app non bloccate dal firewall)
+5. Modifica di Mosquitto.conf listener 1883 0.0.0.0 specificare l'IP 0.0.0.0. se voglio accedere da altri PC della rete
+6. Consentire accesso utenti anonimi allow_anonymous true
+7. Per accedere dalla rete esterna devo andare nelle impostazioni del router e aprire la porta per l'IP del computer
+su cui e' installato il server Mosquitto.
+8. Se uso il DHCP devo impostare sul router di associare alla macchina su cui e' installato mosquitto sempre lo
+stesso IP (quello di cui ho aperto la porta in entrata e uscita)
+9. Uso di TLS, installare OpenSSL per windows versione 64bit https://slproweb.com/products/Win32OpenSSL.html
+10. Aggiungere il path di openssl C:\Program Files\OpenSSL-Win64\bin
+11. Creare una sub directory in mosquitto e chiamarla certs
+
+	11.1 openssl genrsa -out ca.key 2048
+	11.2 Creare il self signed certificate openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 -out ca.crt  (ho messo dei valori e anche dei vuoti CN 127.0.0.1 o come sotto) 
+	11.3 openssl x509 -in ca.crt -text -noout visualizza il certificato
+	11.4 openssl genrsa -out server.key 2048 Crea la chiave privata per il broker MQTT per la comunicazione
+	11.5 openssl req -new -key server.key -out server.csr se uso solo localhost metto CN 127.0.0.1 se in rete locale l'IP fisso se esterno l'IP esterno
+	11.6 openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 365
+	11.7 openssl x509 -in server.crt -text -noout (verifica)
+	11.8 aggiornamento del file mosquitto.conf	
+12. Uso MQTTExplorer per verificare la connessione. User anonimo, uso dell'encription (tls) ma senza validazione del certificato
+	
+13. Voglio ora usare il client certificate, mutual TLS per l'autenticazione. Per questo devo
+	13.1 openssl genrsa -out client.key 2048 (creare la client key. Potrebbe risiedere nel firmware)
+	13.2 Creare il CSR openssl req -new -key client.key -out client.csr Il problema e' cosa mettere in CN deve essere unico!
+	13.2 Firmare il certificato openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 365
+
+
+
