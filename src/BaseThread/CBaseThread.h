@@ -15,9 +15,13 @@
 
 class CBaseThread
 {
+    
+
+protected:
+
     k_msgq disconnectedQueueMessage;
 
-    std::vector<k_msgq> registeredQueue;
+    static std::vector<k_msgq> registeredQueue;
 
 public:
 

@@ -96,6 +96,9 @@ void CMqttHelperThread::connect_mqtt(void)
 
 void CMqttHelperThread::runHandler(void){
     
+
+    my_msg msg;
+
 	CLogger::getInstance()->log("MQTT Helper Thread started\n");
 
     init_mqtt_helper();
@@ -107,8 +110,16 @@ void CMqttHelperThread::runHandler(void){
 	}
     while(true)
     {
+        int ret = ret = k_msgq_get(&disconnectedQueueMessage, &msg, K_NO_WAIT);
+
+        if (0==ret)
+        {
+            //disconnesso. prendi le misure adeguate        
+
+        }
+
 		
-		if (STATE_CONNECTED == status) {
+		if (MQTT_BROKER_STATE_CONNECTED == status) {
 			// Handle the event
 			CLogger::getInstance()->log("Publish a message\n");
 			//publish_message();
@@ -126,12 +137,12 @@ void CMqttHelperThread::runHandler(void){
 
 void CMqttHelperThread::on_mqtt_connack(enum mqtt_conn_return_code return_code, bool session_present)
 {
-	instance->status = STATE_CONNECTED;
+	instance->status = MQTT_BROKER_STATE_CONNECTED;
 }
 
 void CMqttHelperThread::on_mqtt_disconnect(int result)
 {
-	instance->status = STATE_DISCONNECTED;
+	instance->status = MQTT_BROKER_STATE_DISCONNECTED;
 	instance->connect_mqtt();
 	
 }
@@ -156,7 +167,7 @@ void CMqttHelperThread::on_mqtt_suback(uint16_t message_id, int result)
 void CMqttHelperThread::on_error(enum mqtt_helper_error error)
 {
 //	ARG_UNUSED(error);
-	instance->status = STATE_DISCONNECTED;
+	instance->status = MQTT_BROKER_STATE_DISCONNECTED;
 //	LOG_INF("MQTT ERROR");
 	instance->connect_mqtt();
 

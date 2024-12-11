@@ -11,15 +11,15 @@
 
 #include <stdint.h>
 
-#define STATE_CONNECTED	   1
+#define MQTT_BROKER_STATE_CONNECTED	   1
 
-#define STATE_DISCONNECTED 0
+#define MQTT_BROKER_STATE_DISCONNECTED 0
 
 
 class CMqttHelperThread: public CBaseThread
 {
 
-    uint8_t status = STATE_DISCONNECTED;
+    uint8_t status = MQTT_BROKER_STATE_DISCONNECTED;
 
     bool sending = true;
 

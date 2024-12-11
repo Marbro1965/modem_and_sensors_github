@@ -25,6 +25,8 @@ k_sem CBaseThread::net_conn_sem{};          // Initialize the static member vari
 
 uint32_t CBaseThread::utc_time{};
 
+std::vector<k_msgq> CBaseThread::registeredQueue{};
+
 CBaseThread::CBaseThread()
 {
 }
