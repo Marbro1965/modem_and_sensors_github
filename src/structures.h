@@ -58,4 +58,3 @@ extern char __aligned(4) my_msgq_logger[MSGQ_MAX_MSGS_LOGGER * sizeof(struct log
 
 extern char __aligned(4) my_msgq_leds[10 * sizeof(struct my_msg)];
 
-extern char __aligned(4) my_msgq_registered_thread[10 * sizeof(struct my_msg)];

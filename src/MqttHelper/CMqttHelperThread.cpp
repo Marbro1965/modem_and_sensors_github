@@ -96,8 +96,11 @@ void CMqttHelperThread::connect_mqtt(void)
 
 void CMqttHelperThread::runHandler(void){
     
-
     my_msg msg;
+
+    CBaseThread::registerThread();
+
+    
 
 	CLogger::getInstance()->log("MQTT Helper Thread started\n");
 
@@ -110,25 +113,25 @@ void CMqttHelperThread::runHandler(void){
 	}
     while(true)
     {
-        int ret = ret = k_msgq_get(&disconnectedQueueMessage, &msg, K_NO_WAIT);
+        //int ret = k_msgq_get(&disconnectedQueueMessage, &msg, K_NO_WAIT);
 
-        if (0==ret)
-        {
-            //disconnesso. prendi le misure adeguate        
-
-        }
+        //if (0==ret)
+        //{
+        //    //disconnesso. prendi le misure adeguate        
+        //
+        //}
 
 		
 		if (MQTT_BROKER_STATE_CONNECTED == status) {
 			// Handle the event
 			CLogger::getInstance()->log("Publish a message\n");
-			//publish_message();
+			publish_message();
 		} else {
 			
 		}
 
 
-        k_sleep(K_SECONDS(10));
+        k_sleep(K_SECONDS(1));
     }
 }
 

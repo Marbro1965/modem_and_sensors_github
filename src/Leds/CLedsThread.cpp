@@ -152,6 +152,7 @@ void CLedsThread::runHandler(void)
 			
 			if (msg.data == TURN_LED_OFF){
 				turn_leds_off();
+				k_timer_stop(&my_timer);
 			}
 		}	
 

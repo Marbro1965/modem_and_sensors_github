@@ -7,6 +7,8 @@
 
 #include "Logger/CLogger.h"
 
+#include "structures.h"
+
 #define DEFAULT_THREAD_STACK_SIZE 1024
 
 #define LTE_CONNECTED_FLAG      0x01        // Flag indicating LTE connection
@@ -22,6 +24,8 @@ protected:
     k_msgq disconnectedQueueMessage;
 
     static std::vector<k_msgq> registeredQueue;
+
+    char __aligned(4) my_msgq_registered_thread[2 * sizeof(struct my_msg)];
 
 public:
 

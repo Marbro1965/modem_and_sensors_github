@@ -22,7 +22,7 @@ char __aligned(4) my_msgq_sensor[MSG_SENSOR_MAX_MSGS * sizeof(struct messageSens
 char __aligned(4) my_msgq_buffer[MSGQ_MAX_MSGS * sizeof(struct my_msg)];
 char __aligned(4) my_msgq_logger[MSGQ_MAX_MSGS_LOGGER * sizeof(struct logger_msg)];
 char __aligned(4) my_msgq_leds[10 * sizeof(struct my_msg)];
-char __aligned(4) my_msgq_registered_thread[10 * sizeof(struct my_msg)];
+
 
 
 void initMessageQueue(void){
@@ -102,9 +102,9 @@ void initialize(void){
     k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 4096, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 1, 0, K_NO_WAIT);
 
 
- //   CMqttHelperThread *pMqttThread = new CMqttHelperThread();   
+   CMqttHelperThread *pMqttThread = new CMqttHelperThread();   
 
- //   k_tid_t id5 = k_thread_create(&thread_mqtt_data,thread_mqtt_stack, 4096, &CBaseThread::handlerRun, pMqttThread, NULL, NULL, 1, 0, K_NO_WAIT);
+   k_tid_t id5 = k_thread_create(&thread_mqtt_data,thread_mqtt_stack, 4096, &CBaseThread::handlerRun, pMqttThread, NULL, NULL, 1, 0, K_NO_WAIT);
 
 
  //   CUtcTimeThread *pUtcThread = new CUtcTimeThread();

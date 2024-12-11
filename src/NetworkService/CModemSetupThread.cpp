@@ -146,7 +146,7 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
 
                 k_event_clear(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG);
 
-                instance->disconnectFromWiFi();
+                //instance->disconnectFromWiFi();
 
                 CLogger::getInstance()->log("LTE not connected, status: %d", evt->nw_reg_status);
             }
