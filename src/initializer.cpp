@@ -8,6 +8,8 @@
 
 #include "MqttHelper/CMqttHelperThread.h"
 
+#include "UtcTime/CUtcTimeThread.h"
+
 #include "structures.h"
 
 #include <zephyr/kernel.h>
@@ -104,8 +106,8 @@ void initialize(void){
     k_tid_t id5 = k_thread_create(&thread_mqtt_data,thread_mqtt_stack, 4096, &CBaseThread::handlerRun, pMqttThread, NULL, NULL, 1, 0, K_NO_WAIT);
 
 
-    // CUtcReadThread *pUtcThread = new CUtcReadThread();
+    CUtcTimeThread *pUtcThread = new CUtcTimeThread();
 
-    // k_tid_t id6 = k_thread_create(&thread_utc_time_data,thread_utc_time, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pUtcThread, NULL, NULL, 1, 0, K_NO_WAIT);
+    k_tid_t id6 = k_thread_create(&thread_utc_time_data,thread_utc_time, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pUtcThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
 }

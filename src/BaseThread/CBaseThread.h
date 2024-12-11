@@ -33,6 +33,8 @@ public:
 
     static k_event lte_event_flags;
 
+    static uint32_t utc_time;
+
     CBaseThread();
 
     virtual ~CBaseThread();
@@ -40,6 +42,10 @@ public:
     static void handlerRun(void *args1, void *args2, void *args3);
 
     virtual void runHandler(void) = 0;
+
+    static void convertToReadableTime(uint32_t time);
+
+    static void convertToReadableTime(uint32_t time, char *buffer);
     
 };
 #endif // CBASETHREAD_H

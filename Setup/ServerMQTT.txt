@@ -14,12 +14,33 @@ stesso IP (quello di cui ho aperto la porta in entrata e uscita)
 
 	11.1 openssl genrsa -out ca.key 2048
 	11.2 Creare il self signed certificate openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 -out ca.crt  (ho messo dei valori e anche dei vuoti CN 127.0.0.1 o come sotto) 
+		xxd -i ca.crt > ca_certificate.h 
+		# Convert certificate to C header file
+		xxd -i ca.crt > ca.h
+		# Add header guards
+		sed -i '1s/^/#ifndef CA_H\n#define CA_H\n/' ca.h
+		echo "#endif /* CA_H */" >> ca.h
+		const uint8_t ca_certificate[] = {
+    			#include "ca_certificate.h"
+			};
 	11.3 openssl x509 -in ca.crt -text -noout visualizza il certificato
 	11.4 openssl genrsa -out server.key 2048 Crea la chiave privata per il broker MQTT per la comunicazione
 	11.5 openssl req -new -key server.key -out server.csr se uso solo localhost metto CN 127.0.0.1 se in rete locale l'IP fisso se esterno l'IP esterno
 	11.6 openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 365
 	11.7 openssl x509 -in server.crt -text -noout (verifica)
-	11.8 aggiornamento del file mosquitto.conf	
+	11.8 aggiornamento del file mosquitto.conf come sotto	
+	# Listener for non-TLS connections
+	listener 1883 
+	allow_anonymous true
+	
+	# Listener for TLS connections
+	listener 8883
+	allow_anonymous true
+	cafile C:\Program Files\Mosquitto\certs\ca.crt
+	certfile C:\Program Files\Mosquitto\certs\server.crt
+	keyfile C:\Program Files\Mosquitto\certs\server.key
+
+
 12. Uso MQTTExplorer per verificare la connessione. User anonimo, uso dell'encription (tls) ma senza validazione del certificato
 	
 13. Voglio ora usare il client certificate, mutual TLS per l'autenticazione. Per questo devo
@@ -28,4 +49,60 @@ stesso IP (quello di cui ho aperto la porta in entrata e uscita)
 	13.2 Firmare il certificato openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out client.crt -days 365
 
 
+#include "ca.h" // Ensure ca.h contains the CA certificate byte array
 
+
+Modified Code for One-Way TLS
+
+struct mqtt_client client;
+struct mqtt_sec_config tls_config;
+
+memset(&client, 0, sizeof(client));
+memset(&tls_config, 0, sizeof(tls_config));
+
+// Load the CA certificate
+tls_config.peer_verify = TLS_PEER_VERIFY_REQUIRED;    // Require server verification
+tls_config.cipher_list = NULL;                       // Use default cipher suites
+tls_config.cert_host = "mqtt.example.com";           // Expected hostname in server certificate
+tls_config.cert = (uint8_t *)ca_certificate;         // Pointer to CA certificate
+tls_config.cert_len = ca_certificate_len;            // Length of CA certificate
+tls_config.priv_key = NULL;                          // No client private key
+tls_config.priv_key_len = 0;                         // Length set to 0
+tls_config.sec_tag_list = sec_tag_list;              // Optional: Sec tag setup
+tls_config.sec_tag_count = ARRAY_SIZE(sec_tag_list); // Optional: Sec tag setup
+
+client.transport.type = MQTT_TRANSPORT_SECURE;       // Use secure MQTT transport
+client.transport.tls_config = &tls_config;          // Attach TLS configuration
+
+
+ChatGPT Reply
+
+Files You Created and Their Purpose
+ca.key (Certificate Authority Private Key):
+
+This is the private key for your Certificate Authority (CA).
+A private key is like a secret password used to sign certificates, ensuring that they can only be trusted if signed by your CA.
+This file should be kept private and secure, as it’s the foundation of trust for your setup.
+ca.crt (Certificate Authority Certificate):
+
+This is the certificate for your CA, created using the ca.key.
+It is self-signed, meaning it certifies itself as trusted because it is the root of your trust chain.
+The broker and clients will use this file to verify certificates signed by your CA.
+ca.srl (Serial Number File for the CA):
+
+This file is automatically created by OpenSSL when you use your CA to sign other certificates (like your server certificate).
+It keeps track of the serial numbers of certificates issued by the CA, ensuring each certificate has a unique identifier.
+server.key (Server Private Key):
+
+This is the private key for your MQTT broker (the Mosquitto server).
+Like the CA’s private key, it should be kept private and secure.
+This key is used to prove the server's identity during the TLS handshake.
+server.csr (Server Certificate Signing Request):
+
+This is a request for a certificate for the server.
+It contains information about the server (e.g., its hostname) and is signed with the server.key.
+This request is sent to the CA for approval (signing).
+server.crt (Server Certificate):
+
+This is the certificate for the server, signed by your CA using its ca.key.
+It confirms the server's identity and proves that the server is trusted because it was signed by a trusted CA (ca.crt).

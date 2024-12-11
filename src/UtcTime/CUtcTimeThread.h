@@ -4,6 +4,8 @@
 
 class CUtcTimeThread : public CBaseThread
 {
+
+    int getUtcTime(void);
 public:
     CUtcTimeThread();
     virtual ~CUtcTimeThread();
