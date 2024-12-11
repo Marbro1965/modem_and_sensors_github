@@ -1,13 +1,10 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
             "name": "Cortex Debug",
             "cwd": "${workspaceFolder}",
-            "executable": "./build/zephyr/zephyr.elf",
+            "executable": "${workspaceFolder}/build/zephyr/zephyr.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
@@ -24,14 +21,10 @@
             "runToEntryPoint": "main",
             "showDevDebugOutput": "none",
             "cwd": "${workspaceFolder}",
-            "armToolchainPath": "C:/ncs/toolchains/ce3b5ff664/opt/zephyr-sdk/arm-zephyr-eabi/bin",
-            "gdbPath": "C:/ncs/toolchains/ce3b5ff664/opt/zephyr-sdk/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
-            "serverpath": "C:/Program Files/SEGGER/JLink_V794i/JLinkGDBServerCL.exe",
-            "executable": "C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/zephyr.elf",
-            
-        },
-
-
-        
+            "armToolchainPath": "${nrf-connect.toolchain:2.7.0}/arm-zephyr-eabi/bin",
+            "gdbPath": "${nrf-connect.toolchain:2.7.0}/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
+            "serverpath": "${env:JLINK_PATH}/JLinkGDBServerCL.exe",
+            "executable": "${workspaceFolder}/build/modem_and_sensor/zephyr/zephyr.elf"
+        }
     ]
 }
