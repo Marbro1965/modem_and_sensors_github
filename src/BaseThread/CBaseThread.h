@@ -3,6 +3,8 @@
 
 #include <zephyr/kernel.h> // or the appropriate header file that defines k_msgq
 
+#include <vector>
+
 #include "Logger/CLogger.h"
 
 #define DEFAULT_THREAD_STACK_SIZE 1024
@@ -13,7 +15,9 @@
 
 class CBaseThread
 {
+    k_msgq disconnectedQueueMessage;
 
+    std::vector<k_msgq> registeredQueue;
 
 public:
 
@@ -42,6 +46,8 @@ public:
     static void handlerRun(void *args1, void *args2, void *args3);
 
     virtual void runHandler(void) = 0;
+
+    virtual void registerThread(void);
 
     static void convertToReadableTime(uint32_t time);
 

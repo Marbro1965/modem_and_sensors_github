@@ -1,5 +1,7 @@
 #include "CBaseThread.h"
 
+#include "structures.h"
+
 #include <time.h>
                        // Include the header file that defines k_mem_pool
 
@@ -29,7 +31,19 @@ CBaseThread::CBaseThread()
 
 CBaseThread::~CBaseThread()
 {
+
 }
+
+
+void CBaseThread::registerThread(void)
+{
+    
+    k_msgq_init(&disconnectedQueueMessage,&my_msgq_registered_thread[0], sizeof(struct my_msg), 10);   
+    
+    registeredQueue.push_back(disconnectedQueueMessage);
+    
+}
+
 
 void CBaseThread::handlerRun(void *args1, void *args2, void *args3)
 {

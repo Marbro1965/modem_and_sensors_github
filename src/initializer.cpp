@@ -22,6 +22,7 @@ char __aligned(4) my_msgq_sensor[MSG_SENSOR_MAX_MSGS * sizeof(struct messageSens
 char __aligned(4) my_msgq_buffer[MSGQ_MAX_MSGS * sizeof(struct my_msg)];
 char __aligned(4) my_msgq_logger[MSGQ_MAX_MSGS_LOGGER * sizeof(struct logger_msg)];
 char __aligned(4) my_msgq_leds[10 * sizeof(struct my_msg)];
+char __aligned(4) my_msgq_registered_thread[10 * sizeof(struct my_msg)];
 
 
 void initMessageQueue(void){
