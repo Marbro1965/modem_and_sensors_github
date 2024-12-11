@@ -33,15 +33,19 @@ class CMqttHelperThread: public CBaseThread
     double altitude = 120;		      
     double longitude = 9.072246426109826; 
 
+    static CMqttHelperThread *instance;
+
     char jsonBuffer[1024]; // Adjust size as needed based on expected payload size
 
-    void init_mqtt_helper(void);
+protected:    
 
-    void connect_mqtt(void);
+    virtual void init_mqtt_helper(void);
 
-    int publish_message();
+    virtual void connect_mqtt(void);
 
-    static CMqttHelperThread *instance;
+    virtual int publish_message();
+
+    
 public:
 
     // constexpr member variable

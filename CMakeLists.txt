@@ -33,6 +33,10 @@ target_include_directories(app PRIVATE
     src
 )
 
+# Conditionally include secure MQTT overlay
+if(CONFIG_ENABLE_SECURE_MQTT)
+  set(OVERLAY_CONFIG secure_mqtt.conf)
+endif()
 
 
 zephyr_include_directories($ENV{ZEPHYR_BASE}/../nrf/include)
