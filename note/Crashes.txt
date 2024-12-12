@@ -1,0 +1,12 @@
+I am running a program with actinius icarus board which uses mqtt helper library and push every 1 seconds some data to the broker.
+Atfer 51000 pushes, almost 15 hours the program crashes.
+in the Log Window I see this error
+ASSERTION FAIL [ret ==0] @ WEST_TOPDIR/zephyr/subsys/net/lib/mqtt/mqtt_os.h:61
+sys_mutex_unlock failed with -22.
+What does it mean?
+Is it possible that failed connection with broker and there were 22 try to send or similar ?
+I am not managing if modem is disconnected in the process of sendind data to broker.
+Should I everytime I wont to send data tray to connect, send and close connection? is it more safe?
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
