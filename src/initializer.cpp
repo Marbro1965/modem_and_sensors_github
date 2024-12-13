@@ -14,6 +14,8 @@
 
 #include "DateTimeThread/CDateTimeThread.h"
 
+#include "WdtThread/CWdtThread.h"
+
 #include "structures.h"
 
 #include <zephyr/kernel.h>
@@ -41,8 +43,6 @@ void initMessageQueue(void){
 
     k_msgq_init(&CBaseThread::blinkQueueMessage,&my_msgq_leds[0], sizeof(struct my_msg), 10);
 
-
-
 }
 
 
@@ -60,11 +60,13 @@ K_THREAD_STACK_DEFINE(thread_sensor_stack, DEFAULT_THREAD_STACK_SIZE);
 
 K_THREAD_STACK_DEFINE(thread_modem_stack, 4096);
 
-K_THREAD_STACK_DEFINE(thread_mqtt_stack, DEFAULT_THREAD_STACK_SIZE);
+K_THREAD_STACK_DEFINE(thread_mqtt_stack, 4096);
 
 K_THREAD_STACK_DEFINE(thread_utc_time, DEFAULT_THREAD_STACK_SIZE);
 
 K_THREAD_STACK_DEFINE(thread_date_time, DEFAULT_THREAD_STACK_SIZE);
+
+K_THREAD_STACK_DEFINE(thread_wdt, DEFAULT_THREAD_STACK_SIZE);
 
 
 struct k_thread thread_logger_data;
@@ -80,6 +82,9 @@ struct k_thread thread_mqtt_data;
 struct k_thread thread_utc_time_data;
 
 struct k_thread thread_date_time_data;
+
+struct k_thread thread_wdt_data;
+
 
 void initialize(void){
 
@@ -107,7 +112,7 @@ void initialize(void){
 
     CModemSetupThread *pModemThread = new CModemSetupThread();
 
-    k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 4096, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 1, 0, K_NO_WAIT);
+    k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 4096, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 2, 0, K_NO_WAIT);
 
 
    CMqttHelperThread *pMqttThread = new CMqttHelperThread();   
