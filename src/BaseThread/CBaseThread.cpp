@@ -23,9 +23,7 @@ k_event CBaseThread::lte_event_flags{};
 
 k_sem CBaseThread::net_conn_sem{};          // Initialize the static member variable
 
-uint32_t CBaseThread::utc_time{};
-
-std::vector<k_msgq> CBaseThread::registeredQueue{};
+int64_t CBaseThread::unix_time_ms{};
 
 CBaseThread::CBaseThread()
 {
@@ -34,16 +32,6 @@ CBaseThread::CBaseThread()
 CBaseThread::~CBaseThread()
 {
 
-}
-
-
-void CBaseThread::registerThread(void)
-{
-    
-    k_msgq_init(&disconnectedQueueMessage,&my_msgq_registered_thread[0], sizeof(struct my_msg), 10);   
-    
-    registeredQueue.push_back(disconnectedQueueMessage);
-    
 }
 
 

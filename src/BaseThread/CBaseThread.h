@@ -21,12 +21,6 @@ class CBaseThread
 
 protected:
 
-    k_msgq disconnectedQueueMessage;
-
-    static std::vector<k_msgq> registeredQueue;
-
-    char __aligned(4) my_msgq_registered_thread[2 * sizeof(struct my_msg)];
-
 public:
 
     static k_msgq blinkQueueMessage;
@@ -45,7 +39,7 @@ public:
 
     static k_event lte_event_flags;
 
-    static uint32_t utc_time;
+    static int64_t unix_time_ms;
 
     CBaseThread();
 
@@ -54,8 +48,6 @@ public:
     static void handlerRun(void *args1, void *args2, void *args3);
 
     virtual void runHandler(void) = 0;
-
-    virtual void registerThread(void);
 
     static void convertToReadableTime(uint32_t time);
 

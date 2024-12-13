@@ -24,15 +24,6 @@ void CBaseConnectionService::connectToWiFi(void){
 
 void CBaseConnectionService::disconnectFromWiFi(void){
 
-    struct my_msg msg;
-
-    msg.data = WIFI_DISCONNECT;
-
-    //posta un messaggio di disconnessione a tutti i thread che lo richiedono
-    for (auto &queue : CBaseThread::registeredQueue)
-    {
-        int ret = k_msgq_put(&queue, &msg, K_NO_WAIT);
-    }
 
 
 }

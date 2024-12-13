@@ -5,7 +5,7 @@
 #include <nrf_socket.h>
 #include <time.h> 
 
-#define SERVER_ADDRESS "time.nist.gov" // Example NTP server
+#define SERVER_ADDRESS "pool.ntp.org" // Example NTP server
 #define SERVER_PORT 123
 
 

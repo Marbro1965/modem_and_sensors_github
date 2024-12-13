@@ -98,38 +98,30 @@ void CMqttHelperThread::runHandler(void){
     
     my_msg msg;
 
-    CBaseThread::registerThread();
-
-    
-
-	CLogger::getInstance()->log("MQTT Helper Thread started\n");
+    CLogger::getInstance()->log("MQTT Helper Thread started\n");
 
     init_mqtt_helper();
 
-    uint32_t events = k_event_wait(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG, false, K_FOREVER);
-
-    if (events & LTE_CONNECTED_FLAG) {
-		connect_mqtt();
-	}
     while(true)
     {
-        //int ret = k_msgq_get(&disconnectedQueueMessage, &msg, K_NO_WAIT);
+        uint32_t events = k_event_wait(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG, false, K_FOREVER);
 
-        //if (0==ret)
-        //{
-        //    //disconnesso. prendi le misure adeguate        
-        //
-        //}
+        if (events & LTE_CONNECTED_FLAG) {
 
-		
-		if (MQTT_BROKER_STATE_CONNECTED == status) {
-			// Handle the event
-			CLogger::getInstance()->log("Publish a message\n");
-			publish_message();
-		} else {
-			
-		}
+            if (MQTT_BROKER_STATE_DISCONNECTED == status)
+            {
+		        connect_mqtt();
+            }
 
+            if (MQTT_BROKER_STATE_CONNECTED == status) {
+                // Handle the event
+                CLogger::getInstance()->log("Publish a message\n");
+                publish_message();
+            } else 
+            {
+                connect_mqtt();
+            }
+        }
 
         k_sleep(K_SECONDS(1));
     }
@@ -183,7 +175,7 @@ int CMqttHelperThread::publish_message()
     struct messageSensor msg;
   
 
-   // char tempValue[50];
+    char dataEora[50];
     int jsonIndex = 0;
 
     int ret = k_msgq_get(&CBaseThread::sensorQueueMessage, &msg, K_NO_WAIT);
@@ -204,6 +196,27 @@ int CMqttHelperThread::publish_message()
 
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
                               "\"time\":\"%ld\",", (int32_t)(date_time_ms));
+
+        struct tm *tm_info = gmtime(&date_time_ms);
+        if (tm_info == NULL) {
+        
+            CLogger::getInstance()->log("Failed to get UTC time");
+            return -EINVAL;
+        }
+
+        // Print the date and time
+        snprintf(dataEora,sizeof(dataEora),"%04d-%02d-%02d %02d:%02d:%02d",
+                tm_info->tm_year + 1900,
+                tm_info->tm_mon + 1,
+                tm_info->tm_mday,
+                tm_info->tm_hour,
+                tm_info->tm_min,
+                tm_info->tm_sec);
+
+        
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+                              "\"readable_time\":\"%s\",",&dataEora[0]);
+
 
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
                               "\"altitude\":\"%5.0lf\",", altitude);

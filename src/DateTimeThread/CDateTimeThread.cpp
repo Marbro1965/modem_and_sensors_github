@@ -29,7 +29,7 @@ void CDateTimeThread::init(void)
 void CDateTimeThread::runHandler(void)
 {
 
-    int64_t unix_time_ms;
+    //int64_t unix_time_ms;
     
     CLogger::getInstance()->log("DateTime Thread started\n");
 
@@ -43,9 +43,9 @@ void CDateTimeThread::runHandler(void)
     while (true)
     {
 
-        int err = date_time_now(&unix_time_ms);
+        int err = date_time_now(&CBaseThread::unix_time_ms);
         // Sleep for a while before checking again
-        k_sleep(K_SECONDS(1)); // Check every hour to synchronize
+        k_sleep(K_SECONDS(300)); // Check every hour to synchronize
     }
 }
 

@@ -10,6 +10,10 @@
 
 #include "UtcTime/CUtcTimeThread.h"
 
+#include "Leds/CLedsThread.h"
+
+#include "DateTimeThread/CDateTimeThread.h"
+
 #include "structures.h"
 
 #include <zephyr/kernel.h>
@@ -60,6 +64,8 @@ K_THREAD_STACK_DEFINE(thread_mqtt_stack, DEFAULT_THREAD_STACK_SIZE);
 
 K_THREAD_STACK_DEFINE(thread_utc_time, DEFAULT_THREAD_STACK_SIZE);
 
+K_THREAD_STACK_DEFINE(thread_date_time, DEFAULT_THREAD_STACK_SIZE);
+
 
 struct k_thread thread_logger_data;
 
@@ -72,6 +78,8 @@ struct k_thread thread_modem_data;
 struct k_thread thread_mqtt_data;
 
 struct k_thread thread_utc_time_data;
+
+struct k_thread thread_date_time_data;
 
 void initialize(void){
 
@@ -107,8 +115,13 @@ void initialize(void){
    k_tid_t id5 = k_thread_create(&thread_mqtt_data,thread_mqtt_stack, 4096, &CBaseThread::handlerRun, pMqttThread, NULL, NULL, 1, 0, K_NO_WAIT);
 
 
- //   CUtcTimeThread *pUtcThread = new CUtcTimeThread();
+//    CUtcTimeThread *pUtcThread = new CUtcTimeThread();
 
- //   k_tid_t id6 = k_thread_create(&thread_utc_time_data,thread_utc_time, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pUtcThread, NULL, NULL, 10, 0, K_NO_WAIT);
+//    k_tid_t id6 = k_thread_create(&thread_utc_time_data,thread_utc_time, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pUtcThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
+    CDateTimeThread *pDateTimeThread = new CDateTimeThread();
+
+    k_tid_t id7 = k_thread_create(&thread_date_time_data,thread_date_time, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pDateTimeThread, NULL, NULL, 10, 0, K_NO_WAIT);
+
+    
 }
