@@ -46,6 +46,7 @@ void CMqttHelperThread::init_mqtt_helper(void)
 			.on_connack = &CMqttHelperThread::on_mqtt_connack,
 			.on_disconnect = &CMqttHelperThread::on_mqtt_disconnect,
 			.on_publish = &CMqttHelperThread::on_mqtt_publish,
+            .on_puback = &CMqttHelperThread::on_mqtt_puback,
 			.on_suback = &CMqttHelperThread::on_mqtt_suback,
 			.on_error = &CMqttHelperThread::on_error,
 			},
@@ -111,16 +112,25 @@ void CMqttHelperThread::runHandler(void){
             if (MQTT_BROKER_STATE_DISCONNECTED == status)
             {
 		        connect_mqtt();
+
+                status = MQTT_BROKER_STATE_CONNECTING;
+            }
+            else if  (MQTT_BROKER_STATE_CONNECTED == status)
+            {
+                if (publish_status == MQTT_PUBLISH_STATE_IDLE) {
+                    // Handle the event
+                    publish_status = MQTT_PUBLISH_STATE_PUBLISHING;
+                    CLogger::getInstance()->log("Publish a message\n");
+                    publish_message();
+                } 
+                // else 
+                // {
+                //     connect_mqtt();
+                // }
+
+
             }
 
-            if (MQTT_BROKER_STATE_CONNECTED == status) {
-                // Handle the event
-                CLogger::getInstance()->log("Publish a message\n");
-                publish_message();
-            } else 
-            {
-                connect_mqtt();
-            }
         }
 
         k_sleep(K_SECONDS(1));
@@ -146,6 +156,15 @@ void CMqttHelperThread::on_mqtt_publish(struct mqtt_helper_buf topic, struct mqt
 {
 //	LOG_INF("Received payload: %.*s on topic: %.*s", payload.size, payload.ptr, topic.size,
 //		topic.ptr);
+}
+
+void CMqttHelperThread::on_mqtt_puback(uint16_t message_id, int result)
+{
+    if (result == 0) {
+        instance->publish_status = MQTT_PUBLISH_STATE_IDLE;
+    } else {
+        
+    }
 }
 
 void CMqttHelperThread::on_mqtt_suback(uint16_t message_id, int result)

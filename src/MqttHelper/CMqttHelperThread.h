@@ -11,15 +11,27 @@
 
 #include <stdint.h>
 
-#define MQTT_BROKER_STATE_CONNECTED	   1
-
-#define MQTT_BROKER_STATE_DISCONNECTED 0
 
 
 class CMqttHelperThread: public CBaseThread
 {
 
-    uint8_t status = MQTT_BROKER_STATE_DISCONNECTED;
+    enum BROKER_CONNECTION_STATE{
+        MQTT_BROKER_STATE_DISCONNECTED,
+        MQTT_BROKER_STATE_CONNECTING,
+        MQTT_BROKER_STATE_CONNECTED,
+        
+    };
+
+    enum MQTT_PUBLISH_STATE{
+        MQTT_PUBLISH_STATE_IDLE,
+        MQTT_PUBLISH_STATE_PUBLISHING,
+        MQTT_PUBLISH_STATE_PUBLISHED,
+    };
+
+    BROKER_CONNECTION_STATE status = MQTT_BROKER_STATE_DISCONNECTED;
+
+    MQTT_PUBLISH_STATE publish_status = MQTT_PUBLISH_STATE_IDLE;
 
     bool sending = true;
 
@@ -64,6 +76,8 @@ public:
     static void on_mqtt_disconnect(int result);
 
     static void on_mqtt_publish(struct mqtt_helper_buf topic, struct mqtt_helper_buf payload);
+
+    static void on_mqtt_puback(uint16_t message_id, int result);
 
     static void on_mqtt_suback(uint16_t message_id, int result);
 
