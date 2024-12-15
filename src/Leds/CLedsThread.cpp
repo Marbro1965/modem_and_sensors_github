@@ -24,8 +24,6 @@ struct k_timer CLedsThread::my_timer = {};
 CLedsThread::CLedsThread()
 {
 
-	
-
 	k_timer_init(&my_timer, timer_expiry_function, timer_stop_function);
 
 	my_timer.user_data = this;

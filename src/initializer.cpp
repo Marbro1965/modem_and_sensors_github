@@ -14,7 +14,11 @@
 
 #include "DateTimeThread/CDateTimeThread.h"
 
+#include "Test/CLteTestDisconnectThread.h"
+
 #include "WdtThread/CWdtThread.h"
+
+#include "Test/CWdtTestKernelPanic.h"
 
 #include "structures.h"
 
@@ -68,6 +72,10 @@ K_THREAD_STACK_DEFINE(thread_date_time, DEFAULT_THREAD_STACK_SIZE);
 
 K_THREAD_STACK_DEFINE(thread_wdt, DEFAULT_THREAD_STACK_SIZE);
 
+K_THREAD_STACK_DEFINE(thread_disconnect, DEFAULT_THREAD_STACK_SIZE);
+
+K_THREAD_STACK_DEFINE(thread_test_wdt, DEFAULT_THREAD_STACK_SIZE);
+
 
 struct k_thread thread_logger_data;
 
@@ -84,6 +92,10 @@ struct k_thread thread_utc_time_data;
 struct k_thread thread_date_time_data;
 
 struct k_thread thread_wdt_data;
+
+struct k_thread thread_disconnect_data;
+
+struct k_thread thread_test_wdt_data;
 
 
 void initialize(void){
@@ -115,9 +127,9 @@ void initialize(void){
     k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 4096, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 2, 0, K_NO_WAIT);
 
 
-   CMqttHelperThread *pMqttThread = new CMqttHelperThread();   
+    CMqttHelperThread *pMqttThread = new CMqttHelperThread();   
 
-   k_tid_t id5 = k_thread_create(&thread_mqtt_data,thread_mqtt_stack, 4096, &CBaseThread::handlerRun, pMqttThread, NULL, NULL, 1, 0, K_NO_WAIT);
+    k_tid_t id5 = k_thread_create(&thread_mqtt_data,thread_mqtt_stack, 4096, &CBaseThread::handlerRun, pMqttThread, NULL, NULL, 1, 0, K_NO_WAIT);
 
 
 //    CUtcTimeThread *pUtcThread = new CUtcTimeThread();
@@ -128,5 +140,19 @@ void initialize(void){
 
     k_tid_t id7 = k_thread_create(&thread_date_time_data,thread_date_time, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pDateTimeThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
+
+ //   CTestDisconnectThread *pDisconnectThread = new CTestDisconnectThread();
+
+ //   k_tid_t id8 = k_thread_create(&thread_disconnect_data,thread_disconnect, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pDisconnectThread, NULL, NULL, 10, 0, K_NO_WAIT);
+
+
+    CWdtThread *pWdtThread = new CWdtThread();
+
+    k_tid_t id8 = k_thread_create(&thread_wdt_data,thread_wdt, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pWdtThread, NULL, NULL, 10, 0, K_NO_WAIT);
+
+
+    CWdtTestKernelPanic *pTestWdtThread = new CWdtTestKernelPanic();
+
+    k_tid_t id9 = k_thread_create(&thread_test_wdt_data,thread_test_wdt, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pTestWdtThread, NULL, NULL, 10, 0, K_NO_WAIT);
     
 }

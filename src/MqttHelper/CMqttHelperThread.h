@@ -33,13 +33,13 @@ class CMqttHelperThread: public CBaseThread
 
     MQTT_PUBLISH_STATE publish_status = MQTT_PUBLISH_STATE_IDLE;
 
-    bool sending = true;
+    //bool sending = true;
 
     int64_t date_time_ms = 0;
 
-    char out_vec[200];
+    //char out_vec[200];
 
-    char *out;
+    //char *out;
 
     double latitude = 45.52030739893742;  
     double altitude = 120;		      
@@ -47,7 +47,7 @@ class CMqttHelperThread: public CBaseThread
 
     static CMqttHelperThread *instance;
 
-    char jsonBuffer[1024]; // Adjust size as needed based on expected payload size
+    char jsonBuffer[2048]; // Adjust size as needed based on expected payload size
 
 protected:    
 
