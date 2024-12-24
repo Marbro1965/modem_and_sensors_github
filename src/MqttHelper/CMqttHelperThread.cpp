@@ -21,14 +21,36 @@
 
 CMqttHelperThread* CMqttHelperThread::instance = nullptr;
 
-const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "93.65.12.248";
+const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "79.19.114.101";     //Brescia"93.65.12.248";
 
 const char* CMqttHelperThread::MQTT_TOPIC  = "bsec/test";
+
+const char* CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION = "NewConfiguration";
+
+const char* CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE = "NewRelease";
+
+const char* CMqttHelperThread::MQTT_TOPIC_TEST_OK = "TestOk";
 
 CMqttHelperThread::CMqttHelperThread(){
 
     instance = this;
+
+    // subscribe_topics[0].topic.utf8 = (uint8_t*)CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION;
+    // subscribe_topics[0].topic.size = sizeof((const char*)CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION);
+    // subscribe_topics[0].qos = MQTT_QOS_1_AT_LEAST_ONCE;
+
+    // subscribe_topics[1].topic.utf8 = (uint8_t*)CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE;
+    // subscribe_topics[1].topic.size = sizeof((const char*)CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE);
+    // subscribe_topics[1].qos = MQTT_QOS_1_AT_LEAST_ONCE;
+
+    // subscribe_topics[1].topic.utf8 = (uint8_t*)CMqttHelperThread::MQTT_TOPIC_TEST_OK;
+    // subscribe_topics[1].topic.size = sizeof((const char*)CMqttHelperThread::MQTT_TOPIC_TEST_OK);
+    // subscribe_topics[1].qos = MQTT_QOS_1_AT_LEAST_ONCE;
 	
+    // subscription_list.list = subscribe_topics;
+    // subscription_list.list_count = ARRAY_SIZE(subscribe_topics);
+    // subscription_list.message_id = 1234;
+
 }
 
 CMqttHelperThread::~CMqttHelperThread(){
@@ -91,7 +113,7 @@ void CMqttHelperThread::connect_mqtt(void)
 	{
 		CLogger::getInstance()->log("Failed connecting to MQTT, error code: %d", err);
 	}
-	
+
 	CLogger::getInstance()->log("Connessione al broker MQTT riuscita!\n");
 }
 
@@ -137,12 +159,25 @@ void CMqttHelperThread::runHandler(void){
     }
 }
 
+void CMqttHelperThread::subscribe_to_topic(){
 
+int err = mqtt_helper_subscribe(&subscription_list);
+if (err) {
+    
+    
+}
+
+}
 
 
 void CMqttHelperThread::on_mqtt_connack(enum mqtt_conn_return_code return_code, bool session_present)
 {
 	instance->status = MQTT_BROKER_STATE_CONNECTED;
+
+    instance->subscribe_to_topic();
+
+   
+
 }
 
 void CMqttHelperThread::on_mqtt_disconnect(int result)
@@ -291,3 +326,5 @@ int CMqttHelperThread::publish_message()
 
     return ret;
 }
+
+

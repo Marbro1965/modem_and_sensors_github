@@ -74,7 +74,7 @@ void CSensorThread::runHandler(void)
 
 		int ret = k_msgq_put(&CBaseThread::sensorQueueMessage, &msg, K_NO_WAIT);
 
-		k_sleep(K_MSEC(500));
+		k_sleep(K_MSEC(15000));
 	}
 
 
