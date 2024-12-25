@@ -21,7 +21,7 @@
 
 CMqttHelperThread* CMqttHelperThread::instance = nullptr;
 
-const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "93.65.12.248";
+const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "79.19.114.101";//Brescia"93.65.12.248";
 
 const char* CMqttHelperThread::MQTT_TOPIC  = "bsec/test";
 
