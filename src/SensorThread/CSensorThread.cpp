@@ -66,11 +66,11 @@ void CSensorThread::runHandler(void)
 		sensor_channel_get(dev, SENSOR_CHAN_CO2, &msg.co2);
 		sensor_channel_get(dev, SENSOR_CHAN_VOC, &msg.voc);
 
-		CLogger::getInstance()->log("temp: %d.%06d; press: %d.%06d; humidity: %d.%06d; iaq: %d; CO2: %d.%06d; "
-		 	"VOC: %d.%06d \n",
-		 	msg.temp.val1, msg.temp.val2, msg.press.val1, msg.press.val2,
-			msg.humidity.val1, msg.humidity.val2,
-		 	msg.iaq.val1, msg.co2.val1, msg.co2.val2, msg.voc.val1, msg.voc.val2);
+		// CLogger::getInstance()->log("temp: %d.%06d; press: %d.%06d; humidity: %d.%06d; iaq: %d; CO2: %d.%06d; "
+		//  	"VOC: %d.%06d \n",
+		//  	msg.temp.val1, msg.temp.val2, msg.press.val1, msg.press.val2,
+		// 	msg.humidity.val1, msg.humidity.val2,
+		//  	msg.iaq.val1, msg.co2.val1, msg.co2.val2, msg.voc.val1, msg.voc.val2);
 
 		int ret = k_msgq_put(&CBaseThread::sensorQueueMessage, &msg, K_NO_WAIT);
 

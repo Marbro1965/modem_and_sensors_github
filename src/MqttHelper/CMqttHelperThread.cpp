@@ -96,6 +96,8 @@ void CMqttHelperThread::connect_mqtt(void)
 }
 
 void CMqttHelperThread::runHandler(void){
+
+    int counter = 0;
     
     my_msg msg;
 
@@ -115,18 +117,47 @@ void CMqttHelperThread::runHandler(void){
 
                 status = MQTT_BROKER_STATE_CONNECTING;
             }
+            else if  (MQTT_BROKER_STATE_CONNECTING == status)
+            {
+                //non risponde il server per 20 secondi ma c'e' LTE
+                counter++;
+
+                if (counter>20)
+                {
+                    connect_mqtt();
+
+                    status = MQTT_BROKER_STATE_DISCONNECTED;
+
+                    counter = 0;
+                }
+
+            }
             else if  (MQTT_BROKER_STATE_CONNECTED == status)
             {
                 if (publish_status == MQTT_PUBLISH_STATE_IDLE) {
                     // Handle the event
-                    publish_status = MQTT_PUBLISH_STATE_PUBLISHING;
-                    CLogger::getInstance()->log("Publish a message\n");
-                    publish_message();
+                    if (qos_publishing== MQTT_QOS_0_AT_MOST_ONCE)
+                    {
+                        //pubblica senza aspettare risposta
+                        publish_status = MQTT_PUBLISH_STATE_IDLE;
+                        CLogger::getInstance()->log("Publish a message\n");
+                        publish_message();
+
+                    }else if (qos_publishing== MQTT_QOS_2_EXACTLY_ONCE)
+                    {
+
+                        publish_status = MQTT_PUBLISH_STATE_PUBLISHING;
+                        CLogger::getInstance()->log("Publish a message\n");
+                        publish_message();
+
+                    }
+                    else{
+
+                        publish_status = MQTT_PUBLISH_STATE_IDLE;
+                        CLogger::getInstance()->log("Publish a message\n");
+                        publish_message();  
+                    }
                 } 
-                // else 
-                // {
-                //     connect_mqtt();
-                // }
 
 
             }
@@ -276,7 +307,7 @@ int CMqttHelperThread::publish_message()
         struct mqtt_publish_param param;
         param.message.payload.data = (uint8_t*)jsonBuffer;
         param.message.payload.len = strlen(jsonBuffer);
-        param.message.topic.qos = MQTT_QOS_1_AT_LEAST_ONCE;
+        param.message.topic.qos = qos_publishing;
         param.message_id = k_uptime_get_32();
         param.message.topic.topic.utf8 = (uint8_t *)MQTT_TOPIC;
         param.message.topic.topic.size = strlen(MQTT_TOPIC);

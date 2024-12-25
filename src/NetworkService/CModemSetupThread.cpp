@@ -187,6 +187,12 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
             CLogger::getInstance()->log("RRC mode: %s\n",
                  evt->rrc_mode == LTE_LC_RRC_MODE_CONNECTED ? "Connected" : "Idle\n");
 
+            k_event_post(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG);
+
+            CLogger::getInstance()->log("LTE connected");
+
+            instance->modem_state = MODEM_STATE_CONNECTED;
+
             if (evt->rrc_mode == LTE_LC_RRC_MODE_CONNECTED)
             {
 

@@ -57,6 +57,7 @@ protected:
 
     virtual int publish_message();
 
+    mqtt_qos qos_publishing = MQTT_QOS_1_AT_LEAST_ONCE;
     
 public:
 
