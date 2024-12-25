@@ -33,13 +33,7 @@ class CMqttHelperThread: public CBaseThread
 
     MQTT_PUBLISH_STATE publish_status = MQTT_PUBLISH_STATE_IDLE;
 
-    //bool sending = true;
-
     int64_t date_time_ms = 0;
-
-    //char out_vec[200];
-
-    //char *out;
 
     double latitude = 45.52030739893742;  
     double altitude = 120;		      
@@ -48,6 +42,12 @@ class CMqttHelperThread: public CBaseThread
     static CMqttHelperThread *instance;
 
     char jsonBuffer[2048]; // Adjust size as needed based on expected payload size
+
+    
+
+    struct mqtt_topic subscribe_topics[3];
+
+    struct mqtt_subscription_list subscription_list;
 
 protected:    
 
@@ -66,6 +66,12 @@ public:
 
     static const char* MQTT_TOPIC;
 
+    static const char* MQTT_TOPIC_NEW_CONFIGURATION;
+    static const char* MQTT_TOPIC_NEW_RELEASE;
+    static const char* MQTT_TOPIC_TEST_OK;
+
+
+
     CMqttHelperThread();
 
     virtual ~CMqttHelperThread();
@@ -83,6 +89,8 @@ public:
     static void on_mqtt_suback(uint16_t message_id, int result);
 
     static void on_error(enum mqtt_helper_error error);
+
+    void subscribe_to_topic();
 
 };
 
