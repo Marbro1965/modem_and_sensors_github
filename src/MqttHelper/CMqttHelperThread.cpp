@@ -21,39 +21,35 @@
 
 CMqttHelperThread* CMqttHelperThread::instance = nullptr;
 
-<<<<<<< HEAD
-const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "79.19.114.101";//Brescia"93.65.12.248";
-=======
 const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "79.19.114.101";     //Brescia"93.65.12.248";
->>>>>>> AddSubscriber
 
 const char* CMqttHelperThread::MQTT_TOPIC  = "bsec/test";
 
-const char* CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION = "NewConfiguration";
+const char* CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION = "bsec/Rosso";
 
-const char* CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE = "NewRelease";
+const char* CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE = "bsec/Verde";
 
-const char* CMqttHelperThread::MQTT_TOPIC_TEST_OK = "TestOk";
+const char* CMqttHelperThread::MQTT_TOPIC_TEST_OK = "bsec/Blu";
 
 CMqttHelperThread::CMqttHelperThread(){
 
     instance = this;
 
-    // subscribe_topics[0].topic.utf8 = (uint8_t*)CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION;
-    // subscribe_topics[0].topic.size = sizeof((const char*)CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION);
-    // subscribe_topics[0].qos = MQTT_QOS_1_AT_LEAST_ONCE;
+    subscribe_topics[0].topic.utf8 = (uint8_t*)CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION;
+    subscribe_topics[0].topic.size = strlen((const char*)CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION);
+    subscribe_topics[0].qos = MQTT_QOS_1_AT_LEAST_ONCE;
 
-    // subscribe_topics[1].topic.utf8 = (uint8_t*)CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE;
-    // subscribe_topics[1].topic.size = sizeof((const char*)CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE);
-    // subscribe_topics[1].qos = MQTT_QOS_1_AT_LEAST_ONCE;
+    subscribe_topics[1].topic.utf8 = (uint8_t*)CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE;
+    subscribe_topics[1].topic.size = strlen((const char*)CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE);
+    subscribe_topics[1].qos = MQTT_QOS_1_AT_LEAST_ONCE;
 
-    // subscribe_topics[1].topic.utf8 = (uint8_t*)CMqttHelperThread::MQTT_TOPIC_TEST_OK;
-    // subscribe_topics[1].topic.size = sizeof((const char*)CMqttHelperThread::MQTT_TOPIC_TEST_OK);
-    // subscribe_topics[1].qos = MQTT_QOS_1_AT_LEAST_ONCE;
+    subscribe_topics[2].topic.utf8 = (uint8_t*)CMqttHelperThread::MQTT_TOPIC_TEST_OK;
+    subscribe_topics[2].topic.size = strlen((const char*)CMqttHelperThread::MQTT_TOPIC_TEST_OK);
+    subscribe_topics[2].qos = MQTT_QOS_1_AT_LEAST_ONCE;
 	
-    // subscription_list.list = subscribe_topics;
-    // subscription_list.list_count = ARRAY_SIZE(subscribe_topics);
-    // subscription_list.message_id = 1234;
+    subscription_list.list = subscribe_topics;
+    subscription_list.list_count = ARRAY_SIZE(subscribe_topics);
+    subscription_list.message_id = 1234;
 
 }
 
@@ -118,7 +114,7 @@ void CMqttHelperThread::connect_mqtt(void)
 		CLogger::getInstance()->log("Failed connecting to MQTT, error code: %d", err);
 	}
 
-	CLogger::getInstance()->log("Connessione al broker MQTT riuscita!\n");
+	
 }
 
 void CMqttHelperThread::runHandler(void){
@@ -196,22 +192,23 @@ void CMqttHelperThread::runHandler(void){
 
 void CMqttHelperThread::subscribe_to_topic(){
 
-int err = mqtt_helper_subscribe(&subscription_list);
-if (err) {
-    
-    
-}
+    int err = mqtt_helper_subscribe(&subscription_list);
+    if (err) {
+        
+        
+    }
 
 }
 
 
 void CMqttHelperThread::on_mqtt_connack(enum mqtt_conn_return_code return_code, bool session_present)
 {
+
+    CLogger::getInstance()->log("Connessione al broker MQTT riuscita!\n");
+
 	instance->status = MQTT_BROKER_STATE_CONNECTED;
 
     instance->subscribe_to_topic();
-
-   
 
 }
 
@@ -224,8 +221,57 @@ void CMqttHelperThread::on_mqtt_disconnect(int result)
 
 void CMqttHelperThread::on_mqtt_publish(struct mqtt_helper_buf topic, struct mqtt_helper_buf payload)
 {
-//	LOG_INF("Received payload: %.*s on topic: %.*s", payload.size, payload.ptr, topic.size,
-//		topic.ptr);
+
+    struct my_msg msg;
+
+    CLogger::getInstance()->log("Received a payload\n");
+
+    if (payload.size > 0) {
+        // Print the received topic and payload
+        CLogger::getInstance()->log("Received topic: %.*s size: %d", topic.size, topic.ptr);
+        CLogger::getInstance()->log("Received payload: %.*s size %d", payload.size, payload.ptr);
+
+        // Process the payload here
+        // For example, you can compare it to known commands:
+        if (strncmp(topic.ptr, CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION , strlen(CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION)) == 0){
+            if (strncmp(payload.ptr, "1" , 1) == 0){
+                msg.data = TURN_LED_RED;
+            }
+            else{
+                msg.data = TURN_LED_OFF;
+            }
+            
+
+        }else if  (strncmp(topic.ptr, CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE , strlen(CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE)) == 0){
+            if (strncmp(payload.ptr, "1" , 1) == 0){
+                msg.data = TURN_LED_GREEN;
+            }
+            else{
+                msg.data = TURN_LED_OFF;
+            }    
+            
+
+        }else if (strncmp(topic.ptr, CMqttHelperThread::MQTT_TOPIC_TEST_OK , strlen(CMqttHelperThread::MQTT_TOPIC_TEST_OK)) == 0){
+            if (strncmp(payload.ptr, "1" , 1) == 0){
+                msg.data = TURN_LED_BLUE;
+            }
+            else{
+                msg.data = TURN_LED_OFF;
+            }    
+
+            
+        }
+
+        // Add more conditions as needed
+
+        
+
+        int ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
+
+    } else {
+
+        CLogger::getInstance()->log("Received empty payload");
+    }
 }
 
 void CMqttHelperThread::on_mqtt_puback(uint16_t message_id, int result)
@@ -239,6 +285,8 @@ void CMqttHelperThread::on_mqtt_puback(uint16_t message_id, int result)
 
 void CMqttHelperThread::on_mqtt_suback(uint16_t message_id, int result)
 {
+
+    CLogger::getInstance()->log("Subscibe succeed\n");
 	// if ((message_id == SUBSCRIBE_TOPIC_ID) && (result == 0)) {
 	// 	LOG_INF("Subscribed to topic %s", sub_topic);
 	// } else if (result) {

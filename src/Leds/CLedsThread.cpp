@@ -142,11 +142,28 @@ void CLedsThread::runHandler(void)
 			}else if (msg.data == TURN_LED_BLUE){
 
 				bBlink = false;
+				currentColor = BLUE;
+				turn_leds_off();
 				turn_leds_on_with_color(BLUE);
 				k_timer_stop(&my_timer);
 
-			}
+			} else if (msg.data == TURN_LED_RED){
 
+				bBlink = false;
+				currentColor = RED;
+				turn_leds_off();
+				turn_leds_on_with_color(RED);
+				k_timer_stop(&my_timer);
+
+			} else if (msg.data == TURN_LED_GREEN){
+
+				bBlink = false;
+				currentColor = GREEN;
+				turn_leds_off();
+				turn_leds_on_with_color(GREEN);
+				k_timer_stop(&my_timer);
+
+			} 
 			
 			if (msg.data == TURN_LED_OFF){
 				turn_leds_off();

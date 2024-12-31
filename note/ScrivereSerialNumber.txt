@@ -1,0 +1,11 @@
+Based on the knowledge sources provided, I can offer some guidance on reserving flash memory for storing unique information like a serial number on the Actinius Icarus board, which uses the Nordic Semiconductor nRF9160 SiP.
+For this purpose, the recommended approach is to use the User Information Configuration Registers (UICR) in the nRF9160. The UICR provides a dedicated area for storing device-specific information that persists across firmware updates.
+Here's how you can implement this:
+Use the UICR CUSTOMER registers: The nRF9160 provides UICR->CUSTOMER[n] registers for this exact purpose. These are ideal for storing information like serial numbers.
+Programming the serial number: You can use nrfjprog (Nordic's programming tool) to write the serial number to a UICR register. For example:
+
+nrfjprog --memwr 0x10001080 --val <serial_number>
+This command writes the serial number to UICR->CUSTOMER[0].
+Accessing the serial number in your application: In your firmware, you can read the serial number like this:
+
+uint32_t serial_number = NRF_UICR->CUSTOMER[0];
