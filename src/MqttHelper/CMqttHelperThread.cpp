@@ -21,7 +21,7 @@
 
 CMqttHelperThread* CMqttHelperThread::instance = nullptr;
 
-const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "79.19.114.101";     //Brescia"93.65.12.248";
+const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "79.55.70.74";     //Brescia"93.65.12.248";
 
 const char* CMqttHelperThread::MQTT_TOPIC  = "bsec/test";
 
@@ -162,21 +162,21 @@ void CMqttHelperThread::runHandler(void){
                     {
                         //pubblica senza aspettare risposta
                         publish_status = MQTT_PUBLISH_STATE_IDLE;
-                        CLogger::getInstance()->log("Publish a message\n");
+                        //CLogger::getInstance()->log("Publish a message\n");
                         publish_message();
 
                     }else if (qos_publishing== MQTT_QOS_2_EXACTLY_ONCE)
                     {
 
                         publish_status = MQTT_PUBLISH_STATE_PUBLISHING;
-                        CLogger::getInstance()->log("Publish a message\n");
+                        //CLogger::getInstance()->log("Publish a message\n");
                         publish_message();
 
                     }
                     else{
 
                         publish_status = MQTT_PUBLISH_STATE_IDLE;
-                        CLogger::getInstance()->log("Publish a message\n");
+                        //CLogger::getInstance()->log("Publish a message\n");
                         publish_message();  
                     }
                 } 

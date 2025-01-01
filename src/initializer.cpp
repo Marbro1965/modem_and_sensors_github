@@ -28,6 +28,8 @@
 
 #include "Logger/CLogger.h"
 
+#include "ClientLibrary/CDownloadClient.h"
+
 char __aligned(4) my_msgq_sensor[MSG_SENSOR_MAX_MSGS * sizeof(struct messageSensor)];
 char __aligned(4) my_msgq_buffer[MSGQ_MAX_MSGS * sizeof(struct my_msg)];
 char __aligned(4) my_msgq_logger[MSGQ_MAX_MSGS_LOGGER * sizeof(struct logger_msg)];
@@ -76,6 +78,8 @@ K_THREAD_STACK_DEFINE(thread_disconnect, DEFAULT_THREAD_STACK_SIZE);
 
 K_THREAD_STACK_DEFINE(thread_test_wdt, DEFAULT_THREAD_STACK_SIZE);
 
+K_THREAD_STACK_DEFINE(thread_download_client_stack, DEFAULT_THREAD_STACK_SIZE);
+
 
 struct k_thread thread_logger_data;
 
@@ -97,6 +101,7 @@ struct k_thread thread_disconnect_data;
 
 struct k_thread thread_test_wdt_data;
 
+struct k_thread thread_download_client_data;
 
 void initialize(void){
 
@@ -154,5 +159,11 @@ void initialize(void){
     CWdtTestKernelPanic *pTestWdtThread = new CWdtTestKernelPanic();
 
     k_tid_t id10 = k_thread_create(&thread_test_wdt_data,thread_test_wdt, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pTestWdtThread, NULL, NULL, 10, 0, K_NO_WAIT);
+
+
+    CDownloadClient *pDownloadClient = new CDownloadClient();
+
+    k_tid_t id11 = k_thread_create(&thread_download_client_data,thread_download_client_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pDownloadClient, NULL, NULL, 10, 0, K_NO_WAIT);
+
     
 }

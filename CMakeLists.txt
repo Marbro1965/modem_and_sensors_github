@@ -24,7 +24,7 @@ FILE(GLOB_RECURSE app_sources src/*.c src/*.cpp src/*.h src/**/*.c src/**/*.cpp 
 
 #FILE(GLOB app_sources src/*.c)
 
-
+target_compile_options(app PRIVATE -fpermissive)
 
 # NORDIC SDK APP START
 target_sources(app PRIVATE ${app_sources})
@@ -53,7 +53,7 @@ zephyr_include_directories($ENV{ZEPHYR_BASE}/../drivers)
 
 #zephyr_include_directories($ENV{ZEPHYR_BASE}/include)
 
-#zephyr_include_directories($ENV{ZEPHYR_BASE}/subsys/net/lib/sockets)
+zephyr_include_directories($ENV{ZEPHYR_BASE}/subsys/net/lib/sockets)
 
 #zephyr_include_directories($ENV{ZEPHYR_BASE}/../drivers/sensors)
 
