@@ -51,8 +51,6 @@ void CDownloadClient::init(void)
 
 void CDownloadClient::runHandler(void)
 {
-    //int64_t unix_time_ms;
-    
     CLogger::getInstance()->log("Download Client Thread started\n");
 
     uint32_t events = k_event_wait(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG, false, K_FOREVER);

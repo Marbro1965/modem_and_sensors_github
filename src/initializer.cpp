@@ -151,14 +151,14 @@ void initialize(void){
     // k_tid_t id8 = k_thread_create(&thread_disconnect_data,thread_disconnect, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pDisconnectThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
 
-    CWdtThread *pWdtThread = new CWdtThread();
+    // CWdtThread *pWdtThread = new CWdtThread();
 
-    k_tid_t id9 = k_thread_create(&thread_wdt_data,thread_wdt, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pWdtThread, NULL, NULL, 10, 0, K_NO_WAIT);
+    // k_tid_t id9 = k_thread_create(&thread_wdt_data,thread_wdt, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pWdtThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
 
-    CWdtTestKernelPanic *pTestWdtThread = new CWdtTestKernelPanic();
+    // CWdtTestKernelPanic *pTestWdtThread = new CWdtTestKernelPanic();
 
-    k_tid_t id10 = k_thread_create(&thread_test_wdt_data,thread_test_wdt, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pTestWdtThread, NULL, NULL, 10, 0, K_NO_WAIT);
+    // k_tid_t id10 = k_thread_create(&thread_test_wdt_data,thread_test_wdt, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pTestWdtThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
 
     CDownloadClient *pDownloadClient = new CDownloadClient();
