@@ -1,6 +1,7 @@
 #include "CDownloadClient.h"
 
 
+
 size_t CDownloadClient::downloaded=0;
 
 size_t CDownloadClient::file_size = 0;
@@ -107,4 +108,8 @@ void CDownloadClient::process_fragment(const uint8_t *buf, size_t len)
     // Simulate processing delay
     k_sleep(K_MSEC(100));
     
+}
+
+coap_block_size CDownloadClient::coap_bytes_to_block_size_wrapper(uint16_t bytes) {
+    return static_cast<coap_block_size>(coap_bytes_to_block_size(bytes));
 }

@@ -42,5 +42,8 @@ public:
     static int callback(const struct download_client_evt *event);
 
     void process_fragment(const uint8_t *buf, size_t len);
+
+    // Wrapper function for coap_bytes_to_block_size
+    coap_block_size coap_bytes_to_block_size_wrapper(uint16_t bytes);
     
 };

@@ -1,0 +1,4 @@
+build:
+  cmake-args:
+    - -DCMAKE_C_FLAGS=-fpermissive
+    - -DCMAKE_CXX_FLAGS=-fpermissive
