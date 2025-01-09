@@ -1,30 +1,29 @@
 // To get started, press Ctrl+Space to bring up the completion menu and view the available nodes.
 // For more help, browse the DeviceTree documentation at https://docs.zephyrproject.org/latest/guides/dts/index.html
 // &spi3 {
+//     // status = "ok";
+// 	// sck-pin = <20>;
+// 	// mosi-pin = <21>;
+// 	// miso-pin = <22>;
+// 	// ss-pin = <31>;
+// 	//spi-max-frequency = <4000000>;
+
 //     compatible = "nordic,nrf-spim";
 //     status = "okay";
 //     sck-pin = <20>;
 //     mosi-pin = <21>;
 //     miso-pin = <22>;
-//     cs-gpios = <&gpio0 19 GPIO_ACTIVE_LOW>;//31 GPIO_ACTIVE_LOW>;
-//     spi-max-frequency = <4000000>;
-//     };
-    
-// Define the sdhc0 node
-&spi3 {
-    compatible = "nordic,nrf-spim";
-    status = "okay";
-    cs-gpios = <&gpio0 19 GPIO_ACTIVE_LOW>;
-    
 
-    sdhc0: sdhc@0 {
-        compatible = "zephyr,sdhc-spi-slot";
-        reg = <0>;
-        status = "okay";
-        spi-max-frequency = <24000000>;
-        
-    };
-};
+//     cs-gpios = <&gpio0 19 GPIO_ACTIVE_LOW>;//31 GPIO_ACTIVE_LOW>;
+
+//     sdhc0: sdhc@0 {
+//             compatible = "zephyr,mmc-spi-slot";
+//             reg = <0>;
+//             status = "okay";
+//             label = "SDHC0";
+//             spi-max-frequency = <24000000>;            
+//     };
+// };
 
 &i2c2 {
     si7060: si7060@32 {
@@ -42,8 +41,3 @@
 &sim_select {
     sim = "external";
 };
-
-&wdt0 {
-    status = "okay";
-};
-
