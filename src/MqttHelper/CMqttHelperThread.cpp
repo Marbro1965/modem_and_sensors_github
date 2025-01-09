@@ -21,7 +21,7 @@
 
 CMqttHelperThread* CMqttHelperThread::instance = nullptr;
 
-const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "79.55.70.74";     //Brescia"93.65.12.248";
+const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "93.65.12.171";//"79.55.70.74";     //Brescia"93.65.12.248";
 
 const char* CMqttHelperThread::MQTT_TOPIC  = "bsec/test";
 
@@ -61,6 +61,8 @@ CMqttHelperThread::~CMqttHelperThread(){
 void CMqttHelperThread::init_mqtt_helper(void)
 {
 	int err = 0;
+
+    CBaseThread::read_serial_number();
 
 	struct mqtt_helper_cfg cfg = {
 		.cb =

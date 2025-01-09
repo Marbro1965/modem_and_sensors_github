@@ -2,7 +2,14 @@
 
 #include "structures.h"
 
+#include <zephyr/device.h>
+
+#include <zephyr/drivers/hwinfo.h>
+
 #include <time.h>
+
+
+#include <cstdio>
                        // Include the header file that defines k_mem_pool
 
 
@@ -70,4 +77,21 @@ void CBaseThread::convertToReadableTime(uint32_t seconds_since_1970, char *buffe
     // Log the UTC time
     CLogger::getInstance()->log("UTC time: %s\n", buffer);
 
+}
+
+void CBaseThread::read_serial_number(void)
+{
+    uint8_t id[8]; // The nRF9160 has an 8-byte unique identifier
+    ssize_t length = hwinfo_get_device_id(id, sizeof(id));
+    char buffer[17]={};
+    int pos = 0;
+    if (length > 0) {
+        CLogger::getInstance()->log("Device ID: ");
+        for (int i = 0; i < length; i++) {
+            pos +=sprintf(&buffer[pos],"%02x", id[i]);
+        }
+        CLogger::getInstance()->log("%s\n",buffer);
+    } else {
+        CLogger::getInstance()->log("Failed to read device ID");
+    }
 }

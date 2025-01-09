@@ -24,9 +24,7 @@ FILE(GLOB_RECURSE app_sources src/*.c src/*.cpp src/*.h src/**/*.c src/**/*.cpp 
 # target_compile_options(app PRIVATE -fpermissive)
 
 # Suppress the error only for the coap.h file
-target_compile_options(app PRIVATE 
-    $<$<COMPILE_LANGUAGE:CXX>:-fpermissive>
-)
+target_compile_options(app PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-fpermissive>)
 
 # NORDIC SDK APP START
 

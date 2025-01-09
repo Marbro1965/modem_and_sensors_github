@@ -6,8 +6,6 @@
 
 #include <net/download_client.h>
 
-
-
 #define URL "http://panel.bbmold.com/firmware/release.txt"
 
 
