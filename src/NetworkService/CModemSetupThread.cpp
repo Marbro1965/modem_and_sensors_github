@@ -31,12 +31,35 @@ CModemSetupThread::~CModemSetupThread()
 
 void CModemSetupThread::runHandler(void)
 {
+    int counter = 0;
+
+    bool firstTry = true;
+
     CLogger::getInstance()->log("Modem setup thread started\n");
+
+    initModemLibrary();
 
     initModem();
 
+
     while(true)
     {
+        if (MODEM_STATE_CONNECTED != modem_state)
+        {
+            counter++;
+        }
+        else
+        {
+            counter = 0;
+        }
+
+        if (counter > 60*5) // 5 minutes
+        {
+            counter = 0;
+
+            initModem();
+        }
+
         k_sleep(K_SECONDS(1));
     }
 }
@@ -54,18 +77,10 @@ void CModemSetupThread::configure_psm() {
         CLogger::getInstance()->log("PSM parameters set successfully: TAU=5s, Active Time=5s\n");
     }
 }
-void CModemSetupThread::initModem(void)
-{
 
-    struct my_msg msg;
-    
-    msg.data = TURN_LED_BLUE_BLINKING;
-
-    int ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
+void CModemSetupThread::initModemLibrary(void){
 
    	int err;
-
-    //configure_psm();
 
     err = nrf_modem_lib_init();
 
@@ -73,6 +88,17 @@ void CModemSetupThread::initModem(void)
          CLogger::getInstance()->log("Failed to initialize modem library: %d", err);   
          return;
     }
+
+}
+void CModemSetupThread::initModem(void)
+{
+    int err;
+
+    struct my_msg msg;
+    
+    msg.data = TURN_LED_BLUE_BLINKING;
+
+    int ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
 
     err = lte_lc_connect_async(&CModemSetupThread::lte_handler);
 
@@ -124,20 +150,15 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
 
 	switch (evt->type) {
     	case LTE_LC_EVT_NW_REG_STATUS:
-            // if ((evt->nw_reg_status != LTE_LC_NW_REG_REGISTERED_HOME) &&
-            //     (evt->nw_reg_status != LTE_LC_NW_REG_REGISTERED_ROAMING)) {
-            //     break;
-            // }
-
-            // printk("Network registration status: %s\n",
-            //     evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_HOME ? "Connected - home"
-            //                             : "Connected - roaming");
             if (evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_HOME ||
                 evt->nw_reg_status == LTE_LC_NW_REG_REGISTERED_ROAMING) {
 
                 k_event_post(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG);
 
                 CLogger::getInstance()->log("LTE connected");
+
+                instance->modem_state = MODEM_STATE_CONNECTED;
+
                 msg.data = TURN_LED_BLUE;
 
             } else {
@@ -146,9 +167,11 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
 
                 k_event_clear(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG);
 
-                //instance->disconnectFromWiFi();
+                instance->modem_state = MODEM_STATE_DISCONNECTED;
 
                 CLogger::getInstance()->log("LTE not connected, status: %d", evt->nw_reg_status);
+
+                instance->initModem();
             }
 
 	    	break;
@@ -164,15 +187,21 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
             CLogger::getInstance()->log("RRC mode: %s\n",
                  evt->rrc_mode == LTE_LC_RRC_MODE_CONNECTED ? "Connected" : "Idle\n");
 
-            if (evt->rrc_mode == LTE_LC_RRC_MODE_CONNECTED)
-            {
+            // k_event_post(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG);
 
-                msg.data = TURN_LED_BLUE;
+            // CLogger::getInstance()->log("LTE connected");
 
-            } else{
+            // instance->modem_state = MODEM_STATE_CONNECTED;
 
-                msg.data = TURN_LED_OFF;
-            }
+            // if (evt->rrc_mode == LTE_LC_RRC_MODE_CONNECTED)
+            // {
+
+            //     msg.data = TURN_LED_BLUE;
+
+            // } else{
+
+            //     msg.data = TURN_LED_OFF;
+            // }
             break;
     	case LTE_LC_EVT_CELL_UPDATE:
             CLogger::getInstance()->log("LTE cell changed: Cell ID: %d, Tracking area: %d\n", evt->cell.id,

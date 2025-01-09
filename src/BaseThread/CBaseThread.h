@@ -52,6 +52,8 @@ public:
     static void convertToReadableTime(uint32_t time);
 
     static void convertToReadableTime(uint32_t time, char *buffer);
+
+    static void read_serial_number();
     
 };
 #endif // CBASETHREAD_H

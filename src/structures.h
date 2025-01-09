@@ -26,6 +26,7 @@ struct messageSensor{
 
 
 enum my_msgq_type {
+    TURN_LED_RED,
     TURN_LED_GREEN,
     TURN_LED_BLUE,
     TURN_LED_OFF,

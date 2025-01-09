@@ -11,23 +11,29 @@
 
 #include <stdint.h>
 
-#define MQTT_BROKER_STATE_CONNECTED	   1
-
-#define MQTT_BROKER_STATE_DISCONNECTED 0
 
 
 class CMqttHelperThread: public CBaseThread
 {
 
-    uint8_t status = MQTT_BROKER_STATE_DISCONNECTED;
+    enum BROKER_CONNECTION_STATE{
+        MQTT_BROKER_STATE_DISCONNECTED,
+        MQTT_BROKER_STATE_CONNECTING,
+        MQTT_BROKER_STATE_CONNECTED,
+        
+    };
 
-    bool sending = true;
+    enum MQTT_PUBLISH_STATE{
+        MQTT_PUBLISH_STATE_IDLE,
+        MQTT_PUBLISH_STATE_PUBLISHING,
+        MQTT_PUBLISH_STATE_PUBLISHED,
+    };
+
+    BROKER_CONNECTION_STATE status = MQTT_BROKER_STATE_DISCONNECTED;
+
+    MQTT_PUBLISH_STATE publish_status = MQTT_PUBLISH_STATE_IDLE;
 
     int64_t date_time_ms = 0;
-
-    char out_vec[200];
-
-    char *out;
 
     double latitude = 45.52030739893742;  
     double altitude = 120;		      
@@ -35,7 +41,13 @@ class CMqttHelperThread: public CBaseThread
 
     static CMqttHelperThread *instance;
 
-    char jsonBuffer[1024]; // Adjust size as needed based on expected payload size
+    char jsonBuffer[2048]; // Adjust size as needed based on expected payload size
+
+    
+
+    struct mqtt_topic subscribe_topics[3];
+
+    struct mqtt_subscription_list subscription_list;
 
 protected:    
 
@@ -45,6 +57,7 @@ protected:
 
     virtual int publish_message();
 
+    mqtt_qos qos_publishing = MQTT_QOS_1_AT_LEAST_ONCE;
     
 public:
 
@@ -52,6 +65,12 @@ public:
     static const char* MQTT_BROKER_HOSTNAME;
 
     static const char* MQTT_TOPIC;
+
+    static const char* MQTT_TOPIC_NEW_CONFIGURATION;
+    static const char* MQTT_TOPIC_NEW_RELEASE;
+    static const char* MQTT_TOPIC_TEST_OK;
+
+
 
     CMqttHelperThread();
 
@@ -65,9 +84,13 @@ public:
 
     static void on_mqtt_publish(struct mqtt_helper_buf topic, struct mqtt_helper_buf payload);
 
+    static void on_mqtt_puback(uint16_t message_id, int result);
+
     static void on_mqtt_suback(uint16_t message_id, int result);
 
     static void on_error(enum mqtt_helper_error error);
+
+    void subscribe_to_topic();
 
 };
 

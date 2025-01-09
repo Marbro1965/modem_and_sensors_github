@@ -14,7 +14,11 @@
 
 #include "DateTimeThread/CDateTimeThread.h"
 
+#include "Test/CLteTestDisconnectThread.h"
+
 #include "WdtThread/CWdtThread.h"
+
+#include "Test/CWdtTestKernelPanic.h"
 
 #include "structures.h"
 
@@ -23,6 +27,8 @@
 #include "Factory/CFactoryThread.h"
 
 #include "Logger/CLogger.h"
+
+#include "ClientLibrary/CDownloadClient.h"
 
 char __aligned(4) my_msgq_sensor[MSG_SENSOR_MAX_MSGS * sizeof(struct messageSensor)];
 char __aligned(4) my_msgq_buffer[MSGQ_MAX_MSGS * sizeof(struct my_msg)];
@@ -58,15 +64,21 @@ K_THREAD_STACK_DEFINE(thread_leds_stack, DEFAULT_THREAD_STACK_SIZE);
 
 K_THREAD_STACK_DEFINE(thread_sensor_stack, DEFAULT_THREAD_STACK_SIZE);
 
-K_THREAD_STACK_DEFINE(thread_modem_stack, 4096);
+K_THREAD_STACK_DEFINE(thread_modem_stack, 8192);
 
-K_THREAD_STACK_DEFINE(thread_mqtt_stack, DEFAULT_THREAD_STACK_SIZE);
+K_THREAD_STACK_DEFINE(thread_mqtt_stack, 8192);
 
 K_THREAD_STACK_DEFINE(thread_utc_time, DEFAULT_THREAD_STACK_SIZE);
 
 K_THREAD_STACK_DEFINE(thread_date_time, DEFAULT_THREAD_STACK_SIZE);
 
 K_THREAD_STACK_DEFINE(thread_wdt, DEFAULT_THREAD_STACK_SIZE);
+
+K_THREAD_STACK_DEFINE(thread_disconnect, DEFAULT_THREAD_STACK_SIZE);
+
+K_THREAD_STACK_DEFINE(thread_test_wdt, DEFAULT_THREAD_STACK_SIZE);
+
+K_THREAD_STACK_DEFINE(thread_download_client_stack, DEFAULT_THREAD_STACK_SIZE);
 
 
 struct k_thread thread_logger_data;
@@ -85,6 +97,11 @@ struct k_thread thread_date_time_data;
 
 struct k_thread thread_wdt_data;
 
+struct k_thread thread_disconnect_data;
+
+struct k_thread thread_test_wdt_data;
+
+struct k_thread thread_download_client_data;
 
 void initialize(void){
 
@@ -112,23 +129,41 @@ void initialize(void){
 
     CModemSetupThread *pModemThread = new CModemSetupThread();
 
-    k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 4096, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 1, 0, K_NO_WAIT);
+    k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 8196, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 2, 0, K_NO_WAIT);
 
 
-   CMqttHelperThread *pMqttThread = new CMqttHelperThread();   
+    CMqttHelperThread *pMqttThread = new CMqttHelperThread();   
 
-   k_tid_t id5 = k_thread_create(&thread_mqtt_data,thread_mqtt_stack, 4096, &CBaseThread::handlerRun, pMqttThread, NULL, NULL, 1, 0, K_NO_WAIT);
+    k_tid_t id5 = k_thread_create(&thread_mqtt_data,thread_mqtt_stack, 8196, &CBaseThread::handlerRun, pMqttThread, NULL, NULL, 1, 0, K_NO_WAIT);
 
+
+//    CUtcTimeThread *pUtcThread = new CUtcTimeThread();
+
+//    k_tid_t id6 = k_thread_create(&thread_utc_time_data,thread_utc_time, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pUtcThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
     CDateTimeThread *pDateTimeThread = new CDateTimeThread();
 
     k_tid_t id7 = k_thread_create(&thread_date_time_data,thread_date_time, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pDateTimeThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
 
-    CUtcTimeThread *pUtcTimeThread = new CUtcTimeThread();  
+    // CTestDisconnectThread *pDisconnectThread = new CTestDisconnectThread();
 
-    k_tid_t id8 = k_thread_create(&thread_utc_time_data,thread_utc_time, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pUtcTimeThread, NULL, NULL,
-    K_PRIO_COOP(1), 0, K_NO_WAIT);
+    // k_tid_t id8 = k_thread_create(&thread_disconnect_data,thread_disconnect, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pDisconnectThread, NULL, NULL, 10, 0, K_NO_WAIT);
+
+
+    // CWdtThread *pWdtThread = new CWdtThread();
+
+    // k_tid_t id9 = k_thread_create(&thread_wdt_data,thread_wdt, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pWdtThread, NULL, NULL, 10, 0, K_NO_WAIT);
+
+
+    // CWdtTestKernelPanic *pTestWdtThread = new CWdtTestKernelPanic();
+
+    // k_tid_t id10 = k_thread_create(&thread_test_wdt_data,thread_test_wdt, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pTestWdtThread, NULL, NULL, 10, 0, K_NO_WAIT);
+
+
+    CDownloadClient *pDownloadClient = new CDownloadClient();
+
+    k_tid_t id11 = k_thread_create(&thread_download_client_data,thread_download_client_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pDownloadClient, NULL, NULL, 10, 0, K_NO_WAIT);
 
     
 }

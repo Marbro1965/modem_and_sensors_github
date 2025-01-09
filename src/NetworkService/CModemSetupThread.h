@@ -28,7 +28,11 @@ public:
 
 protected:
     
+    void initModemLibrary(void);
+
     void initModem(void);
+
+
 
     //void startLocation(void);
 
