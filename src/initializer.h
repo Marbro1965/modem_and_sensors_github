@@ -17,17 +17,12 @@ extern "C" {
 
 #define     USE_HELPER_MQTT    1
 
-
-
 void initMessageQueue(void);
 
 void initSemaphore(void);
 
 void initialize(void);
 
-//K_THREAD_STACK_DEFINE(thread1_stack, DEFAULT_THREAD_STACK_SIZE);
-
-//struct k_thread thread1_data;
 
 #ifdef __cplusplus
 }

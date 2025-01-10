@@ -17,7 +17,8 @@
                 "C:/ncs/v2.7.0/nrf/include/modem",
                 "c:/NCS/v2.7.0/zephyr/drivers",
                 "c:/NCS/v2.7.0/zephyr/kernel",
-                "C:/ncs/v2.7.0/modules/lib/cjson"
+                "C:/ncs/v2.7.0/modules/lib/cjson",
+                "C:/ncs/v2.7.0/modules/fs/fatfs/include"               
             ],
             "defines": [
                 "_DEBUG",
