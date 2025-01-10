@@ -31,3 +31,7 @@
 &sim_select {
     sim = "external";
 };
+
+&wdt0 {
+    status = "okay";
+};
