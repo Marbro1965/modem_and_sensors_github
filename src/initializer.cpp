@@ -8,8 +8,6 @@
 
 #include "MqttHelper/CMqttHelperThread.h"
 
-#include "UtcTime/CUtcTimeThread.h"
-
 #include "Leds/CLedsThread.h"
 
 #include "DateTimeThread/CDateTimeThread.h"
