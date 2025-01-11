@@ -175,7 +175,7 @@ void initialize(void){
 
     CSdCardThread *pSdCardThread = new CSdCardThread();
     
-    k_tid_t id12 = k_thread_create(&thread_sd_card_data,thread_sd_card_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pSdCardThread, NULL, NULL, 10, 0, K_NO_WAIT);
+    k_tid_t id12 = k_thread_create(&thread_sd_card_data,thread_sd_card_stack, 4096, &CBaseThread::handlerRun, pSdCardThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
 
     
