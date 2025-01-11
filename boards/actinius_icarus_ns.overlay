@@ -1,18 +1,39 @@
 // To get started, press Ctrl+Space to bring up the completion menu and view the available nodes.
 // For more help, browse the DeviceTree documentation at https://docs.zephyrproject.org/latest/guides/dts/index.html
-// &spi3 {
-//     status = "okay";
-//     compatible = "nordic,nrf-spim";
-//     cs-gpios = <&gpio0 19 GPIO_ACTIVE_LOW>;
+&pinctrl {
+    spi3_default: spi3_default {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 0, 20)>,
+                    <NRF_PSEL(SPIM_MOSI, 0, 21)>,
+                    <NRF_PSEL(SPIM_MISO, 0, 22)>;
+        };
+    };
 
-//     sdhc0: sdhc@0 {
-//         compatible = "zephyr,mmc-spi-slot";
-//         reg = <0>;
-//         status = "okay";
-//         label = "SDHC0";
-//         spi-max-frequency = <24000000>;
-//     };
-// };
+    spi3_sleep: spi3_sleep {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 0, 20)>,
+                    <NRF_PSEL(SPIM_MOSI, 0, 21)>,
+                    <NRF_PSEL(SPIM_MISO, 0, 22)>;
+            low-power-enable;
+        };
+    };
+};
+
+&spi3 {
+    compatible = "nordic,nrf-spim";
+    status = "okay";
+    pinctrl-0 = <&spi3_default>;
+    pinctrl-1 = <&spi3_sleep>;
+    pinctrl-names = "default", "sleep";
+    cs-gpios = <&gpio0 18 GPIO_ACTIVE_LOW>;//19
+
+    sdhc0: sdhc@0 {
+        compatible = "zephyr,sdhc-spi-slot";
+        reg = <0>;
+        status = "okay";
+        spi-max-frequency = <4000000>;
+    };
+};
 
 
 &i2c2 {
