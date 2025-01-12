@@ -8,6 +8,8 @@ FATFS CFileIoWrapper::fat_fs = {};
 
 fs_mount_t CFileIoWrapper::mp = {};
 
+char CFileIoWrapper::buffer[1024] = {};
+
 CFileIoWrapper::CFileIoWrapper()
 {
     k_mutex_init(&my_mutex);
@@ -107,6 +109,7 @@ void CFileIoWrapper::fs_open_write(const char *file_name,const void *buffer,size
     int res = mount();
     if (res!=FR_OK) {
         CLogger::getInstance()->log("Mounting filesystem failed, error: %d", res);
+        res = unmount();
         return;
     }
 
@@ -123,6 +126,7 @@ void CFileIoWrapper::fs_open_write(const char *file_name,const void *buffer,size
     if (bytes_written < 0) {
         CLogger::getInstance()->log("Failed to write to file, error: %d", bytes_written);
         fs_close(&file);
+        res = unmount();
         release_mutex();
         return;
     }
@@ -134,4 +138,41 @@ void CFileIoWrapper::fs_open_write(const char *file_name,const void *buffer,size
     res = unmount();
 
     release_mutex();
+}
+
+int CFileIoWrapper::fs_open_read(const char *file_name,void *buffer,fs_mode_t mode){
+
+    acquire_mutex();
+
+    int res = mount();
+    if (res!=FR_OK) {
+        CLogger::getInstance()->log("Mounting filesystem failed, error: %d", res);
+        res = unmount();
+        return -1;
+    }
+
+    fs_file_t_init(&file);
+    res = fs_open(&file, file_name, mode);
+
+    if (res == FR_OK) {
+        CLogger::getInstance()->log("File opened.\n");
+    } else {
+        CLogger::getInstance()->log("Error opening file.\n");
+    }
+
+    ssize_t bytes_read = fs_read(&file, buffer, CHUNK_SIZE);
+    if (bytes_read < 0) {
+        CLogger::getInstance()->log("Failed to read from file, error: %d", bytes_read);
+        fs_close(&file);
+        res = unmount();
+        return -1;
+    }
+
+    fs_close(&file);
+
+    res = unmount();
+
+    release_mutex();
+
+    return bytes_read;
 }

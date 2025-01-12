@@ -12,6 +12,8 @@
 
 #define DISK_MOUNT_PT "/"DISK_DRIVE_NAME":"
 
+#define CHUNK_SIZE 1024
+
 class CFileIoWrapper
 {
 
@@ -60,8 +62,12 @@ public:
 
     static CFileIoWrapper *GetInstance();
 
+    static char buffer[CHUNK_SIZE];
+
     void mountUnmount(void);
 
     void fs_open_write(const char *file_name,const void *buffer,size_t size,fs_mode_t mode);
+
+    int fs_open_read(const char *file_name,void *buffer,fs_mode_t mode);
 
 };

@@ -26,6 +26,8 @@ void CSdCardThread::runHandler(void)
 
     fileIoWrapper->fs_open_write(filename,"Hello World",11,FS_O_CREATE | FS_O_WRITE);
 
+    fileIoWrapper->fs_open_read(filename,CFileIoWrapper::buffer,FS_O_READ);
+
     // const char *disk_pdrv = DISK_DRIVE_NAME;
 
     // if (disk_access_init(disk_pdrv) != 0) {
