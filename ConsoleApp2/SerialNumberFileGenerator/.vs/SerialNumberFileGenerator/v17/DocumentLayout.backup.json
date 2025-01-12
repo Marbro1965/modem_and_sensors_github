@@ -1,0 +1,41 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\ncs\\modem_and_sensor\\ConsoleApp2\\SerialNumberFileGenerator\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{0EA5C727-8A6F-4553-B647-9E9C3D26FF0A}|SerialNumberFileGenerator\\SerialNumberFileGenerator.csproj|c:\\ncs\\modem_and_sensor\\consoleapp2\\serialnumberfilegenerator\\serialnumberfilegenerator\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0EA5C727-8A6F-4553-B647-9E9C3D26FF0A}|SerialNumberFileGenerator\\SerialNumberFileGenerator.csproj|solutionrelative:serialnumberfilegenerator\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\ncs\\modem_and_sensor\\ConsoleApp2\\SerialNumberFileGenerator\\SerialNumberFileGenerator\\Program.cs",
+              "RelativeDocumentMoniker": "SerialNumberFileGenerator\\Program.cs",
+              "ToolTip": "C:\\ncs\\modem_and_sensor\\ConsoleApp2\\SerialNumberFileGenerator\\SerialNumberFileGenerator\\Program.cs",
+              "RelativeToolTip": "SerialNumberFileGenerator\\Program.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAAABoAAABJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-11T17:38:07.635Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+C:\ncs\modem_and_sensor\ConsoleApp2\SerialNumberFileGenerator\SerialNumberFileGenerator\bin\Debug\SerialNumberFileGenerator.exe.config
+C:\ncs\modem_and_sensor\ConsoleApp2\SerialNumberFileGenerator\SerialNumberFileGenerator\bin\Debug\SerialNumberFileGenerator.exe
+C:\ncs\modem_and_sensor\ConsoleApp2\SerialNumberFileGenerator\SerialNumberFileGenerator\bin\Debug\SerialNumberFileGenerator.pdb
+C:\ncs\modem_and_sensor\ConsoleApp2\SerialNumberFileGenerator\SerialNumberFileGenerator\obj\Debug\SerialNumberFileGenerator.csproj.AssemblyReference.cache
+C:\ncs\modem_and_sensor\ConsoleApp2\SerialNumberFileGenerator\SerialNumberFileGenerator\obj\Debug\SerialNumberFileGenerator.csproj.CoreCompileInputs.cache
+C:\ncs\modem_and_sensor\ConsoleApp2\SerialNumberFileGenerator\SerialNumberFileGenerator\obj\Debug\SerialNumberFileGenerator.exe
+C:\ncs\modem_and_sensor\ConsoleApp2\SerialNumberFileGenerator\SerialNumberFileGenerator\obj\Debug\SerialNumberFileGenerator.pdb

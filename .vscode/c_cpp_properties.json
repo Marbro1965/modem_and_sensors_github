@@ -11,14 +11,16 @@
                 "C:/ncs/v2.7.0/zephyr/include/zephyr/drivers",
                 "C:/ncs/v2.7.0/zephyr/include/zephyr/kernel",
                 "C:/ncs/v2.7.0/zephyr/include/zephyr/usb",
-                "C:/ncs/v2.7.0/zephyr/arch",             
+                "C:/ncs/v2.7.0/zephyr/arch",
                 "C:/ncs/v2.7.0/nrfxlib/nrf_modem/include",
                 "C:/ncs/v2.7.0/nrf/include",
                 "C:/ncs/v2.7.0/nrf/include/modem",
                 "c:/NCS/v2.7.0/zephyr/drivers",
                 "c:/NCS/v2.7.0/zephyr/kernel",
                 "C:/ncs/v2.7.0/modules/lib/cjson",
-                "C:/ncs/v2.7.0/modules/fs/fatfs/include"               
+                "C:/ncs/v2.7.0/modules/fs/fatfs/include",
+                "C:/ncs/v2.7.0/modules/hal/nordic/nrfx",
+                "C:/ncs/v2.7.0/modules/hal/nordic/nrfx/mdk"
             ],
             "defines": [
                 "_DEBUG",

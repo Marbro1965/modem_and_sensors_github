@@ -11,6 +11,9 @@ class CLogger
     CLogger();
 
 public:
+
+    static const int SERIAL_NUMBER = 240165;
+
     static CLogger *getInstance()
     {
         if (instance == nullptr)

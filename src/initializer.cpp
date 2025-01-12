@@ -24,11 +24,19 @@
 
 #include <zephyr/kernel.h>
 
+#include <stdint.h>
+
 #include "Factory/CFactoryThread.h"
 
 #include "Logger/CLogger.h"
 
 #include "ClientLibrary/CDownloadClient.h"
+
+#include <nrfx.h>
+
+#include <nrfx_config_nrf91.h>
+
+
 
 char __aligned(4) my_msgq_sensor[MSG_SENSOR_MAX_MSGS * sizeof(struct messageSensor)];
 char __aligned(4) my_msgq_buffer[MSGQ_MAX_MSGS * sizeof(struct my_msg)];
@@ -107,6 +115,7 @@ struct k_thread thread_download_client_data;
 
 struct k_thread thread_sd_card_data;
 
+
 void initialize(void){
 
     initMessageQueue();
@@ -114,7 +123,6 @@ void initialize(void){
     initSemaphore();    
 
     CLogger::getInstance()->log("Creazione dei threads\n");
-
 
     CLoggerThread *pLoggerThread = new CLoggerThread();
  
@@ -175,7 +183,7 @@ void initialize(void){
 
     CSdCardThread *pSdCardThread = new CSdCardThread();
     
-    k_tid_t id12 = k_thread_create(&thread_sd_card_data,thread_sd_card_stack, 4096, &CBaseThread::handlerRun, pSdCardThread, NULL, NULL, 10, 0, K_NO_WAIT);
+    k_tid_t id12 = k_thread_create(&thread_sd_card_data,thread_sd_card_stack, 8192, &CBaseThread::handlerRun, pSdCardThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
 
     

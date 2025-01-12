@@ -331,7 +331,7 @@ int CMqttHelperThread::publish_message()
         }
 
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
-                              "\"TF1\":[{\"serial\":\"%ld\",", 250001);
+                              "\"TF1\":[{\"serial\":\"%ld\",", CLogger::SERIAL_NUMBER);
 
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
                               "\"time\":\"%ld\",", (int32_t)(date_time_ms));

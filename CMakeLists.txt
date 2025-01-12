@@ -53,6 +53,10 @@ zephyr_include_directories($ENV{ZEPHYR_BASE}/../modules/lib/date_time/)
 
 zephyr_include_directories($ENV{ZEPHYR_BASE}/../modules/fs/fatfs/include)
 
+zephyr_include_directories($ENV{ZEPHYR_BASE}/../modules/hal_nordic/nrf)
+
+zephyr_include_directories($ENV{ZEPHYR_BASE}/../modules/hal/nordic/nrf)
+
 zephyr_include_directories($ENV{ZEPHYR_BASE}/../drivers)
 
 #zephyr_include_directories($ENV{ZEPHYR_BASE}/include)
