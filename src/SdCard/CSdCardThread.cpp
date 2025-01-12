@@ -22,7 +22,9 @@ void CSdCardThread::runHandler(void)
 
     CFileIoWrapper *fileIoWrapper = CFileIoWrapper::GetInstance();
 
-    fileIoWrapper->fs_open_write("test.txt","Hello World",11,FS_O_CREATE | FS_O_WRITE);
+    const char *filename = "/SD:/test.txt";
+
+    fileIoWrapper->fs_open_write(filename,"Hello World",11,FS_O_CREATE | FS_O_WRITE);
 
     // const char *disk_pdrv = DISK_DRIVE_NAME;
 

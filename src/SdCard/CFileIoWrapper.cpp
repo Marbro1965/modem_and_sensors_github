@@ -71,6 +71,11 @@ void CFileIoWrapper::mountUnmount(void)
 
 int CFileIoWrapper::mount()
 {
+
+    const char *disk_mount_pt = "/SD:";
+
+    mp.mnt_point = disk_mount_pt;
+
     int res = fs_mount(&mp);
 
     if (res == FR_OK) {
@@ -125,6 +130,8 @@ void CFileIoWrapper::fs_open_write(const char *file_name,const void *buffer,size
     CLogger::getInstance()->log("Wrote %d bytes to file", bytes_written);
 
     fs_close(&file);
+
+    res = unmount();
 
     release_mutex();
 }
