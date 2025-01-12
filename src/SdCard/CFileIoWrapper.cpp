@@ -100,7 +100,12 @@ void CFileIoWrapper::fs_open_write(const char *file_name,const void *buffer,size
     acquire_mutex();
 
     int res = mount();
+    if (res!=FR_OK) {
+        CLogger::getInstance()->log("Mounting filesystem failed, error: %d", res);
+        return;
+    }
 
+    fs_file_t_init(&file);
     res = fs_open(&file, file_name, mode);
 
     if (res == FR_OK) {
