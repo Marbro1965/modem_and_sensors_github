@@ -35,6 +35,18 @@ CMqttHelperThread::CMqttHelperThread(){
 
     instance = this;
 
+    initTopicSubscription();
+
+    createTimer();
+
+}
+
+CMqttHelperThread::~CMqttHelperThread(){
+
+}
+
+void CMqttHelperThread::initTopicSubscription(){
+
     subscribe_topics[0].topic.utf8 = (uint8_t*)CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION;
     subscribe_topics[0].topic.size = strlen((const char*)CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION);
     subscribe_topics[0].qos = MQTT_QOS_1_AT_LEAST_ONCE;
@@ -53,8 +65,9 @@ CMqttHelperThread::CMqttHelperThread(){
 
 }
 
-CMqttHelperThread::~CMqttHelperThread(){
+void CMqttHelperThread::onTimerCallback(){
 
+    timerExpired = true;
 }
 
 

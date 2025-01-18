@@ -17,9 +17,17 @@
 
 class CBaseThread
 {
-    
 
 protected:
+
+    struct k_timer my_timer;
+
+    void createTimer();
+
+    void startOneShotTimer(uint32_t duration_ms);
+
+    void stopOneShotTimer();
+
 
 public:
 
@@ -54,6 +62,10 @@ public:
     static void convertToReadableTime(uint32_t time, char *buffer);
 
     static void read_serial_number();
+
+    static void timerCallback(struct k_timer *timer_id);
+
+    virtual void onTimerCallback();
     
 };
 #endif // CBASETHREAD_H

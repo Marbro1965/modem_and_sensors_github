@@ -43,13 +43,15 @@ class CMqttHelperThread: public CBaseThread
 
     char jsonTxBuffer[JSON_TX_BUFFER_SIZE]; // Adjust size as needed based on expected payload size
 
-    
+    static char topicSubscribed[3][64];
 
     struct mqtt_topic subscribe_topics[3];
 
     struct mqtt_subscription_list subscription_list;
 
     struct mqtt_publish_param param;
+	bool timerExpired = false;
+	void initTopicSubscription();
 
 protected:    
 
@@ -95,6 +97,7 @@ public:
     static void on_error(enum mqtt_helper_error error);
 
     void subscribe_to_topic();
+	void onTimerCallback() override;
 
 };
 

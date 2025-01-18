@@ -41,6 +41,12 @@ CBaseThread::~CBaseThread()
 
 }
 
+void CBaseThread::createTimer()
+{
+    my_timer.user_data = this;
+
+    k_timer_init(&my_timer, &CBaseThread::timerCallback, NULL);
+}
 
 void CBaseThread::handlerRun(void *args1, void *args2, void *args3)
 {
@@ -94,4 +100,35 @@ void CBaseThread::read_serial_number(void)
     } else {
         CLogger::getInstance()->log("Failed to read device ID");
     }
+}
+
+void CBaseThread::startOneShotTimer(uint32_t duration_ms)
+{
+    // Start the timer with the specified duration (in milliseconds)
+
+    k_timer_start(&my_timer, K_MSEC(duration_ms), K_NO_WAIT);
+
+}
+
+void CBaseThread::stopOneShotTimer()
+{
+    // Stop the timer
+    k_timer_stop(&my_timer);
+}
+
+void CBaseThread::timerCallback(struct k_timer *timer_id)
+{
+    // Timer callback function
+    CLogger::getInstance()->log("One-shot timer expired\n");
+
+    CBaseThread* thread = (CBaseThread*)(timer_id->user_data);
+
+    thread->onTimerCallback();
+
+}
+
+void CBaseThread::onTimerCallback()
+{
+    // Default implementation of the timer callback function
+    CLogger::getInstance()->log("Default timer callback function\n");
 }
