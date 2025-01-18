@@ -21,7 +21,7 @@
 
 CMqttHelperThread* CMqttHelperThread::instance = nullptr;
 
-const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "93.65.12.171";//"79.55.70.74";     //Brescia"93.65.12.248";
+const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "93.65.4.42";//"79.55.70.74";     //Brescia"93.65.12.248";
 
 const char* CMqttHelperThread::MQTT_TOPIC  = "bsec/test";
 
@@ -165,22 +165,27 @@ void CMqttHelperThread::runHandler(void){
                         //pubblica senza aspettare risposta
                         publish_status = MQTT_PUBLISH_STATE_IDLE;
                         CLogger::getInstance()->log("Publish a message\n");
-                        publish_message();
 
                     }else if (qos_publishing== MQTT_QOS_2_EXACTLY_ONCE)
                     {
 
                         publish_status = MQTT_PUBLISH_STATE_PUBLISHING;
                         CLogger::getInstance()->log("Publish a message\n");
-                        publish_message();
 
                     }
                     else{
 
                         publish_status = MQTT_PUBLISH_STATE_IDLE;
                         CLogger::getInstance()->log("Publish a message\n");
-                        publish_message();  
+                         
                     }
+                    if (0==prepare_sensor_message(jsonTxBuffer))
+                    {
+                        // Prepare MQTT parameters
+                        public_a_message(MQTT_TOPIC, jsonTxBuffer);
+
+                    }
+
                 } 
 
 
@@ -288,7 +293,7 @@ void CMqttHelperThread::on_mqtt_puback(uint16_t message_id, int result)
 void CMqttHelperThread::on_mqtt_suback(uint16_t message_id, int result)
 {
 
-    CLogger::getInstance()->log("Subscibe succeed\n");
+    CLogger::getInstance()->log("Subscribe succeed\n");
 	// if ((message_id == SUBSCRIBE_TOPIC_ID) && (result == 0)) {
 	// 	LOG_INF("Subscribed to topic %s", sub_topic);
 	// } else if (result) {
@@ -309,12 +314,13 @@ void CMqttHelperThread::on_error(enum mqtt_helper_error error)
 }
 
 
-int CMqttHelperThread::publish_message()
+int CMqttHelperThread::prepare_sensor_message(char *jsonBuffer)
 {
     struct messageSensor msg;
   
 
     char dataEora[50];
+
     int jsonIndex = 0;
 
     int ret = k_msgq_get(&CBaseThread::sensorQueueMessage, &msg, K_NO_WAIT);
@@ -387,29 +393,33 @@ int CMqttHelperThread::publish_message()
         // Close JSON array and object
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex, "]}");
 
-        if (jsonIndex >= sizeof(jsonBuffer)) {
+        if (jsonIndex >= JSON_TX_BUFFER_SIZE) {
             CLogger::getInstance()->log("JSON buffer overflow");
             return -ENOMEM;
         }
 
-        // Prepare MQTT parameters
-        struct mqtt_publish_param param;
-        param.message.payload.data = (uint8_t*)jsonBuffer;
-        param.message.payload.len = strlen(jsonBuffer);
-        param.message.topic.qos = qos_publishing;
-        param.message_id = k_uptime_get_32();
-        param.message.topic.topic.utf8 = (uint8_t *)MQTT_TOPIC;
-        param.message.topic.topic.size = strlen(MQTT_TOPIC);
-        param.dup_flag = 0;
-        param.retain_flag = 0;
-
-        int err = mqtt_helper_publish(&param);
-        if (err) {
-            CLogger::getInstance()->log("Failed to send payload, err: %d", err);
-        }
+        
     }
 
     return ret;
 }
 
+int CMqttHelperThread::public_a_message(const char *topic,char *jsonBuffer)
+{
 
+    param.message.payload.data = (uint8_t*)jsonBuffer;
+    param.message.payload.len = strlen(jsonBuffer);
+    param.message.topic.qos = qos_publishing;
+    param.message_id = k_uptime_get_32();
+    param.message.topic.topic.utf8 = (uint8_t *)topic;
+    param.message.topic.topic.size = strlen(topic);
+    param.dup_flag = 0;
+    param.retain_flag = 0;
+
+    int err = mqtt_helper_publish(&param);
+    if (err) {
+        CLogger::getInstance()->log("Failed to send payload, err: %d", err);
+    }
+
+    return 0;
+}

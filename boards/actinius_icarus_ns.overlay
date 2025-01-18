@@ -19,32 +19,32 @@
     };
 };
 
-&spi3 {
-    compatible = "nordic,nrf-spim";
-    status = "okay";
-    pinctrl-0 = <&spi3_default>;
-    pinctrl-1 = <&spi3_sleep>;
-    pinctrl-names = "default", "sleep";
-    cs-gpios = <&gpio0 19 GPIO_ACTIVE_LOW>;//19
+// &spi3 {
+//     compatible = "nordic,nrf-spim";
+//     status = "okay";
+//     pinctrl-0 = <&spi3_default>;
+//     pinctrl-1 = <&spi3_sleep>;
+//     pinctrl-names = "default", "sleep";
+//     cs-gpios = <&gpio0 19 GPIO_ACTIVE_LOW>;//19
 
-    // sdhc0: sdhc@0 {
-    //     compatible = "zephyr,sdhc-spi-slot";
-    //     reg = <0>;
-    //     status = "okay";
-    //     spi-max-frequency = <24000000>;
-    // };
+//     // sdhc0: sdhc@0 {
+//     //     compatible = "zephyr,sdhc-spi-slot";
+//     //     reg = <0>;
+//     //     status = "okay";
+//     //     spi-max-frequency = <24000000>;
+//     // };
 
-    sdhc0: sdhc@0 {
-        compatible = "zephyr,sdhc-spi-slot";
-        reg = <0>;
-        status = "okay";
-        mmc {
-            compatible = "zephyr,sdmmc-disk";
-            status = "okay";
-        };
-        spi-max-frequency = <24000000>;
-    };
-};
+//     sdhc0: sdhc@0 {
+//         compatible = "zephyr,sdhc-spi-slot";
+//         reg = <0>;
+//         status = "okay";
+//         mmc {
+//             compatible = "zephyr,sdmmc-disk";
+//             status = "okay";
+//         };
+//         spi-max-frequency = <24000000>;
+//     };
+// };
 
 
 &i2c2 {

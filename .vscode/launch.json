@@ -24,8 +24,8 @@
             "runToEntryPoint": "main",
             "showDevDebugOutput": "none",
             "cwd": "${workspaceFolder}",
-            "armToolchainPath": "C:/ncs/toolchains/ce3b5ff664/opt/zephyr-sdk/arm-zephyr-eabi/bin",
-            "gdbPath": "C:/ncs/toolchains/ce3b5ff664/opt/zephyr-sdk/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
+            "armToolchainPath": "${config:nrf-connect.toolchain}/opt/zephyr-sdk/arm-zephyr-eabi/bin",
+            "gdbPath": "${config:nrf-connect.toolchain}/opt/zephyr-sdk/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
             "serverpath": "C:/Program Files/SEGGER/JLink_V794i/JLinkGDBServerCL.exe",
             "executable": "C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/zephyr.elf",
             

@@ -12,7 +12,7 @@
 #include <stdint.h>
 
 
-
+#define JSON_TX_BUFFER_SIZE 1024
 class CMqttHelperThread: public CBaseThread
 {
 
@@ -41,7 +41,7 @@ class CMqttHelperThread: public CBaseThread
 
     static CMqttHelperThread *instance;
 
-    char jsonBuffer[2048]; // Adjust size as needed based on expected payload size
+    char jsonTxBuffer[JSON_TX_BUFFER_SIZE]; // Adjust size as needed based on expected payload size
 
     
 
@@ -49,13 +49,17 @@ class CMqttHelperThread: public CBaseThread
 
     struct mqtt_subscription_list subscription_list;
 
+    struct mqtt_publish_param param;
+
 protected:    
 
     virtual void init_mqtt_helper(void);
 
     virtual void connect_mqtt(void);
 
-    virtual int publish_message();
+    virtual int prepare_sensor_message(char *jsonTxBuffer);
+
+    virtual int public_a_message(const char *topic,char *buffer);
 
     mqtt_qos qos_publishing = MQTT_QOS_1_AT_LEAST_ONCE;
     

@@ -50,5 +50,13 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp"
     },
-    "cortex-debug.variableUseNaturalFormat": false
+    "cortex-debug.variableUseNaturalFormat": false,
+    "nrf-connect.topdir": "c:/ncs",
+    "nrf-connect.toolchain": "c:/ncs/toolchains/ce3b5ff664",
+    "nrf-connect.sdk": "c:/ncs/v2.9.0",
+    "nrf-connect.apps": "${workspaceFolder}",
+    "nrf-connect.workspace": "${workspaceFolder}",
+    "cmake.configureOnOpen": false,
+    "nrf-connect.debugging.bindings": {
+        "c:/ncs/v2.9.0": "c:/ncs/toolchains/ce3b5ff664"
 }

@@ -60,7 +60,7 @@ void CDownloadClient::runHandler(void)
         
         CLogger::getInstance()->log("LTE connected\n");
 
-        init();
+        //init();
     }
     
     while (true)
