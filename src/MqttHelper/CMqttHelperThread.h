@@ -68,11 +68,13 @@ protected:
 public:
 
     // constexpr member variable
-    static const char* MQTT_BROKER_HOSTNAME;
+    static const char *MQTT_BROKER_HOSTNAME;
 
-    static const char* MQTT_TOPIC;
+    static const char *MQTT_TOPIC;
+    static const char *MQTT_TOPIC_ACKNOWLEDGE;
 
-    static const char* MQTT_TOPIC_NEW_CONFIGURATION;
+    static const char* MQTT_TOPIC_COMANDI_REMOTI;
+    
     static const char* MQTT_TOPIC_NEW_RELEASE;
     static const char* MQTT_TOPIC_TEST_OK;
 

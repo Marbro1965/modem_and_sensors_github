@@ -12,7 +12,7 @@ class CLogger
 
 public:
 
-    static const int SERIAL_NUMBER = 240165;
+    static const char *SERIAL_NUMBER;
 
     static CLogger *getInstance()
     {

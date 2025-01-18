@@ -43,9 +43,10 @@ CBaseThread::~CBaseThread()
 
 void CBaseThread::createTimer()
 {
-    my_timer.user_data = this;
 
     k_timer_init(&my_timer, &CBaseThread::timerCallback, NULL);
+
+    my_timer.user_data = this;
 }
 
 void CBaseThread::handlerRun(void *args1, void *args2, void *args3)

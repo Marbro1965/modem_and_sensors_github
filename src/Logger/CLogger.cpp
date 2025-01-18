@@ -8,6 +8,8 @@
 
 CLogger *CLogger::instance = nullptr;
 
+const char *CLogger::SERIAL_NUMBER = "240165";
+
 CLogger::CLogger()
 {
     

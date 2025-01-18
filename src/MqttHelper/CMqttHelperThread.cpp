@@ -25,11 +25,15 @@ const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "93.65.4.42";//"79.55.70.7
 
 const char* CMqttHelperThread::MQTT_TOPIC  = "bsec/test";
 
-const char* CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION = "bsec/Rosso";
+const char* CMqttHelperThread::MQTT_TOPIC_ACKNOWLEDGE  = "bsec/ack";
 
-const char* CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE = "bsec/Verde";
+char CMqttHelperThread::topicSubscribed[3][64] ={};
 
-const char* CMqttHelperThread::MQTT_TOPIC_TEST_OK = "bsec/Blu";
+const char* CMqttHelperThread::MQTT_TOPIC_COMANDI_REMOTI = "/cmds";
+
+const char* CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE = "/verde";
+
+const char* CMqttHelperThread::MQTT_TOPIC_TEST_OK = "/blu";
 
 CMqttHelperThread::CMqttHelperThread(){
 
@@ -47,16 +51,22 @@ CMqttHelperThread::~CMqttHelperThread(){
 
 void CMqttHelperThread::initTopicSubscription(){
 
-    subscribe_topics[0].topic.utf8 = (uint8_t*)CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION;
-    subscribe_topics[0].topic.size = strlen((const char*)CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION);
+    sprintf((char*)topicSubscribed[0], "%s%s", CLogger::SERIAL_NUMBER, MQTT_TOPIC_COMANDI_REMOTI);
+
+    sprintf((char*)topicSubscribed[1], "%s%s", CLogger::SERIAL_NUMBER, MQTT_TOPIC_NEW_RELEASE);
+
+    sprintf((char*)topicSubscribed[2], "%s%s", CLogger::SERIAL_NUMBER, MQTT_TOPIC_TEST_OK);
+
+    subscribe_topics[0].topic.utf8 = (uint8_t*)topicSubscribed[0];
+    subscribe_topics[0].topic.size = strlen((const char*)topicSubscribed[0]);
     subscribe_topics[0].qos = MQTT_QOS_1_AT_LEAST_ONCE;
 
-    subscribe_topics[1].topic.utf8 = (uint8_t*)CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE;
-    subscribe_topics[1].topic.size = strlen((const char*)CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE);
+    subscribe_topics[1].topic.utf8 = (uint8_t*)topicSubscribed[1];
+    subscribe_topics[1].topic.size = strlen((const char*)topicSubscribed[1]);
     subscribe_topics[1].qos = MQTT_QOS_1_AT_LEAST_ONCE;
 
-    subscribe_topics[2].topic.utf8 = (uint8_t*)CMqttHelperThread::MQTT_TOPIC_TEST_OK;
-    subscribe_topics[2].topic.size = strlen((const char*)CMqttHelperThread::MQTT_TOPIC_TEST_OK);
+    subscribe_topics[2].topic.utf8 = (uint8_t*)topicSubscribed[2];
+    subscribe_topics[2].topic.size = strlen((const char*)topicSubscribed[2]);
     subscribe_topics[2].qos = MQTT_QOS_1_AT_LEAST_ONCE;
 	
     subscription_list.list = subscribe_topics;
@@ -68,6 +78,12 @@ void CMqttHelperThread::initTopicSubscription(){
 void CMqttHelperThread::onTimerCallback(){
 
     timerExpired = true;
+
+    CLogger::getInstance()->log("Timeout connecting to MQTT broker\n");
+
+    status = MQTT_BROKER_STATE_DISCONNECTED;
+
+    connect_mqtt();
 }
 
 
@@ -129,7 +145,10 @@ void CMqttHelperThread::connect_mqtt(void)
 		CLogger::getInstance()->log("Failed connecting to MQTT, error code: %d", err);
 	}
 
-	
+
+	startOneShotTimer(20000);
+
+    timerExpired = false;
 }
 
 void CMqttHelperThread::runHandler(void){
@@ -154,23 +173,9 @@ void CMqttHelperThread::runHandler(void){
 
                 status = MQTT_BROKER_STATE_CONNECTING;
             }
-            else if  (MQTT_BROKER_STATE_CONNECTING == status)
-            {
-                //non risponde il server per 20 secondi ma c'e' LTE
-                counter++;
-
-                if (counter>20)
-                {
-                    connect_mqtt();
-
-                    status = MQTT_BROKER_STATE_DISCONNECTED;
-
-                    counter = 0;
-                }
-
-            }
             else if  (MQTT_BROKER_STATE_CONNECTED == status)
             {
+
                 if (publish_status == MQTT_PUBLISH_STATE_IDLE) {
                     // Handle the event
                     if (qos_publishing== MQTT_QOS_0_AT_MOST_ONCE)
@@ -206,7 +211,7 @@ void CMqttHelperThread::runHandler(void){
 
         }
 
-        k_sleep(K_SECONDS(1));
+        k_sleep(K_SECONDS(10));
     }
 }
 
@@ -225,6 +230,8 @@ void CMqttHelperThread::on_mqtt_connack(enum mqtt_conn_return_code return_code, 
 {
 
     CLogger::getInstance()->log("Connessione al broker MQTT riuscita!\n");
+
+    instance->stopOneShotTimer();
 
 	instance->status = MQTT_BROKER_STATE_CONNECTED;
 
@@ -248,12 +255,12 @@ void CMqttHelperThread::on_mqtt_publish(struct mqtt_helper_buf topic, struct mqt
 
     if (payload.size > 0) {
         // Print the received topic and payload
-        CLogger::getInstance()->log("Received topic: %.*s size: %d", topic.size, topic.ptr);
-        CLogger::getInstance()->log("Received payload: %.*s size %d", payload.size, payload.ptr);
+        CLogger::getInstance()->log("Received topic: %s size: %d", topic.ptr,topic.size);
+        CLogger::getInstance()->log("Received payload: %s size %d", payload.ptr,payload.size);
 
         // Process the payload here
         // For example, you can compare it to known commands:
-        if (strncmp(topic.ptr, CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION , strlen(CMqttHelperThread::MQTT_TOPIC_NEW_CONFIGURATION)) == 0){
+        if (strncmp(topic.ptr, (const char*)&topicSubscribed[0] , strlen((const char*)&topicSubscribed[0])) == 0){
             if (strncmp(payload.ptr, "1" , 1) == 0){
                 msg.data = TURN_LED_RED;
             }
@@ -262,7 +269,7 @@ void CMqttHelperThread::on_mqtt_publish(struct mqtt_helper_buf topic, struct mqt
             }
             
 
-        }else if  (strncmp(topic.ptr, CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE , strlen(CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE)) == 0){
+        }else if  (strncmp(topic.ptr, (const char*)&topicSubscribed[1] , strlen((const char*)&topicSubscribed[1])) == 0){
             if (strncmp(payload.ptr, "1" , 1) == 0){
                 msg.data = TURN_LED_GREEN;
             }
@@ -271,7 +278,7 @@ void CMqttHelperThread::on_mqtt_publish(struct mqtt_helper_buf topic, struct mqt
             }    
             
 
-        }else if (strncmp(topic.ptr, CMqttHelperThread::MQTT_TOPIC_TEST_OK , strlen(CMqttHelperThread::MQTT_TOPIC_TEST_OK)) == 0){
+        }else if (strncmp(topic.ptr, (const char*)&topicSubscribed[2] , strlen((const char*)&topicSubscribed[2])) == 0){
             if (strncmp(payload.ptr, "1" , 1) == 0){
                 msg.data = TURN_LED_BLUE;
             }
