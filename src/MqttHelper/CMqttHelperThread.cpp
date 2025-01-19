@@ -343,7 +343,7 @@ int CMqttHelperThread::prepare_sensor_message(char *jsonBuffer)
         }
 
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
-                              "\"TF1\":[{\"serial\":\"%ld\",", CLogger::SERIAL_NUMBER);
+                              "\"TF1\":[{\"serial\":\"%s\",", CLogger::SERIAL_NUMBER);
 
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
                               "\"time\":\"%ld\",", (int32_t)(date_time_ms));
@@ -410,7 +410,36 @@ int CMqttHelperThread::prepare_sensor_message(char *jsonBuffer)
     return ret;
 }
 
-int CMqttHelperThread::public_a_message(const char *topic,char *jsonBuffer)
+int CMqttHelperThread::prepare_acknowledge_message(char *jsonBuffer){
+
+    struct my_msg msg;
+
+    int jsonIndex = 0;
+
+    int ret = k_msgq_get(&CBaseThread::msgAckClient, &msg, K_NO_WAIT);
+
+    if (0==ret)
+    {
+        // Start building JSON object
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex, "{");
+
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+                              "\"ack\":\"%s\",","OK");
+
+        // Close JSON array and object
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex, "]}");
+
+        if (jsonIndex >= JSON_TX_BUFFER_SIZE) {
+            CLogger::getInstance()->log("JSON buffer overflow");
+            return -ENOMEM;
+        }
+
+    }
+
+    return ret;
+}
+
+int CMqttHelperThread::public_a_message(const char *topic,const char *jsonBuffer)
 {
 
     param.message.payload.data = (uint8_t*)jsonBuffer;

@@ -6,8 +6,11 @@
 
 #include <net/download_client.h>
 
-#define URL "http://panel.bbmold.com/firmware/release.txt"
+//#define URL "http://panel.bbmold.com/firmware/release.txt"
 
+#define URL_CONFIG "http://panel.bbmold.com/firmware/release.txt"
+
+#define URL_FIRMWARE "http://panel.bbmold.com/firmware/release.txt"
 
 class CDownloadClient : public CBaseThread
 {
@@ -30,6 +33,8 @@ class CDownloadClient : public CBaseThread
 
     size_t buffer_offset;
 
+    char *url;
+
 public:
     CDownloadClient();
 
@@ -40,6 +45,8 @@ public:
     static int callback(const struct download_client_evt *event);
 
     void process_fragment(const uint8_t *buf, size_t len);
+
+    void download(char *url);
 
     // Wrapper function for coap_bytes_to_block_size
     coap_block_size coap_bytes_to_block_size_wrapper(uint16_t bytes);

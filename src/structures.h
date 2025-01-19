@@ -38,6 +38,7 @@ enum my_msgq_type {
     DOWNLOAD_FIRMWARE,
     DOWNLOAD_ACK_FIRMWARE,
     DOWNLOAD_ACK_CONFIG,
+    DOWNLOAD_ACK
 };
 
 struct my_msg {

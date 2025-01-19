@@ -85,7 +85,9 @@ protected:
 
     virtual int prepare_sensor_message(char *jsonTxBuffer);
 
-    virtual int public_a_message(const char *topic,char *buffer);
+    virtual int prepare_acknowledge_message(char *jsonBuffer);
+
+    virtual int public_a_message(const char *topic,const char *buffer);
 
     mqtt_qos qos_publishing = MQTT_QOS_1_AT_LEAST_ONCE;
     

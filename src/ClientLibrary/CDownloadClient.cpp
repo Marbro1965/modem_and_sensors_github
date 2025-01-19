@@ -18,6 +18,9 @@ CDownloadClient::CDownloadClient()
     buffer = new uint8_t[buffer_size];
 
     buffer_offset = 0;
+
+    url = new char[128];
+
 }
 
 CDownloadClient::~CDownloadClient()
@@ -34,7 +37,13 @@ void CDownloadClient::init(void)
         return;
     }
 
-    err = download_client_get(&dl, URL, &config, URL, 0);
+
+}
+
+void CDownloadClient::download(char *url)
+{
+    int err;
+    err = download_client_get(&dl, url, &config, url, 0);
     if (err) {
         CLogger::getInstance()->log("Failed to start download, err %d\n", err);
         return;
@@ -46,6 +55,7 @@ void CDownloadClient::init(void)
     } else {
         CLogger::getInstance()->log("File size: %d bytes\n", file_size);
     }
+
 }
 
 void CDownloadClient::runHandler(void)
@@ -60,7 +70,7 @@ void CDownloadClient::runHandler(void)
         
         CLogger::getInstance()->log("LTE connected\n");
 
-        //init();
+        init();
     }
     
     while (true)
@@ -75,7 +85,11 @@ void CDownloadClient::runHandler(void)
         
                 if (msg.data == DOWNLOAD_FIRMWARE) {
         
-                    init();
+                    download(URL_FIRMWARE);
+        
+                } else if (msg.data == DOWNLOAD_CONFIG) {
+        
+                    download(URL_CONFIG);
                 }
             }
 
@@ -89,7 +103,7 @@ void CDownloadClient::runHandler(void)
 
 int CDownloadClient::callback(const struct download_client_evt *event)
 {
-    
+    struct my_msg msg;
     if (event->id == DOWNLOAD_CLIENT_EVT_FRAGMENT) {
 
         instance->process_fragment((const uint8_t *)event->fragment.buf, event->fragment.len);
@@ -97,14 +111,26 @@ int CDownloadClient::callback(const struct download_client_evt *event)
         downloaded += event->fragment.len;
 
         if (file_size) {
+
             CLogger::getInstance()->log("\rDownloaded %d/%d bytes (%d%%)", downloaded, file_size,
                    (downloaded * 100) / file_size);
+
         } else {
+
             CLogger::getInstance()->log("\rDownloaded %d bytes", downloaded);
+
+            msg.data = DOWNLOAD_ACK;
+
+            // download completed
+            int ret = k_msgq_put(&CBaseThread::msgAckClient, &msg, K_NO_WAIT);
+
         }
     } else if (event->id == DOWNLOAD_CLIENT_EVT_DONE) {
+
         CLogger::getInstance()->log("\nDownload completed in %d ms\n", k_uptime_get_32());
+
     } else if (event->id == DOWNLOAD_CLIENT_EVT_ERROR) {
+
         CLogger::getInstance()->log("\nError %d during download\n", event->error);
     }
 
