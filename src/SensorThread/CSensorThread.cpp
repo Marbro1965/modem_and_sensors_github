@@ -6,6 +6,8 @@
 
 #include "Logger/CLogger.h"
 
+#include "CAccelerometer.h"
+
 CSensorThread::CSensorThread()
 {
 
@@ -54,6 +56,8 @@ void CSensorThread::runHandler(void)
 	{
 		//LOG_ERR("Sensor thread failed to initialize");
 	}	
+
+	CAccelerometer::getInstance()->init();
 	
 	while (true) {
 		//struct sensor_value temp, press, humidity, iaq, co2, voc;

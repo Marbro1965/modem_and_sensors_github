@@ -51,9 +51,9 @@ void initMessageQueue(void){
 
     k_msgq_init(&CBaseThread::loggerQueueMessage,&my_msgq_logger[0], sizeof(struct logger_msg), MSGQ_MAX_MSGS_LOGGER);
 
-    k_msgq_init(&CBaseThread::configurationQueueMessage,&my_msgq_buffer[0], sizeof(struct my_msg), 1);
+    k_msgq_init(&CBaseThread::msgDownloadClient,&my_msgq_buffer[0], sizeof(struct my_msg), 1);
 
-    k_msgq_init(&CBaseThread::firmwareUpdateQueueMessage,&my_msgq_buffer[0], sizeof(struct my_msg), 1);
+    k_msgq_init(&CBaseThread::msgAckClient,&my_msgq_buffer[0], sizeof(struct my_msg), 1);
 
     k_msgq_init(&CBaseThread::blinkQueueMessage,&my_msgq_leds[0], sizeof(struct my_msg), 10);
 

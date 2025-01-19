@@ -1,7 +1,5 @@
 #include "CDownloadClient.h"
 
-
-
 size_t CDownloadClient::downloaded=0;
 
 size_t CDownloadClient::file_size = 0;
@@ -52,6 +50,8 @@ void CDownloadClient::init(void)
 
 void CDownloadClient::runHandler(void)
 {
+    struct my_msg msg;
+
     CLogger::getInstance()->log("Download Client Thread started\n");
 
     uint32_t events = k_event_wait(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG, false, K_FOREVER);
@@ -65,8 +65,24 @@ void CDownloadClient::runHandler(void)
     
     while (true)
     {
-        // Sleep for a while before checking again
-        k_sleep(K_SECONDS(300)); // Check every hour to synchronize
+         events = k_event_wait(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG, false, K_FOREVER);
+
+        if (events & LTE_CONNECTED_FLAG) {
+        
+            int ret = k_msgq_get(&CBaseThread::msgDownloadClient, &msg, K_NO_WAIT);
+        
+            if (ret == 0) {
+        
+                if (msg.data == DOWNLOAD_FIRMWARE) {
+        
+                    init();
+                }
+            }
+
+        }
+
+        k_sleep(K_SECONDS(1)); // Check every hour to synchronize
+
     }
 }
 

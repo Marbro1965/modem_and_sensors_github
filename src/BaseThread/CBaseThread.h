@@ -39,7 +39,7 @@ public:
 
     static k_msgq loggerQueueMessage;
 
-    static k_msgq msgDownloadClient;;
+    static k_msgq msgDownloadClient;
 
     static k_msgq msgAckClient;
 
