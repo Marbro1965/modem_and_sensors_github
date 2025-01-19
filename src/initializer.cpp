@@ -63,6 +63,8 @@ void initMessageQueue(void){
 void initSemaphore(void){
 
     k_event_init(&CBaseThread::lte_event_flags);
+
+    k_event_init(&CBaseThread::mqttMessageInQueueFlag);
     
 }
 

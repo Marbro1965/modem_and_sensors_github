@@ -207,6 +207,11 @@ void CMqttHelperThread::runHandler(void){
                         public_a_message(MQTT_TOPIC, jsonTxBuffer);
 
                     }
+                    if (0==prepare_acknowledge_message(jsonTxBuffer))
+                    {
+                        // Prepare MQTT parameters
+                        public_a_message(MQTT_TOPIC_ACKNOWLEDGE, jsonTxBuffer);
+                    }
 
                 } 
 
@@ -334,7 +339,7 @@ int CMqttHelperThread::prepare_sensor_message(char *jsonBuffer)
     if (0 == ret) {
 
         // Start building JSON object
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex, "{");
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex, "{");
 
         if (!date_time_now(&date_time_ms)) {
             date_time_ms /= TIME_DIVISOR;
@@ -342,10 +347,10 @@ int CMqttHelperThread::prepare_sensor_message(char *jsonBuffer)
             date_time_ms = k_uptime_get() / TIME_DIVISOR;
         }
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"TF1\":[{\"serial\":\"%s\",", CLogger::SERIAL_NUMBER);
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"time\":\"%ld\",", (int32_t)(date_time_ms));
 
         struct tm *tm_info = gmtime(&date_time_ms);
@@ -365,45 +370,44 @@ int CMqttHelperThread::prepare_sensor_message(char *jsonBuffer)
                 tm_info->tm_sec);
 
         
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"readable_time\":\"%s\",",&dataEora[0]);
 
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"altitude\":\"%5.0lf\",", altitude);
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"latitude\":\"%3.6lf\",", latitude);
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"longitude\":\"%3.6lf\",", longitude);
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"iqa\":\"%d\",", msg.iaq.val1);
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"humidity\":\"%d.%1d\",", msg.humidity.val1, msg.humidity.val2);
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"ambient_temperature\":\"%d.%1d\",", msg.temp.val1, msg.temp.val2);
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"pressure\":\"%d.%1d\",", msg.press.val1, msg.press.val2);
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"voc\":\"%d.%1d\",", msg.voc.val1, msg.voc.val2);
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"co2\":\"%d.%1d\"}", msg.co2.val1, msg.co2.val2);
 
         // Close JSON array and object
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex, "]}");
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex, "]}");
 
         if (jsonIndex >= JSON_TX_BUFFER_SIZE) {
             CLogger::getInstance()->log("JSON buffer overflow");
             return -ENOMEM;
         }
-
         
     }
 
@@ -421,13 +425,13 @@ int CMqttHelperThread::prepare_acknowledge_message(char *jsonBuffer){
     if (0==ret)
     {
         // Start building JSON object
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex, "{");
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex, "{");
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex,
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"ack\":\"%s\",","OK");
 
         // Close JSON array and object
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], sizeof(jsonBuffer) - jsonIndex, "]}");
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex, "]}");
 
         if (jsonIndex >= JSON_TX_BUFFER_SIZE) {
             CLogger::getInstance()->log("JSON buffer overflow");
@@ -592,4 +596,20 @@ void CMqttHelperThread::parse_json_mqtt_message(char *json_message)
 
     CMqttHelperThread::memory_pool_index = 0;//equivale a cJSON_Delete(json);
 
+}
+
+void CMqttHelperThread::check_queues_and_set_event() {
+
+    struct messageSensor msg;
+    // Check if the sensor queue is not empty
+    if (k_msgq_get(&CBaseThread::sensorQueueMessage, &msg, K_NO_WAIT) == 0) {
+        k_msgq_put(&CBaseThread::sensorQueueMessage, &msg, K_NO_WAIT); // Put the message back
+        k_event_set(&CBaseThread::mqttMessageInQueueFlag, MQTT_MESSAGE_TO_SEND_FLAG);
+    }
+
+    // Check if the LEDs queue is not empty
+    if (k_msgq_get(&CBaseThread::msgAckClient, &msg, K_NO_WAIT) == 0) {
+        k_msgq_put(&CBaseThread::msgAckClient, &msg, K_NO_WAIT); // Put the message back
+        k_event_set(&CBaseThread::mqttMessageInQueueFlag, MQTT_MESSAGE_TO_SEND_FLAG);
+    }
 }

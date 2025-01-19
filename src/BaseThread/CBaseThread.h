@@ -15,6 +15,8 @@
 
 #define LTE_DISCONNECTED_FLAG   0x00        // Flag indicating LTE connection
 
+#define MQTT_MESSAGE_TO_SEND_FLAG 0x01
+
 class CBaseThread
 {
 
@@ -46,6 +48,8 @@ public:
     static k_sem net_conn_sem;
 
     static k_event lte_event_flags;
+
+    static k_event mqttMessageInQueueFlag;
 
     static int64_t unix_time_ms;
 

@@ -76,7 +76,8 @@ class CMqttHelperThread: public CBaseThread
 
     void parse_json_mqtt_message(char *json_message);
 
-
+    void check_queues_and_set_event();
+    
 protected:    
 
     virtual void init_mqtt_helper(void);
