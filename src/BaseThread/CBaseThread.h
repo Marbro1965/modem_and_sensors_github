@@ -39,9 +39,9 @@ public:
 
     static k_msgq loggerQueueMessage;
 
-    static k_msgq firmwareUpdateQueueMessage;
+    static k_msgq msgDownloadClient;;
 
-    static k_msgq configurationQueueMessage;
+    static k_msgq msgAckClient;
 
     static k_sem net_conn_sem;
 

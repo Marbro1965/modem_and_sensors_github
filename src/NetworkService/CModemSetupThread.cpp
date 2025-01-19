@@ -144,9 +144,9 @@ void CModemSetupThread::initModem(void)
 void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
 {
 
-    struct my_msg msg;
+    // struct my_msg msg;
     
-    msg.data = TURN_LED_BLUE_BLINKING;
+    // msg.data = TURN_LED_BLUE_BLINKING;
 
 	switch (evt->type) {
     	case LTE_LC_EVT_NW_REG_STATUS:
@@ -157,9 +157,13 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
 
                 CLogger::getInstance()->log("LTE connected");
 
-                instance->modem_state = MODEM_STATE_CONNECTED;
+                struct my_msg msg;
+    
+                msg.data = TURN_LED_OFF;
 
-                msg.data = TURN_LED_BLUE;
+                int ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
+
+                instance->modem_state = MODEM_STATE_CONNECTED;
 
             } else {
 
@@ -187,21 +191,6 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
             CLogger::getInstance()->log("RRC mode: %s\n",
                  evt->rrc_mode == LTE_LC_RRC_MODE_CONNECTED ? "Connected" : "Idle\n");
 
-            // k_event_post(&CBaseThread::lte_event_flags, LTE_CONNECTED_FLAG);
-
-            // CLogger::getInstance()->log("LTE connected");
-
-            // instance->modem_state = MODEM_STATE_CONNECTED;
-
-            // if (evt->rrc_mode == LTE_LC_RRC_MODE_CONNECTED)
-            // {
-
-            //     msg.data = TURN_LED_BLUE;
-
-            // } else{
-
-            //     msg.data = TURN_LED_OFF;
-            // }
             break;
     	case LTE_LC_EVT_CELL_UPDATE:
             CLogger::getInstance()->log("LTE cell changed: Cell ID: %d, Tracking area: %d\n", evt->cell.id,
@@ -213,9 +202,9 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
 		    break;
 	}
 
-    msg.data = TURN_LED_OFF;
+//    msg.data = TURN_LED_OFF;
 
-    int ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
+//    int ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
 
 }
 

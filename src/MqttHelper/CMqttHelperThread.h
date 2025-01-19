@@ -13,6 +13,13 @@
 
 
 #define JSON_TX_BUFFER_SIZE 1024
+
+#define JSON_RX_BUFFER_SIZE 1024
+
+#define ALIGNMENT 4 
+
+#define MEMORY_POOL_SIZE 1024
+
 class CMqttHelperThread: public CBaseThread
 {
 
@@ -43,6 +50,8 @@ class CMqttHelperThread: public CBaseThread
 
     char jsonTxBuffer[JSON_TX_BUFFER_SIZE]; // Adjust size as needed based on expected payload size
 
+    char jsonRxBuffer[JSON_RX_BUFFER_SIZE]; // Adjust size as needed based on expected payload size
+
     static char topicSubscribed[3][64];
 
     struct mqtt_topic subscribe_topics[3];
@@ -50,8 +59,23 @@ class CMqttHelperThread: public CBaseThread
     struct mqtt_subscription_list subscription_list;
 
     struct mqtt_publish_param param;
+
 	bool timerExpired = false;
+
 	void initTopicSubscription();
+
+    static char __aligned(4) memory_pool[MEMORY_POOL_SIZE];
+
+    static size_t memory_pool_index;
+
+    static void *custom_malloc(size_t size);
+
+    static void custom_free(void *ptr);
+
+    //Parsing comando ricevuto
+
+    void parse_json_mqtt_message(char *json_message);
+
 
 protected:    
 
@@ -71,11 +95,13 @@ public:
     static const char *MQTT_BROKER_HOSTNAME;
 
     static const char *MQTT_TOPIC;
+
     static const char *MQTT_TOPIC_ACKNOWLEDGE;
 
     static const char* MQTT_TOPIC_COMANDI_REMOTI;
     
     static const char* MQTT_TOPIC_NEW_RELEASE;
+
     static const char* MQTT_TOPIC_TEST_OK;
 
 
@@ -99,6 +125,7 @@ public:
     static void on_error(enum mqtt_helper_error error);
 
     void subscribe_to_topic();
+
 	void onTimerCallback() override;
 
 };

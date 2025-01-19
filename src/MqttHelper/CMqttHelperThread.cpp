@@ -35,6 +35,10 @@ const char* CMqttHelperThread::MQTT_TOPIC_NEW_RELEASE = "/verde";
 
 const char* CMqttHelperThread::MQTT_TOPIC_TEST_OK = "/blu";
 
+size_t CMqttHelperThread::memory_pool_index = 0;
+
+char __aligned(4) CMqttHelperThread::memory_pool[MEMORY_POOL_SIZE]={};
+
 CMqttHelperThread::CMqttHelperThread(){
 
     instance = this;
@@ -249,7 +253,7 @@ void CMqttHelperThread::on_mqtt_disconnect(int result)
 void CMqttHelperThread::on_mqtt_publish(struct mqtt_helper_buf topic, struct mqtt_helper_buf payload)
 {
 
-    struct my_msg msg;
+    
 
     CLogger::getInstance()->log("Received a payload\n");
 
@@ -261,39 +265,21 @@ void CMqttHelperThread::on_mqtt_publish(struct mqtt_helper_buf topic, struct mqt
         // Process the payload here
         // For example, you can compare it to known commands:
         if (strncmp(topic.ptr, (const char*)&topicSubscribed[0] , strlen((const char*)&topicSubscribed[0])) == 0){
-            if (strncmp(payload.ptr, "1" , 1) == 0){
-                msg.data = TURN_LED_RED;
-            }
-            else{
-                msg.data = TURN_LED_OFF;
-            }
+
+            snprintf(&(instance->jsonRxBuffer[0]), sizeof(instance->jsonRxBuffer), payload.ptr);
+
+            instance->parse_json_mqtt_message(&(instance->jsonRxBuffer[0]));
+
             
 
         }else if  (strncmp(topic.ptr, (const char*)&topicSubscribed[1] , strlen((const char*)&topicSubscribed[1])) == 0){
-            if (strncmp(payload.ptr, "1" , 1) == 0){
-                msg.data = TURN_LED_GREEN;
-            }
-            else{
-                msg.data = TURN_LED_OFF;
-            }    
             
 
         }else if (strncmp(topic.ptr, (const char*)&topicSubscribed[2] , strlen((const char*)&topicSubscribed[2])) == 0){
-            if (strncmp(payload.ptr, "1" , 1) == 0){
-                msg.data = TURN_LED_BLUE;
-            }
-            else{
-                msg.data = TURN_LED_OFF;
-            }    
 
             
         }
 
-        // Add more conditions as needed
-
-        
-
-        int ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
 
     } else {
 
@@ -442,4 +428,139 @@ int CMqttHelperThread::public_a_message(const char *topic,char *jsonBuffer)
     }
 
     return 0;
+}
+void *CMqttHelperThread::custom_malloc(size_t size) {
+     // Calculate the aligned index
+    size_t aligned_index = (memory_pool_index + (ALIGNMENT - 1)) & ~(ALIGNMENT - 1);
+
+    // Check if there's enough space in the memory pool
+    if (aligned_index + size > MEMORY_POOL_SIZE) {
+        return NULL; // Not enough memory
+    }
+
+    // Allocate memory from the aligned index
+    void *ptr = &memory_pool[aligned_index];
+    memory_pool_index = aligned_index + size; // Update the memory pool index
+    return ptr;
+}
+
+void CMqttHelperThread::custom_free(void *ptr) {
+    // No-op for static memory pool
+}
+
+
+void CMqttHelperThread::parse_json_mqtt_message(char *json_message)
+{
+
+    struct my_msg msg;
+
+    bool messageForLeds = false;
+
+    bool messageForClient = false;
+
+    int ret = 0;
+
+    cJSON_Hooks hooks;
+    hooks.malloc_fn = &CMqttHelperThread::custom_malloc;
+    hooks.free_fn = &CMqttHelperThread::custom_free;
+    cJSON_InitHooks(&hooks);
+
+    // Ensure the input message fits within the buffer size
+    if (strlen(json_message) >= JSON_RX_BUFFER_SIZE) {
+        
+        return;
+    }
+
+    // Parse the JSON message in const mode (zero-heap usage)
+    cJSON *json = cJSON_ParseWithLengthOpts(json_message, strlen(json_message), NULL, 0);
+    if (json == NULL) {
+        
+        CLogger::getInstance()->log("Failed to parse json message");
+
+        return;
+    }
+
+    // Extract and print values directly without dynamic memory usage
+    cJSON *cmd = cJSON_GetObjectItemCaseSensitive(json, "cmd");
+
+    if (cJSON_IsString(cmd) && (cmd->valuestring != NULL)) 
+    {
+
+        CLogger::getInstance()->log("Found field cmd");
+
+        if (strcmp(cmd->valuestring, "config") == 0) 
+        {
+            //esegue il download del file di configurazione
+
+            messageForClient = true;
+
+            msg.data = DOWNLOAD_CONFIG;
+        }
+
+        if (strcmp(cmd->valuestring, "updateFirmware") == 0) 
+        {
+            //comincia le operazioni di download del firmware
+
+            messageForClient = true;
+
+            msg.data = DOWNLOAD_FIRMWARE;
+        }
+
+        if (strcmp(cmd->valuestring, "LedBlueOn") == 0) 
+        {
+            //accende il led Blue
+            msg.data = TURN_LED_BLUE;
+
+            messageForLeds = true;
+        }
+
+        if (strcmp(cmd->valuestring, "LedGreenOn") == 0) 
+        {
+            //accende il led verde
+            msg.data = TURN_LED_GREEN;
+
+            messageForLeds = true;
+
+        }
+        if (strcmp(cmd->valuestring, "LedRedOn") == 0) 
+        {
+            //accende il led rosso
+            msg.data = TURN_LED_RED;
+
+            messageForLeds = true;
+
+        }
+
+        if (strcmp(cmd->valuestring, "LedOff") == 0) 
+        {
+            //spegne i leds
+            msg.data = TURN_LED_OFF;
+
+            messageForLeds = true;
+
+        }
+
+    }
+
+    if (messageForLeds){
+
+        ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
+
+        if (ret != 0) {
+            CLogger::getInstance()->log("Failed to send message to blink thread");
+        }
+    }
+
+    if (messageForClient){
+
+        ret = k_msgq_put(&CBaseThread::msgDownloadClient, &msg, K_NO_WAIT);
+
+        if (ret != 0) {
+            CLogger::getInstance()->log("Failed to send message to download thread");
+        }
+    }
+    
+
+    CMqttHelperThread::memory_pool_index = 0;//equivale a cJSON_Delete(json);
+
 }
