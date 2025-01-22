@@ -203,17 +203,33 @@ int CDownloadClient::callback(const struct download_client_evt *event)
 
         case DOWNLOAD_CLIENT_EVT_DONE:
             {
+            struct my_msg msg;
+
             CLogger::getInstance()->log("Download finished successfully.\n");
 
             cleanup_after_download(true); // Call cleanup after success
+
+            msg.data = DOWNLOAD_ACK;
+
+-            // download completed
+-           k_msgq_put(&CBaseThread::msgAckClient, &msg, K_NO_WAIT);
+
             }
             break;
 
         case DOWNLOAD_CLIENT_EVT_ERROR:
             {
+            struct my_msg msg;
+
             CLogger::getInstance()->log("Download failed.\n");
 
             cleanup_after_download(false); // Call cleanup after failure
+
+            msg.data = DOWNLOAD_NACK;
+
+-            // download completed
+-           k_msgq_put(&CBaseThread::msgAckClient, &msg, K_NO_WAIT);
+
             }
             break;
 

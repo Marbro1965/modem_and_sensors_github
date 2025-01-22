@@ -6,9 +6,9 @@
 
 #include <net/download_client.h>
 
-#define URL_CONFIG "http://panel.bbmold.com/firmware/release.txt"
+#define URL_CONFIG "http://panel.bbmold.com/config/rel00.conf"
 
-#define URL_FIRMWARE "http://panel.bbmold.com/firmware/release.txt"
+#define URL_FIRMWARE "http://panel.bbmold.com/firmware/bme680.hex"
 
 #include <zephyr/storage/disk_access.h>
 

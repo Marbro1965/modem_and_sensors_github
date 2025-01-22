@@ -427,9 +427,17 @@ int CMqttHelperThread::prepare_acknowledge_message(char *jsonBuffer){
         // Start building JSON object
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex, "{");
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
+        if (DOWNLOAD_ACK==msg.data)
+        {
+            jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"ack\":\"%s\",","OK");
+        }
+        else
+        {
+            jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
+                              "\"nack\":\"%s\",","OK");
 
+        }
         // Close JSON array and object
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex, "]}");
 
