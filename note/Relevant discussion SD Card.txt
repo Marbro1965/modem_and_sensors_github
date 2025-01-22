@@ -1,1 +1,106 @@
 https://devzone.nordicsemi.com/f/nordic-q-a/102609/nrf9160-enabling-mcuboot-in-v2-4-0-causes-sd-card-on-spi3-to-stop-working-spi3-conflict
+
+
+
+Based on the information provided in the knowledge sources, simply setting `CONFIG_SPI_NOR=n` in your project's configuration file (prj.conf) may not be sufficient to fully disable SPI NOR functionality, especially when using MCUboot. There are a few important points to consider:
+
+1. MCUboot configuration: As mentioned in the [nRF9160 enabling mcuboot discussion](https://devzone.nordicsemi.com/f/nordic-q-a/102609/nrf9160-enabling-mcuboot-in-v2-4-0-causes-sd-card-on-spi3-to-stop-working-spi3-conflict), MCUboot has its own configuration that may override your project settings. You might need to create a child image configuration for MCUboot to ensure SPI NOR is disabled there as well.
+
+2. Devicetree implications: The presence of a compatible "jedec,spi-nor" in your devicetree can automatically include SPI_NOR, even if you try to disable it in your configuration.
+
+3. Other configuration files: There might be other configuration files in your project or the SDK that set `CONFIG_SPI_NOR=y`.
+
+To ensure SPI_NOR is fully disabled, you should:
+
+1. Set `CONFIG_SPI_NOR=n` in your project's prj.conf file.
+
+2. Create a child image configuration for MCUboot:
+   Create a file at `child_image/mcuboot/mcuboot.conf` with the content:
+   ```
+   CONFIG_SPI_NOR=n
+   ```
+
+3. Check your devicetree files (both in your project and board-specific files) for any "jedec,spi-nor" compatible devices and remove or disable them if not needed.
+
+4. Use the `west build` command with an additional flag to ensure the SPI_NOR config is disabled for MCUboot:
+   ```
+   west build -b your_board -- -Dmcuboot_CONFIG_SPI_NOR=n
+   ```
+
+5. After building, check the generated config file (usually found in `build/zephyr/.config`) to confirm that `CONFIG_SPI_NOR` is indeed set to `n`.
+
+If you're still experiencing issues after these steps, you may need to investigate further by examining all configuration files and devicetree files in your project and the SDK for any other instances where SPI_NOR might be enabled.
+
+Remember, disabling SPI_NOR may have implications for functionality that depends on it, such as certain types of external flash memory or FOTA updates, so ensure this change doesn't negatively impact your intended application functionality.
+
+
+
+
+
+Based on the information you've provided and the knowledge sources available, I can help you create an mcuboot.overlay file that includes both the SD card and NOR flash configurations. Here's a suggested mcuboot.overlay file:
+
+```
+/ {
+    chosen {
+        nordic,pm-ext-flash = &mx25r64;
+    };
+};
+
+&spi3 {
+    compatible = "nordic,nrf-spim";
+    status = "okay";
+    pinctrl-0 = <&spi3_default>;
+    pinctrl-1 = <&spi3_sleep>;
+    pinctrl-names = "default", "sleep";
+    cs-gpios = <&gpio0 19 GPIO_ACTIVE_LOW>, <&gpio0 17 GPIO_ACTIVE_LOW>;
+
+    sdhc0: sdhc@0 {
+        compatible = "zephyr,sdhc-spi-slot";
+        reg = <0>;
+        status = "okay";
+        mmc {
+            compatible = "zephyr,sdmmc-disk";
+            status = "okay";
+        };
+        spi-max-frequency = <8000000>;
+    };
+
+    mx25r64: mx25r6435f@1 {
+        compatible = "jedec,spi-nor";
+        reg = <1>;
+        spi-max-frequency = <33000000>;
+        size = <67108864>;
+        jedec-id = [c2 28 17];
+        sfdp-bfp = [
+            e5 20 f1 ff ff ff ff 03 44 eb 08 6b 08 3b 04 bb
+            ee ff ff ff ff ff 00 ff ff ff 00 ff 0c 20 0f 52
+            10 d8 00 ff 23 72 f5 00 82 ed 04 cc 44 83 68 44
+            30 b0 30 b0 f7 c4 d5 5c 00 be 29 ff f0 d0 ff ff
+        ];
+        has-dpd;
+        t-enter-dpd = <10000>;
+        t-exit-dpd = <5000>;
+    };
+};
+```
+
+This overlay file is based on the examples provided in the [nRF9160 MCUboot and SD card conflicts discussion](https://devzone.nordicsemi.com/f/nordic-q-a/102609/nrf9160-enabling-mcuboot-in-v2-4-0-causes-sd-card-on-spi3-to-stop-working-spi3-conflict?ReplyFilter=Answers&ReplySortBy=Answers&ReplySortOrder=Descending) and the [nRF5340 MCUboot configuration discussion](https://devzone.nordicsemi.com/f/nordic-q-a/109778/can-t-disable-config_nordic_qspi_nor-in-mcuboot?ReplyFilter=Answers&ReplySortBy=Answers&ReplySortOrder=Descending).
+
+Key points:
+
+1. We've added the NOR flash configuration (`mx25r64`) to the same SPI bus as your SD card.
+2. The `cs-gpios` line now includes two chip select pins, one for the SD card (GPIO 19) and one for the NOR flash (GPIO 17). You may need to adjust this GPIO number based on your specific hardware configuration.
+3. The `nordic,pm-ext-flash` property in the `chosen` node tells the system to use the external flash for MCUboot.
+
+Remember to adjust the specific details (like GPIO pins, flash size, and jedec-id) according to your actual hardware if they differ from this example.
+
+Also, ensure that your mcuboot.conf file includes the necessary configurations to support both SD card and SPI NOR:
+
+```
+CONFIG_SPI=y
+CONFIG_SPI_NOR=y
+CONFIG_SPI_NOR_FLASH_LAYOUT_PAGE_SIZE=4096
+CONFIG_MULTITHREADING=y
+```
+
+This setup should allow MCUboot to use both the SD card and the NOR flash. However, be aware that using both on the same SPI bus may require careful management in your application to avoid conflicts.
