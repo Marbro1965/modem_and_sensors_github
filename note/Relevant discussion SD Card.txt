@@ -1,0 +1,1 @@
+https://devzone.nordicsemi.com/f/nordic-q-a/102609/nrf9160-enabling-mcuboot-in-v2-4-0-causes-sd-card-on-spi3-to-stop-working-spi3-conflict
