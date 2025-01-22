@@ -54,7 +54,7 @@ CFileIoWrapper* CFileIoWrapper::GetInstance()
 void CFileIoWrapper::mountUnmount(void)
 {
 
-    const char *disk_mount_pt = DISK_MOUNT_PT;
+    const char *disk_mount_pt = "/SD:";
 
     mp.mnt_point = disk_mount_pt;
 

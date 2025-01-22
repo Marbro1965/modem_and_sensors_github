@@ -1,11 +1,20 @@
 #include "CDownloadClient.h"
 
+#include <stdio.h>
+
 size_t CDownloadClient::downloaded=0;
 
 size_t CDownloadClient::file_size = 0;
 
 CDownloadClient* CDownloadClient::instance = nullptr;
 
+FATFS CDownloadClient::fat_fs = {};
+
+fs_mount_t CDownloadClient::mp = {};
+
+fs_file_t CDownloadClient::file = {};
+
+char CDownloadClient::fileName[32] = {};
 
 CDownloadClient::CDownloadClient()
 {
@@ -21,10 +30,60 @@ CDownloadClient::CDownloadClient()
 
     url = new char[128];
 
+
+    /* mounting info */
+    mp.type = FS_FATFS;
+
+	mp.fs_data = &fat_fs;
+
+
 }
 
 CDownloadClient::~CDownloadClient()
 {
+}
+
+int CDownloadClient::start_file_download(const char *url,const char *file_path)
+{
+     int err;
+
+   /* Mount the SD card */
+    err = mount_sd_card();
+    if (err) {
+        printk("SD card mount failed: %d\n", err);
+        return err;
+    }
+
+    //const char *filename = "/SD:/test.txt";
+    /* Delete the file if it already exists */
+    sprintf(fileName, "/SD:/%s", file_path);
+
+    err = delete_existing_file(fileName);
+    if (err) {
+        printk("Failed to prepare file: %d\n", err);
+        unmount_sd_card(); // Unmount the SD card in case of an error
+        return err;
+    }     
+
+    /* Initialize the download client */
+    err = download_client_init(&dl, &CDownloadClient::callback);
+    if (err) {
+        CLogger::getInstance()->log("Download client initialization failed: %d\n", err);
+        unmount_sd_card(); 
+        return err;
+    }
+
+    /* Start downloading the file */
+    err = download_client_start(&dl, url, 0);
+    if (err) {
+        CLogger::getInstance()->log("Download client start failed: %d\n", err);
+        unmount_sd_card(); 
+        return err;
+    }
+
+    CLogger::getInstance()->log("File download started...\n");
+    return 0;
+
 }
 
 void CDownloadClient::init(void)
@@ -70,7 +129,6 @@ void CDownloadClient::runHandler(void)
         
         CLogger::getInstance()->log("LTE connected\n");
 
-        init();
     }
     
     while (true)
@@ -85,11 +143,11 @@ void CDownloadClient::runHandler(void)
         
                 if (msg.data == DOWNLOAD_FIRMWARE) {
         
-                    download(URL_FIRMWARE);
+                    start_file_download(URL_FIRMWARE,"prova.config");
         
                 } else if (msg.data == DOWNLOAD_CONFIG) {
         
-                    download(URL_CONFIG);
+                    start_file_download(URL_CONFIG,"firmware.hex");
                 }
             }
 
@@ -103,35 +161,64 @@ void CDownloadClient::runHandler(void)
 
 int CDownloadClient::callback(const struct download_client_evt *event)
 {
-    struct my_msg msg;
-    if (event->id == DOWNLOAD_CLIENT_EVT_FRAGMENT) {
 
-        instance->process_fragment((const uint8_t *)event->fragment.buf, event->fragment.len);
+    int err;
 
-        downloaded += event->fragment.len;
+    switch (event->id) {
+        case DOWNLOAD_CLIENT_EVT_FRAGMENT:
+            {
+            // Write chunk to file (as shown in previous implementation)
+            CLogger::getInstance()->log("Received a fragment of size: %d bytes\n", event->fragment.len);
 
-        if (file_size) {
+            /* Open the file for appending */
+            err = fs_open(&file,(const char*) &fileName[0], FS_O_CREATE | FS_O_WRITE);
+            if (err) {
+                CLogger::getInstance()->log("Failed to open file: %d\n", err);
+                return err;
+            }
 
-            CLogger::getInstance()->log("\rDownloaded %d/%d bytes (%d%%)", downloaded, file_size,
-                   (downloaded * 100) / file_size);
+            /* Move the file pointer to the end for appending */
+            err = fs_seek(&file, 0, FS_SEEK_END);
+            if (err) {
+                CLogger::getInstance()->log("Failed to seek file: %d\n", err);
+                fs_close(&file);
+                return err;
+            }
 
-        } else {
+            /* Write the received chunk to the file */
+            ssize_t bytes_written = fs_write(&file, event->fragment.buf, event->fragment.len);
 
-            CLogger::getInstance()->log("\rDownloaded %d bytes", downloaded);
+            if (bytes_written < 0) {
+                CLogger::getInstance()->log("Failed to write to file: %d\n", bytes_written);
+                fs_close(&file);
+                return bytes_written;
+            }
 
-            msg.data = DOWNLOAD_ACK;
+            CLogger::getInstance()->log("Successfully wrote %d bytes to the file\n", bytes_written);
 
-            // download completed
-            int ret = k_msgq_put(&CBaseThread::msgAckClient, &msg, K_NO_WAIT);
+            /* Close the file */
+            fs_close(&file);
+            }
+            break;
 
-        }
-    } else if (event->id == DOWNLOAD_CLIENT_EVT_DONE) {
+        case DOWNLOAD_CLIENT_EVT_DONE:
+            {
+            CLogger::getInstance()->log("Download finished successfully.\n");
 
-        CLogger::getInstance()->log("\nDownload completed in %d ms\n", k_uptime_get_32());
+            cleanup_after_download(true); // Call cleanup after success
+            }
+            break;
 
-    } else if (event->id == DOWNLOAD_CLIENT_EVT_ERROR) {
+        case DOWNLOAD_CLIENT_EVT_ERROR:
+            {
+            CLogger::getInstance()->log("Download failed.\n");
 
-        CLogger::getInstance()->log("\nError %d during download\n", event->error);
+            cleanup_after_download(false); // Call cleanup after failure
+            }
+            break;
+
+        default:
+            break;
     }
 
     return 0;
@@ -140,18 +227,74 @@ int CDownloadClient::callback(const struct download_client_evt *event)
 void CDownloadClient::process_fragment(const uint8_t *buf, size_t len)
 {
     
-    if (buffer_offset + len <= buffer_size) {
-        memcpy(buffer + buffer_offset, buf, len);
-        buffer_offset += len;
-    } else {
-        CLogger::getInstance()->log("Buffer overflow, fragment size: %d, buffer offset: %d, buffer size: %d\n", len, buffer_offset, buffer_size);
-    }
-
     // Simulate processing delay
     k_sleep(K_MSEC(100));
     
 }
 
-coap_block_size CDownloadClient::coap_bytes_to_block_size_wrapper(uint16_t bytes) {
-    return static_cast<coap_block_size>(coap_bytes_to_block_size(bytes));
+int CDownloadClient::mount_sd_card(void)
+{
+    const char *disk_mount_pt = "/SD:";
+
+    mp.mnt_point = disk_mount_pt;
+
+    int res = fs_mount(&mp);
+
+    if (res == FR_OK) {
+        CLogger::getInstance()->log("Disk mounted.\n");
+    } else {
+        CLogger::getInstance()->log("Error mounting disk.\n");
+    }
+
+    return res;
+}
+
+int CDownloadClient::unmount_sd_card(void)
+{
+    const char *disk_mount_pt = "/SD:";
+
+    mp.mnt_point = disk_mount_pt;
+
+    int err = fs_unmount(&mp);
+
+    if (err) {
+        CLogger::getInstance()->log("Failed to unmount SD card: %d\n", err);
+        return err;
+    }
+    CLogger::getInstance()->log("SD card unmounted successfully.\n");
+
+    return err;
+}
+
+
+int CDownloadClient::delete_existing_file(const char *file_path)
+{
+    int err = fs_unlink(file_path);
+    if (err && err != -ENOENT) {
+        CLogger::getInstance()->log("Failed to delete existing file: %d\n", err);
+        return err;
+    }
+
+    if (err == -ENOENT) {
+        CLogger::getInstance()->log("File does not exist, no need to delete.\n");
+    } else {
+        CLogger::getInstance()->log("Existing file deleted successfully.\n");
+    }
+
+    return 0;
+}
+
+void CDownloadClient::cleanup_after_download(bool success)
+{
+    if (success) {
+        CLogger::getInstance()->log("Download completed successfully.\n");
+    } else {
+        CLogger::getInstance()->log("Download failed or was interrupted.\n");
+    }
+
+    /* Unmount the SD card */
+    int err = unmount_sd_card();
+    if (err) {
+        printk("Failed to unmount SD card: %d\n", err);
+    }
 }
