@@ -16,12 +16,13 @@
 
 #include <ff.h>
 
+#include <zephyr/kernel.h> 
+
 #define DISK_DRIVE_NAME "SD"
 
 #define DISK_MOUNT_PT "/"DISK_DRIVE_NAME":"
 
-#define CHUNK_SIZE 4096
-
+#define CONFIG_DOWNLOAD_CLIENT_BUF_SIZE 2048
 
 class CDownloadClient : public CBaseThread
 {
@@ -32,17 +33,9 @@ class CDownloadClient : public CBaseThread
 
     download_client_cfg config;
 
-    static size_t file_size;
+    static uint8_t cleaned_data[CONFIG_DOWNLOAD_CLIENT_BUF_SIZE];
 
-    static size_t downloaded;
-
-    void init();
-
-    uint8_t *buffer;
-
-    size_t buffer_size;
-
-    size_t buffer_offset;
+    static size_t cleaned_len;
 
     char *url;
 
@@ -51,9 +44,6 @@ class CDownloadClient : public CBaseThread
     static FATFS fat_fs;
 
     static fs_mount_t mp;
-
-    
-
 
     int start_file_download(const char *url,const char* file_path);
 
@@ -66,9 +56,14 @@ class CDownloadClient : public CBaseThread
     static void cleanup_after_download(bool success);
 
     static struct k_msgq download_msgq;
+
     static struct download_client_evt download_event_buffer[10];
 
     static int process_event(const struct download_client_evt *event);
+
+    static void *custom_memmem(const void *haystack, size_t haystacklen, const void *needle, size_t needlelen);
+
+    static void remove_headers(const void *input, size_t input_len, uint8_t *output, size_t *output_len);
 
 public:
 
@@ -80,10 +75,5 @@ public:
 
     static int callback(const struct download_client_evt *event);
 
-    void process_fragment(const uint8_t *buf, size_t len);
-
-    void download(char *url);
-
-    
     
 };
