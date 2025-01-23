@@ -6,9 +6,9 @@
 
 #include <net/download_client.h>
 
-#define URL_CONFIG "http://panel.bbmold.com/config/rel00.conf"
+#define URL_CONFIG "http://panel.bbmold.com/config/rel00.config"
 
-#define URL_FIRMWARE "http://panel.bbmold.com/firmware/bme680.hex"
+#define URL_FIRMWARE "http://panel.bbmold.com/firmware/merged.hex"
 
 #include <zephyr/storage/disk_access.h>
 
@@ -20,7 +20,7 @@
 
 #define DISK_MOUNT_PT "/"DISK_DRIVE_NAME":"
 
-#define CHUNK_SIZE 1024
+#define CHUNK_SIZE 4096
 
 
 class CDownloadClient : public CBaseThread
@@ -52,7 +52,7 @@ class CDownloadClient : public CBaseThread
 
     static fs_mount_t mp;
 
-    static fs_file_t file;
+    
 
 
     int start_file_download(const char *url,const char* file_path);
@@ -64,6 +64,11 @@ class CDownloadClient : public CBaseThread
     static int delete_existing_file(const char *file_path);
 
     static void cleanup_after_download(bool success);
+
+    static struct k_msgq download_msgq;
+    static struct download_client_evt download_event_buffer[10];
+
+    static int process_event(const struct download_client_evt *event);
 
 public:
 

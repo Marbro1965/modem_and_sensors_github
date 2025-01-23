@@ -88,7 +88,7 @@ K_THREAD_STACK_DEFINE(thread_disconnect, DEFAULT_THREAD_STACK_SIZE);
 
 K_THREAD_STACK_DEFINE(thread_test_wdt, DEFAULT_THREAD_STACK_SIZE);
 
-K_THREAD_STACK_DEFINE(thread_download_client_stack, DEFAULT_THREAD_STACK_SIZE);
+K_THREAD_STACK_DEFINE(thread_download_client_stack, 8192);
 
 K_THREAD_STACK_DEFINE(thread_sd_card_stack, DEFAULT_THREAD_STACK_SIZE);
 
@@ -179,7 +179,7 @@ void initialize(void){
 
     CDownloadClient *pDownloadClient = new CDownloadClient();
 
-    k_tid_t id11 = k_thread_create(&thread_download_client_data,thread_download_client_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pDownloadClient, NULL, NULL, 10, 0, K_NO_WAIT);
+    k_tid_t id11 = k_thread_create(&thread_download_client_data,thread_download_client_stack, 8192, &CBaseThread::handlerRun, pDownloadClient, NULL, NULL, 10, 0, K_NO_WAIT);
 
 
 

@@ -329,7 +329,6 @@ int CMqttHelperThread::prepare_sensor_message(char *jsonBuffer)
 {
     struct messageSensor msg;
   
-
     char dataEora[50];
 
     int jsonIndex = 0;
@@ -420,15 +419,46 @@ int CMqttHelperThread::prepare_acknowledge_message(char *jsonBuffer){
 
     int jsonIndex = 0;
 
+    char dataEora[50];
+
     int ret = k_msgq_get(&CBaseThread::msgAckClient, &msg, K_NO_WAIT);
 
     if (0==ret)
     {
+
+        if (!date_time_now(&date_time_ms)) {
+            date_time_ms /= TIME_DIVISOR;
+        } else {
+            date_time_ms = k_uptime_get() / TIME_DIVISOR;
+        }
+
+        struct tm *tm_info = gmtime(&date_time_ms);
+        if (tm_info == NULL) {
+        
+            CLogger::getInstance()->log("Failed to get UTC time");
+            return -EINVAL;
+        }
+
+        // Print the date and time
+        snprintf(dataEora,sizeof(dataEora),"%04d-%02d-%02d %02d:%02d:%02d",
+                tm_info->tm_year + 1900,
+                tm_info->tm_mon + 1,
+                tm_info->tm_mday,
+                tm_info->tm_hour,
+                tm_info->tm_min,
+                tm_info->tm_sec);
+
+
         // Start building JSON object
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex, "{");
 
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
+                            "\"serial\":\"%s\",",CLogger::SERIAL_NUMBER);
+        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
+                            "\"readable_time\":\"%s\",",&dataEora[0]);
         if (DOWNLOAD_ACK==msg.data)
         {
+
             jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                               "\"ack\":\"%s\",","OK");
         }
@@ -538,7 +568,7 @@ void CMqttHelperThread::parse_json_mqtt_message(char *json_message)
             msg.data = DOWNLOAD_CONFIG;
         }
 
-        if (strcmp(cmd->valuestring, "updateFirmware") == 0) 
+        if (strcmp(cmd->valuestring, "downloadFirmware") == 0) 
         {
             //comincia le operazioni di download del firmware
 
