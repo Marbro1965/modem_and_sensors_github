@@ -152,6 +152,7 @@ int CDownloadClient::process_event(const struct download_client_evt *event){
 
             remove_headers(event->fragment.buf, event->fragment.len, cleaned_data, &cleaned_len);           
             /* Open the file for appending */
+            mount_sd_card();
             err = fs_open(&file,(const char*) &fileName[0], FS_O_CREATE | FS_O_WRITE);
             if (err) {
                 CLogger::getInstance()->log("Failed to open file: %d\n", err);
