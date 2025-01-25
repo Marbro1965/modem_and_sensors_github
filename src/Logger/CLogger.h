@@ -12,8 +12,6 @@ class CLogger
 
 public:
 
-    static const char *SERIAL_NUMBER;
-
     static CLogger *getInstance()
     {
         if (instance == nullptr)
@@ -27,5 +25,7 @@ public:
     
 
     void log(const char *msg,...);
+
+    
 
 };

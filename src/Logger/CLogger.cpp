@@ -6,9 +6,9 @@
 
 #include <sstream>
 
+
 CLogger *CLogger::instance = nullptr;
 
-const char *CLogger::SERIAL_NUMBER = "240165";
 
 CLogger::CLogger()
 {
@@ -30,3 +30,4 @@ void CLogger::log(const char *format, ...)
 
 
 }
+

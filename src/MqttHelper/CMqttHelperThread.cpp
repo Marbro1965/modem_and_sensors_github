@@ -55,11 +55,11 @@ CMqttHelperThread::~CMqttHelperThread(){
 
 void CMqttHelperThread::initTopicSubscription(){
 
-    sprintf((char*)topicSubscribed[0], "%s%s", CLogger::SERIAL_NUMBER, MQTT_TOPIC_COMANDI_REMOTI);
+    sprintf((char*)topicSubscribed[0], "%s%s", CBaseThread::SERIAL_NUMBER, MQTT_TOPIC_COMANDI_REMOTI);
 
-    sprintf((char*)topicSubscribed[1], "%s%s", CLogger::SERIAL_NUMBER, MQTT_TOPIC_NEW_RELEASE);
+    sprintf((char*)topicSubscribed[1], "%s%s", CBaseThread::SERIAL_NUMBER, MQTT_TOPIC_NEW_RELEASE);
 
-    sprintf((char*)topicSubscribed[2], "%s%s", CLogger::SERIAL_NUMBER, MQTT_TOPIC_TEST_OK);
+    sprintf((char*)topicSubscribed[2], "%s%s", CBaseThread::SERIAL_NUMBER, MQTT_TOPIC_TEST_OK);
 
     subscribe_topics[0].topic.utf8 = (uint8_t*)topicSubscribed[0];
     subscribe_topics[0].topic.size = strlen((const char*)topicSubscribed[0]);
@@ -347,10 +347,10 @@ int CMqttHelperThread::prepare_sensor_message(char *jsonBuffer)
         }
 
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
-                              "\"TF1\":[{\"serial\":\"%s\",", CLogger::SERIAL_NUMBER);
+                              "\"TF1\":[{\"serial\":\"%s\",", CBaseThread::SERIAL_NUMBER);
 
-        jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
-                              "\"time\":\"%ld\",", (int32_t)(date_time_ms));
+        // jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
+        //                       "\"time\":\"%ld\",", (int32_t)(date_time_ms));
 
         struct tm *tm_info = gmtime(&date_time_ms);
         if (tm_info == NULL) {
@@ -453,7 +453,7 @@ int CMqttHelperThread::prepare_acknowledge_message(char *jsonBuffer){
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex, "{");
 
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
-                            "\"serial\":\"%s\",",CLogger::SERIAL_NUMBER);
+                            "\"serial\":\"%s\",",CBaseThread::SERIAL_NUMBER);
         jsonIndex += snprintf(&jsonBuffer[jsonIndex], JSON_TX_BUFFER_SIZE - jsonIndex,
                             "\"readable_time\":\"%s\",",&dataEora[0]);
         if (DOWNLOAD_ACK==msg.data)

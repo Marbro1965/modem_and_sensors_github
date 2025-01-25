@@ -30,8 +30,10 @@ protected:
 
     void stopOneShotTimer();
 
-
+    
 public:
+
+    static char SERIAL_NUMBER[16];
 
     static k_msgq blinkQueueMessage;
 
@@ -70,6 +72,8 @@ public:
     static void timerCallback(struct k_timer *timer_id);
 
     virtual void onTimerCallback();
+
+    static void read_otp_value(void);
     
 };
 #endif // CBASETHREAD_H

@@ -5,6 +5,12 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${config:nrf-connect.toolchain}/opt/zephyr-sdk/arm-zephyr-eabi/bin",
+                "${config:nrf-connect.toolchain}/opt/zephyr-sdk/arm-zephyr-eabi/arm-zephyr-eabi/include",
+                "${config:nrf-connect.toolchain}/opt/zephyr-sdk/arm-zephyr-eabi/arm-zephyr-eabi/include/c++/12.2.0",
+                "${config:nrf-connect.toolchain}/opt/zephyr-sdk/arm-zephyr-eabi/arm-zephyr-eabi/include/c++/12.2.0/arm-zephyr-eabi",
+                "${config:nrf-connect.toolchain}/opt/zephyr-sdk/arm-zephyr-eabi/arm-zephyr-eabi/include/c++/12.2.0/backward",
+                "${config:nrf-connect.toolchain}/opt/zephyr-sdk/arm-zephyr-eabi/lib/gcc/arm-zephyr-eabi/12.2.0/include",
+                "${config:nrf-connect.toolchain}/opt/zephyr-sdk/arm-zephyr-eabi/lib/gcc/arm-zephyr-eabi/12.2.0/include-fixed",
                 "c:/ncs/v2.7.0/zephyr/include",
                 "c:/ncs/v2.7.0/zephyr/include/zephyr",
                 "c:/ncs/v2.7.0/nrfxlib",

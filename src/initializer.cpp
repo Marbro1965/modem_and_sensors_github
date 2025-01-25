@@ -36,6 +36,8 @@
 
 #include <nrfx_config_nrf91.h>
 
+#include "Logger/CLogger.h"
+
 
 
 char __aligned(4) my_msgq_sensor[MSG_SENSOR_MAX_MSGS * sizeof(struct messageSensor)];
@@ -119,6 +121,8 @@ struct k_thread thread_sd_card_data;
 
 
 void initialize(void){
+
+    CBaseThread::read_otp_value();
 
     initMessageQueue();
 

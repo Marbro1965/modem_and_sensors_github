@@ -1,4 +1,9 @@
+#include <stdint.h>
+
+#include <cstdio>
+
 #include "CBaseThread.h"
+
 
 #include "structures.h"
 
@@ -8,8 +13,15 @@
 
 #include <time.h>
 
+#include <tfm/tfm_ioctl_api.h>
 
-#include <cstdio>
+// #include <tfm_ns_interface.h>
+
+// #include <hal/nrf_uicr.h>
+
+// #include <nrfx.h>
+
+
                        // Include the header file that defines k_mem_pool
 
 
@@ -32,6 +44,8 @@ k_event CBaseThread::mqttMessageInQueueFlag{};
 k_sem CBaseThread::net_conn_sem{};          // Initialize the static member variable
 
 int64_t CBaseThread::unix_time_ms{};
+
+char CBaseThread::SERIAL_NUMBER[16] = {};
 
 CBaseThread::CBaseThread()
 {
@@ -133,4 +147,28 @@ void CBaseThread::onTimerCallback()
 {
     // Default implementation of the timer callback function
     CLogger::getInstance()->log("Default timer callback function\n");
+}
+
+
+void CBaseThread::read_otp_value(void){
+
+    size_t otp_value;
+    int err = 0;
+    enum tfm_platform_err_t plt_err;
+
+    err = tfm_ns_interface_init();
+    if (err != 0) {
+        printk("TF-M non-secure interface initialization failed, error: %d\n", err);
+        return;
+    }
+
+    plt_err = tfm_platform_mem_read(&otp_value, (intptr_t)&NRF_UICR_S->OTP[0], sizeof(otp_value), &err);
+    if (plt_err != TFM_PLATFORM_ERR_SUCCESS || err != 0) {
+        printk("Failed to read OTP value. plt_err: %d, err: %d\n", plt_err, err);
+    } else {
+        printk("OTP[0]: 0x%08X\n", otp_value);
+    }
+
+    sprintf(CBaseThread::SERIAL_NUMBER,"%d",otp_value);
+
 }
