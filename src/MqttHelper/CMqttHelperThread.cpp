@@ -186,29 +186,28 @@ void CMqttHelperThread::runHandler(void){
                     {
                         //pubblica senza aspettare risposta
                         publish_status = MQTT_PUBLISH_STATE_IDLE;
-                        CLogger::getInstance()->log("Publish a message\n");
 
                     }else if (qos_publishing== MQTT_QOS_2_EXACTLY_ONCE)
                     {
 
                         publish_status = MQTT_PUBLISH_STATE_PUBLISHING;
-                        CLogger::getInstance()->log("Publish a message\n");
 
                     }
                     else{
 
                         publish_status = MQTT_PUBLISH_STATE_IDLE;
-                        CLogger::getInstance()->log("Publish a message\n");
                          
                     }
                     if (0==prepare_sensor_message(jsonTxBuffer))
                     {
+                        CLogger::getInstance()->log("Publish a message\n");
                         // Prepare MQTT parameters
                         public_a_message(MQTT_TOPIC, jsonTxBuffer);
 
                     }
                     if (0==prepare_acknowledge_message(jsonTxBuffer))
                     {
+                        CLogger::getInstance()->log("Publish a message\n");
                         // Prepare MQTT parameters
                         public_a_message(MQTT_TOPIC_ACKNOWLEDGE, jsonTxBuffer);
                     }
@@ -220,7 +219,7 @@ void CMqttHelperThread::runHandler(void){
 
         }
 
-        k_sleep(K_SECONDS(10));
+        k_sleep(K_SECONDS(1));
     }
 }
 
@@ -620,6 +619,10 @@ void CMqttHelperThread::parse_json_mqtt_message(char *json_message)
         if (ret != 0) {
             CLogger::getInstance()->log("Failed to send message to blink thread");
         }
+
+        msg.data = DOWNLOAD_ACK;
+
+        k_msgq_put(&CBaseThread::msgAckClient, &msg, K_NO_WAIT);
     }
 
     if (messageForClient){

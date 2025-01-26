@@ -2,7 +2,7 @@
 
 #include <zephyr/kernel.h>
 
-#include "structures.h"
+
 
 #include "Logger/CLogger.h"
 
@@ -62,19 +62,8 @@ void CSensorThread::runHandler(void)
 	while (true) {
 		//struct sensor_value temp, press, humidity, iaq, co2, voc;
 		struct messageSensor msg;
-		sensor_sample_fetch(dev);
-		sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &msg.temp);
-		sensor_channel_get(dev, SENSOR_CHAN_PRESS, &msg.press);
-		sensor_channel_get(dev, SENSOR_CHAN_HUMIDITY, &msg.humidity);
-		sensor_channel_get(dev, (enum sensor_channel)SENSOR_CHAN_IAQ, &msg.iaq);
-		sensor_channel_get(dev, SENSOR_CHAN_CO2, &msg.co2);
-		sensor_channel_get(dev, SENSOR_CHAN_VOC, &msg.voc);
 
-		// CLogger::getInstance()->log("temp: %d.%06d; press: %d.%06d; humidity: %d.%06d; iaq: %d; CO2: %d.%06d; "
-		//  	"VOC: %d.%06d \n",
-		//  	msg.temp.val1, msg.temp.val2, msg.press.val1, msg.press.val2,
-		// 	msg.humidity.val1, msg.humidity.val2,
-		//  	msg.iaq.val1, msg.co2.val1, msg.co2.val2, msg.voc.val1, msg.voc.val2);
+		fetchSensor(msg);
 
 		int ret = k_msgq_put(&CBaseThread::sensorQueueMessage, &msg, K_NO_WAIT);
 
@@ -82,5 +71,19 @@ void CSensorThread::runHandler(void)
 
 	}
 
+
+}
+
+
+void CSensorThread::fetchSensor(messageSensor &msg){
+
+
+		sensor_sample_fetch(dev);
+		sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &msg.temp);
+		sensor_channel_get(dev, SENSOR_CHAN_PRESS, &msg.press);
+		sensor_channel_get(dev, SENSOR_CHAN_HUMIDITY, &msg.humidity);
+		sensor_channel_get(dev, (enum sensor_channel)SENSOR_CHAN_IAQ, &msg.iaq);
+		sensor_channel_get(dev, SENSOR_CHAN_CO2, &msg.co2);
+		sensor_channel_get(dev, SENSOR_CHAN_VOC, &msg.voc);
 
 }

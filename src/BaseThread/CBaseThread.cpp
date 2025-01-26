@@ -15,11 +15,11 @@
 
 #include <tfm/tfm_ioctl_api.h>
 
-// #include <tfm_ns_interface.h>
+#include <tfm_ns_interface.h>
 
-// #include <hal/nrf_uicr.h>
+#include <hal/nrf_uicr.h>
 
-// #include <nrfx.h>
+#include <nrfx.h>
 
 
                        // Include the header file that defines k_mem_pool

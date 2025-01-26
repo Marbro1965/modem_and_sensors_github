@@ -54,6 +54,8 @@ public:
 
     static CModemSetupThread *instance;
 
+    void onTimerCallback() override;
+
 };
 
 #endif // CMODEMSETUPTHREAD_H

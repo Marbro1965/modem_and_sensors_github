@@ -14,12 +14,12 @@ LOG_MODULE_REGISTER(modem_setup_thread, CONFIG_APP_LOG_LEVEL);
 
 CModemSetupThread *CModemSetupThread::instance = nullptr;
 
-//extern struct k_event my_event;
-
 CModemSetupThread::CModemSetupThread()
 {
 
     CModemSetupThread::instance = this;
+
+    createTimer();
 
 }
 
@@ -27,6 +27,17 @@ CModemSetupThread::~CModemSetupThread()
 {
 
     nrf_modem_lib_shutdown();
+}
+
+void CModemSetupThread::onTimerCallback(){
+
+    if (MODEM_STATE_CONNECTED != modem_state){
+
+        initModem();
+    }
+
+    startOneShotTimer(60000);
+
 }
 
 void CModemSetupThread::runHandler(void)
@@ -41,26 +52,11 @@ void CModemSetupThread::runHandler(void)
 
     initModem();
 
-
     while(true)
     {
-        if (MODEM_STATE_CONNECTED != modem_state)
-        {
-            counter++;
-        }
-        else
-        {
-            counter = 0;
-        }
-
-        if (counter > 60*5) // 5 minutes
-        {
-            counter = 0;
-
-            initModem();
-        }
 
         k_sleep(K_SECONDS(1));
+        
     }
 }
 void CModemSetupThread::configure_psm() {
