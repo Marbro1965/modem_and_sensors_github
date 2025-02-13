@@ -21,7 +21,7 @@
 
 CMqttHelperThread* CMqttHelperThread::instance = nullptr;
 
-const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "93.65.15.223";//"79.55.70.74";     //Brescia"93.65.12.248";
+const char* CMqttHelperThread::MQTT_BROKER_HOSTNAME = "93.65.9.226";//"79.55.70.74";     //Brescia"93.65.12.248";
 
 const char* CMqttHelperThread::MQTT_TOPIC  = "bsec/test";
 
@@ -85,9 +85,9 @@ void CMqttHelperThread::onTimerCallback(){
 
     CLogger::getInstance()->log("Timeout connecting to MQTT broker\n");
 
-    status = MQTT_BROKER_STATE_DISCONNECTED;
+    status = MQTT_BROKER_STATE_DISCONNECTING;
 
-    connect_mqtt();
+    //connect_mqtt();
 }
 
 
@@ -176,6 +176,10 @@ void CMqttHelperThread::runHandler(void){
 		        connect_mqtt();
 
                 status = MQTT_BROKER_STATE_CONNECTING;
+            }
+            else if (MQTT_BROKER_STATE_DISCONNECTING == status)
+            {
+                status = MQTT_BROKER_STATE_DISCONNECTED;
             }
             else if  (MQTT_BROKER_STATE_CONNECTED == status)
             {

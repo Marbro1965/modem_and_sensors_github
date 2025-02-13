@@ -23,6 +23,8 @@ public:
         MODEM_STATE_READY,
         MODEM_STATE_ERROR,
         MODEM_STATE_CONNECTED,
+        MODEM_STATE_CONNECTING,
+        MODEM_STATE_DISCONNECTING,        
         MODEM_STATE_DISCONNECTED        
     };
 

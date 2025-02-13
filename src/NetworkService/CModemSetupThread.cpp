@@ -31,12 +31,13 @@ CModemSetupThread::~CModemSetupThread()
 
 void CModemSetupThread::onTimerCallback(){
 
-    if (MODEM_STATE_CONNECTED != modem_state){
+    // if (MODEM_STATE_CONNECTED != modem_state){
 
-        initModem();
-    }
+    //     initModem();
+    // }
 
-    startOneShotTimer(60000);
+    modem_state = MODEM_STATE_DISCONNECTING;
+
 
 }
 
@@ -54,6 +55,10 @@ void CModemSetupThread::runHandler(void)
 
     while(true)
     {
+        if (modem_state == MODEM_STATE_DISCONNECTING){
+
+            initModem();
+        }
 
         k_sleep(K_SECONDS(1));
         
@@ -104,6 +109,11 @@ void CModemSetupThread::initModem(void)
 	}
 
     CLogger::getInstance()->log("Connecting async to LTE network\n");
+
+    modem_state = MODEM_STATE_CONNECTING;
+
+    startOneShotTimer(60000);
+
 
 }
 
@@ -160,6 +170,8 @@ void CModemSetupThread::lte_handler(const struct lte_lc_evt *const evt)
                 int ret = k_msgq_put(&CBaseThread::blinkQueueMessage, &msg, K_NO_WAIT);
 
                 instance->modem_state = MODEM_STATE_CONNECTED;
+
+                instance->stopOneShotTimer();
 
             } else {
 
