@@ -17,6 +17,10 @@
 
 #define MQTT_MESSAGE_TO_SEND_FLAG 0x01
 
+#define MAJOR_VERSION 1
+
+#define MINOR_VERSION 1
+
 class CBaseThread
 {
 
@@ -34,6 +38,8 @@ protected:
 public:
 
     static char SERIAL_NUMBER[16];
+
+    static char RELEASE[16];
 
     static k_msgq blinkQueueMessage;
 
@@ -74,6 +80,8 @@ public:
     virtual void onTimerCallback();
 
     static void read_otp_value(void);
+
+    static void setRelease();
     
 };
 #endif // CBASETHREAD_H

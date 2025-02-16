@@ -47,6 +47,8 @@ int64_t CBaseThread::unix_time_ms{};
 
 char CBaseThread::SERIAL_NUMBER[16] = {};
 
+char CBaseThread::RELEASE[16] = {};
+
 CBaseThread::CBaseThread()
 {
 }
@@ -149,6 +151,10 @@ void CBaseThread::onTimerCallback()
     CLogger::getInstance()->log("Default timer callback function\n");
 }
 
+void CBaseThread::setRelease(void)
+{
+    sprintf(CBaseThread::RELEASE,"%s %2d.%2d","RELEASE",MAJOR_VERSION,MINOR_VERSION);
+}
 
 void CBaseThread::read_otp_value(void){
 

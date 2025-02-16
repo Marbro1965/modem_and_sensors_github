@@ -119,14 +119,23 @@ struct k_thread thread_download_client_data;
 
 struct k_thread thread_sd_card_data;
 
+#define VERSION_MAJOR 1
+
+#define VERSION_MINOR 0
 
 void initialize(void){
 
-    CBaseThread::read_otp_value();
 
     initMessageQueue();
 
     initSemaphore();    
+
+
+    CBaseThread::setRelease();
+
+    CLogger::getInstance()->log("Release version %2d.%2d\n",VERSION_MAJOR,VERSION_MINOR);
+
+    CBaseThread::read_otp_value();
 
     CLogger::getInstance()->log("Creazione dei threads\n");
 
