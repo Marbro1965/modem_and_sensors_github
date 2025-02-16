@@ -145,9 +145,9 @@ void initialize(void){
     k_tid_t id3 = k_thread_create(&thread_sensor_data,thread_sensor_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pSensorThread, NULL, NULL, 7, 0, K_NO_WAIT);
 
 
-    CModemSetupThread *pModemThread = new CModemSetupThread();
+    // CModemSetupThread *pModemThread = new CModemSetupThread();
 
-    k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 8196, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 2, 0, K_NO_WAIT);
+    // k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 8196, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 2, 0, K_NO_WAIT);
 
 
     CMqttHelperThread *pMqttThread = new CMqttHelperThread();   
