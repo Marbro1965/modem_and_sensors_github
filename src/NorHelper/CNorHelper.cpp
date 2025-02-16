@@ -20,8 +20,8 @@ void CNorHelper::exampleMethod() {
     int ret;
 
     //flash_dev = DEVICE_DT_GET_ANY(jedec_spi_nor);
-    //flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash1));
-    flash_dev = DEVICE_DT_GET(DT_NODELABEL(mx25r64));
+    flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash1));
+    //flash_dev = DEVICE_DT_GET(DT_NODELABEL(W25Q64_1));
 
     if (!device_is_ready(flash_dev)) {
         printk("Flash device %s is not ready\n", flash_dev->name);
