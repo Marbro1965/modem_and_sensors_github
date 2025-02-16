@@ -51,23 +51,6 @@
     };
 };
 
-//actinius overlay
-// &spi3 {
-// 	status = "okay";
-// 	cs-gpios = <&gpio0 25 GPIO_ACTIVE_LOW>,<&gpio0 19 GPIO_ACTIVE_LOW>;
-
-// 	sdhc0: sdhc@0 {
-// 		compatible = "zephyr,sdhc-spi-slot";
-// 		reg = <0>;
-// 		status = "okay";
-// 		spi-max-frequency = <8000000>;
-
-// 		mmc {
-//                     compatible = "zephyr,sdmmc-disk";
-//                     status = "okay";
-//                 };
-//         };
-// };
 
 
 &i2c2 {

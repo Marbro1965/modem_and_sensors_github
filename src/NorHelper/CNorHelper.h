@@ -8,8 +8,7 @@
 #include <zephyr/fs/fs.h>
 #include <stdio.h>
 
-//#define FLASH_DEVICE_LABEL "MX25R64"
-#define FLASH_TEST_OFFSET 0x0
+#define FLASH_TEST_OFFSET 0x1000
 #define FLASH_TEST_SIZE 4096
 
 class CNorHelper
