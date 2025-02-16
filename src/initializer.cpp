@@ -20,6 +20,8 @@
 
 #include "SdCard/CSdCardThread.h"
 
+#include "NorHelper/CNorHelper.h"
+
 #include "structures.h"
 
 #include <zephyr/kernel.h>
@@ -136,6 +138,8 @@ void initialize(void){
     CLogger::getInstance()->log("Release version %2d.%2d\n",VERSION_MAJOR,VERSION_MINOR);
 
     CBaseThread::read_otp_value();
+    
+    CNorHelper::exampleMethod();
 
     CLogger::getInstance()->log("Creazione dei threads\n");
 
