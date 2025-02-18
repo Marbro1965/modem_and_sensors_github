@@ -4,3 +4,148 @@ Creare da un terminale (finestra dos)la chiave private con il comando:  openssl 
 
 Creare la chiave pubblica a partire da quella privata con il comando:   openssl rsa -pubout -in private_key.pem -out public_key.pem
 
+
+Da AI Nordic dice che sono supportate
+
+openssl ecparam -name prime256v1 -genkey -noout -out priv.pem
+
+openssl genrsa -out priv.pem 2048
+
+openssl ec -in priv.pem -out pub.pem -pubout
+
+openssl ec -in private_key.pem -pubout -out public_key.pem per ECDSA keys.
+
+In definitiva
+
+openssl ecparam -name prime256v1 -genkey -noout -out priv.pem  -->per la private
+openssl ecparam -name prime256v1 -genkey -noout -out priv.pem  -->RAFFORZAMENTO. Chiesto duo volte a AI 	
+
+openssl ec -in priv.pem -pubout -out pub.pem		       -->per la pubblica	
+
+
+Aggiungere in mcuboot.conf sotto child_image la seguente, specificando il percorso!
+
+Rebuild e flash
+
+CONFIG_BOOT_SIGNATURE_KEY_FILE="<path_to>/private_key.pem"	
+
+Istruzione per firmare il bin conquesta chiave
+
+python3 <NCS_PATH>/bootloader/mcuboot/scripts/imgtool.py sign --key <path_to>/priv.pem --align 4 --version 1.2.3+4 --header-size 0x200 --pad-header --slot-size <slot_size> <input_bin_file> <output_signed_bin_file>
+
+in pratica:
+
+python3 /home/user/ncs/bootloader/mcuboot/scripts/imgtool.py sign --key /path/to/priv.pem --align 4 --version 1.2.3+4 --header-size 0x200 --pad-header --slot-size 0x77000 /path/to/input.bin /path/to/signed_output.bin
+
+/path/to/priv.pem percorso della mia chiave privata
+
+--version 1.2.3+4
+
+CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION="1.2.3+4" va aggiunto nel prj.conf! aderente alla versione corrente.
+
+--header-size 0x200
+
+fisso, sono dei metadata
+
+--pad-header
+
+lasciamolo cosi
+
+--slot-size 0x77000
+
+
+Creare un file pm_static.yml da posizionare dove c'e' prj.conf con il seguente contenuto:
+
+mcuboot:
+  address: 0x0
+  size: 0x10000
+  region: flash_primary
+
+mcuboot_primary:
+  address: 0x10000
+  size: 0xE0000
+  region: flash_primary
+
+mcuboot_primary_app:
+  address: 0x10000
+  size: 0xE0000
+  region: flash_primary
+
+mcuboot_secondary:
+  address: 0x0
+  size: 0xE0000
+  region: external_flash
+  device: W25Q64_1
+
+external_flash:
+  address: 0xE0000
+  size: 0x720000
+  region: external_flash
+  device: W25Q64_1
+
+Correggere il device con quello che usiamo!
+
+Aggiungere nel Proj.conf
+
+CONFIG_PM_PARTITION_REGION_MCUBOOT_SECONDARY=FLASH_AREA_EXTERNAL_FLASH
+
+
+Fatto tutto questo, in debug voglio prevenire tutto il processo:
+
+posso farlo nel seguente modo:
+
+CONFIG_BOOTLOADER_MCUBOOT=n in prj.conf
+
+This will disable MCUboot entirely during your debug sessions.
+
+oppure
+
+CONFIG_MCUBOOT_BOOTLOADER_MODE_DIRECT_XIP=y
+
+CONFIG_BOOT_DIRECT_XIP=y
+
+In this mode, MCUboot will boot the image directly from a given slot without performing any swap operations.
+
+oppure:
+
+Increase the required security counter: If you're using a security counter for anti-rollback protection, you can temporarily set a very high value in your prj.conf:
+
+CONFIG_MCUBOOT_HW_DOWNGRADE_PREVENTION=y
+
+CONFIG_MCUBOOT_HW_DOWNGRADE_PREVENTION_COUNTER_VALUE=0xFFFFFFFF
+
+This will prevent MCUboot from considering any update valid during your debugging.
+
+oppure:
+
+Use a debug build of MCUboot: You can create a debug configuration for MCUboot that skips the update process. In your child_image/mcuboot/mcuboot.conf, add:
+
+CONFIG_MCUBOOT_SKIP_IMAGE_VERIFICATION=y
+
+This will skip the image verification process, effectively preventing updates during debug.
+
+Alla fine di tutto
+
+sys_reboot(SYS_REBOOT_COLD);
+
+
+What prevents that at every startup I have no uplad?
+After a successful update, MCUboot has mechanisms in place to prevent unnecessary updates on subsequent reboots. Here's how it works and what prevents uploads at every startup:
+Image Verification: MCUboot verifies the integrity and authenticity of the firmware image before applying any update. If the image in the secondary slot (your external NOR flash) is identical to the one in the primary slot, no update will occur.
+Version Checking: MCUboot compares the version numbers of the images in the primary and secondary slots. An update only occurs if the version in the secondary slot is newer than the one in the primary slot.
+Security Counter: If you're using a security counter for anti-rollback protection, MCUboot will only update to images with a higher security counter value.
+Swap Status: After a successful update, MCUboot marks the update as complete in its metadata. This prevents the same update from being applied again on subsequent boots.
+Image Confirmation: In some configurations, MCUboot requires the new image to be explicitly confirmed after an update. Until confirmation, it may revert to the previous image on the next boot.
+To ensure that updates don't occur unnecessarily at every startup, you should:
+Implement proper version control in your firmware images.
+Use the security counter feature if anti-rollback protection is required.
+Consider implementing an image confirmation mechanism in your application.
+If you're still experiencing unwanted updates, you might want to check your MCUboot configuration. For example, you can add these lines to your prj.conf or mcuboot.conf:
+
+CONFIG_BOOT_UPGRADE_ONLY=y
+CONFIG_BOOT_UPGRADE_ONLY_SECURITY_COUNTER=y
+These configurations ensure that MCUboot only performs upgrades (not downgrades) and uses the security counter for additional protection.
+For more detailed information on configuring MCUboot to prevent unnecessary updates, you can refer to the Downgrade prevention documentation.
+MCUboot and NSIB provides additional information on MCUboot's behavior and configuration options in Nordic Semiconductor projects.
+
+
