@@ -1,26 +1,11 @@
-mcuboot:
-  address: 0x0
-  size: 0x10000
-  region: flash_primary
-
-mcuboot_primary:
-  address: 0x10000
-  size: 0xE0000
-  region: flash_primary
-
-mcuboot_primary_app:
-  address: 0x10000
-  size: 0xE0000
-  region: flash_primary
-
 mcuboot_secondary:
   address: 0x0
   size: 0xE0000
   region: external_flash
-  device: W25Q64_1
+  device: DT_CHOSEN(nordic_pm_ext_flash)
 
 external_flash:
   address: 0xE0000
   size: 0x720000
   region: external_flash
-  device: W25Q64_1
+  device: DT_CHOSEN(nordic_pm_ext_flash)

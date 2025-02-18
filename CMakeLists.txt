@@ -10,13 +10,13 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 project(modem_and_sensor)
 
-set(mcuboot_CONF_FILE ${CMAKE_CURRENT_SOURCE_DIR}/child_image/mcuboot/mcuboot.conf)
+#set(mcuboot_CONF_FILE ${CMAKE_CURRENT_SOURCE_DIR}/child_image/mcuboot/mcuboot.conf)
 
-set(CONFIG_BOOTLOADER_MCUBOOT ON CACHE BOOL "" FORCE)
+#set(CONFIG_BOOTLOADER_MCUBOOT ON CACHE BOOL "" FORCE)
 
-set(CONFIG_PM_EXTERNAL_FLASH_MCUBOOT_SECONDARY ON CACHE BOOL "" FORCE)
+#set(CONFIG_PM_EXTERNAL_FLASH_MCUBOOT_SECONDARY ON CACHE BOOL "" FORCE)
 
-include(${ZEPHYR_BASE}/../nrf/cmake/mcuboot.cmake)
+#include(${ZEPHYR_BASE}/../nrf/cmake/mcuboot.cmake)
 
 # Add the project path to the include directories
 include_directories(${CMAKE_SOURCE_DIR})

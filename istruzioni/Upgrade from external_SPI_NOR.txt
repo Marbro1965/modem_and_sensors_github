@@ -1,0 +1,114 @@
+1. I generate a private key with this OpenSSL command
+
+openssl ecparam -name prime256v1 -genkey -noout -out priv.pem
+
+2. I generate a public key with this OpenSSL command
+
+openssl ec -in priv.pem -pubout -out pub.pem
+
+my mcuboot.conf was
+
+CONFIG_MULTITHREADING=y
+CONFIG_SPI=y
+CONFIG_SPI_NOR=y
+
+and I added also this row
+
+CONFIG_BOOT_SIGNATURE_KEY_FILE="modem_and_sensor/priv.pem" where "modem_and_sensor" is the root of my project
+
+then I compiled the project and find "zephyr.bin" which is the binary not signed. using 
+
+python3 ncs/bootloader/mcuboot/scripts/imgtool.py sign --key /modem_and_sensor/priv.pem --align 4 --version 1.2.3+4 --header-size 0x200 --pad-header --slot-size 0xE000 /modem_and_sensor/build/modem_and_sensor/zephyr/zephyr.bin /modem_and_sensor/build/modem_and_sensor/zephyr/signed_zephyr.bin
+
+I should have produced a signed bin.
+
+After that i have to add this to my proj.conf. Is it correct?
+
+CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION="1.2.3+4"
+
+I save the signed bin on sd card, via PC.
+
+Because I am using a SD card, nor and SD card did not work togheter with standard ACTINIUS ICARUS ,so I modify mcuboot.overlay in this way
+
+&w25q64 {
+    status = "disabled";
+};
+
+&spi3 {
+    compatible = "nordic,nrf-spim";
+    status = "okay";
+    pinctrl-0 = <&spi3_default>;
+    pinctrl-1 = <&spi3_sleep>;
+    pinctrl-names = "default", "sleep";
+    cs-gpios = <&gpio0 19 GPIO_ACTIVE_LOW>,<&gpio0 25 GPIO_ACTIVE_LOW>;
+
+    sdhc0: sdhc@0 {
+        compatible = "zephyr,sdhc-spi-slot";
+        reg = <0>;
+        status = "okay";
+        mmc {
+            compatible = "zephyr,sdmmc-disk";
+            status = "okay";
+        };
+        spi-max-frequency = <8000000>;
+    };
+
+    W25Q64_1: w25q64jv@1 {
+        compatible = "jedec,spi-nor";
+        reg = <1>;
+        spi-max-frequency = <8000000>;
+        size = <0x4000000>;
+        jedec-id = [ef 40 17];
+        has-dpd;
+        t-enter-dpd = <10000>;
+        t-exit-dpd = <5000>;
+    };
+};
+
+
+/ {
+    chosen {
+        nordic,pm-ext-flash = &w25q64_1;
+    };
+};
+
+and it works.
+
+I also ported this modification in actinius_icarus_ns.overlay.
+
+Finally I added
+
+CONFIG_PM_PARTITION_REGION_MCUBOOT_SECONDARY=FLASH_AREA_EXTERNAL_FLASH in prj.conf
+
+As you pointed out in your reply, I have to add in mcuboot.conf.
+
+CONFIG_BOOT_MAX_IMG_SECTORS=256
+CONFIG_PM_EXTERNAL_FLASH_MCUBOOT_SECONDARY=y
+# Allow SPI NOR driver to be used
+CONFIG_PM_OVERRIDE_EXTERNAL_DRIVER_CHECK=y
+
+
+So the final mcuboot.conf should be
+
+CONFIG_MULTITHREADING=y
+CONFIG_SPI=y
+CONFIG_SPI_NOR=y
+
+CONFIG_BOOT_MAX_IMG_SECTORS=256
+CONFIG_PM_EXTERNAL_FLASH_MCUBOOT_SECONDARY=y
+# Allow SPI NOR driver to be used
+CONFIG_PM_OVERRIDE_EXTERNAL_DRIVER_CHECK=y
+
+CONFIG_BOOT_SIGNATURE_KEY_FILE="modem_and_sensor/priv.pem" where "modem_and_sensor" is the root of my project
+
+At the end I started my app, load the file from sd card and program on external NOR.
+
+then sys_reboot(SYS_REBOOT_COLD);
+
+And it should update.
+
+But, If procedure is correct, how can I check if it is correct?
+
+Trying every time a new release?
+
+
