@@ -1,0 +1,6 @@
+Installare OpenSSL e metterlo nel path.
+
+Creare da un terminale (finestra dos)la chiave private con il comando:  openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048
+
+Creare la chiave pubblica a partire da quella privata con il comando:   openssl rsa -pubout -in private_key.pem -out public_key.pem
+
