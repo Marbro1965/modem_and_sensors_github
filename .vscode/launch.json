@@ -30,6 +30,31 @@
             "executable": "C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/zephyr.elf",
             
         },
+        {
+            "name": "Debug mcuboot with JLink",
+            "type": "cortex-debug",
+            "request": "launch",
+            "servertype": "jlink",
+            "device": "nrf9160",
+            "interface": "swd",    
+            "runToEntryPoint": "0x0",
+            "showDevDebugOutput": "none",
+            "cwd": "${workspaceFolder}",
+            "armToolchainPath": "${config:nrf-connect.toolchain}/opt/zephyr-sdk/arm-zephyr-eabi/bin",
+            "gdbPath": "${config:nrf-connect.toolchain}/opt/zephyr-sdk/arm-zephyr-eabi/bin/arm-zephyr-eabi-gdb.exe",
+            "serverpath": "C:/Program Files/SEGGER/JLink_V794i/JLinkGDBServerCL.exe",
+            "executable": "C:/ncs/modem_and_sensor/build/modem_and_sensor/zephyr/zephyr.elf",
+            
+        },
+
+        {
+            "type": "nrf-connect",
+            "request": "launch",
+            "name": "Launch active build configuration",
+            "config": "${activeConfig}",
+            "runToEntryPoint": "main"
+        },
+
 
 
         
