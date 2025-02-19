@@ -80,7 +80,7 @@ Finally I added
 
 CONFIG_PM_PARTITION_REGION_MCUBOOT_SECONDARY=FLASH_AREA_EXTERNAL_FLASH in prj.conf
 
-As you pointed out in your reply, I have to add in mcuboot.conf.
+I have to add in mcuboot.conf.
 
 CONFIG_BOOT_MAX_IMG_SECTORS=256
 CONFIG_PM_EXTERNAL_FLASH_MCUBOOT_SECONDARY=y
