@@ -39,7 +39,8 @@ enum my_msgq_type {
     DOWNLOAD_ACK_FIRMWARE,
     DOWNLOAD_ACK_CONFIG,
     DOWNLOAD_ACK,
-    DOWNLOAD_NACK
+    DOWNLOAD_NACK,
+    COPY_FROM_SD_TO_NOR,
 };
 
 struct my_msg {

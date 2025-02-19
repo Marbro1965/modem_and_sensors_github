@@ -16,6 +16,39 @@ CNorHelper::~CNorHelper() {
     // Cleanup code here
 }
 
+
+int CNorHelper::writeDataToNor(size_t address, const void *buffer,void *buffer_read, size_t size)
+{
+    int ret;
+
+    flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash1));
+
+    ret = flash_erase(flash_dev, address, 4096);
+    if (ret) {
+        CLogger::getInstance()->log("Flash erase failed! %d\n", ret);
+        return ret;
+    }
+
+    ret = flash_write(flash_dev, address, buffer, 4096);
+
+    ret = flash_read(flash_dev, FLASH_TEST_OFFSET, buffer_read, FLASH_TEST_SIZE);
+    if (ret) {
+        CLogger::getInstance()->log("Flash read failed! %d\n", ret);
+        return ret;
+    }
+
+    // Verify data
+    for (int i = 0; i < 4096; i++) {
+        if (((uint8_t *)buffer_read)[i] != ((uint8_t *)buffer)[i]) {
+            CLogger::getInstance()->log("Data mismatch at index %d\n", i);
+            return -1;
+        }
+    }
+
+
+    return 0;
+
+}
 // Example method
 void CNorHelper::exampleMethod() {
     // Method implementation here

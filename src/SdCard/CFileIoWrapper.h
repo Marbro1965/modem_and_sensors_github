@@ -50,15 +50,17 @@ private:
  
     CFileIoWrapper();
 
-    int mount();
-
-    int unmount();
+  
 
     int acquire_mutex(void);
 
     void release_mutex(void);
 
 public:
+
+    static int mount();
+
+    static int unmount();
 
     static CFileIoWrapper *GetInstance();
 

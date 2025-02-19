@@ -614,6 +614,12 @@ void CMqttHelperThread::parse_json_mqtt_message(char *json_message)
 
         }
 
+        if (strcmp(cmd->valuestring, "CopyToNor") == 0) 
+        {
+            //posta un messaggio al thread che copia il firmware dalla sd alla memoria nor
+        }
+
+
     }
 
     if (messageForLeds){

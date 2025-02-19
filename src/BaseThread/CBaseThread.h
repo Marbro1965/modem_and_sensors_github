@@ -53,6 +53,8 @@ public:
 
     static k_msgq msgAckClient;
 
+    static k_msgq copySdToNor;
+
     static k_sem net_conn_sem;
 
     static k_event lte_event_flags;

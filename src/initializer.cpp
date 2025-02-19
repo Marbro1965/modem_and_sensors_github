@@ -22,6 +22,8 @@
 
 #include "NorHelper/CNorHelper.h"
 
+#include "WriteSdCardToNor/CWriteOnSdCard.h"
+
 #include "structures.h"
 
 #include <zephyr/kernel.h>
@@ -46,7 +48,7 @@ char __aligned(4) my_msgq_sensor[MSG_SENSOR_MAX_MSGS * sizeof(struct messageSens
 char __aligned(4) my_msgq_buffer[MSGQ_MAX_MSGS * sizeof(struct my_msg)];
 char __aligned(4) my_msgq_logger[MSGQ_MAX_MSGS_LOGGER * sizeof(struct logger_msg)];
 char __aligned(4) my_msgq_leds[10 * sizeof(struct my_msg)];
-
+char __aligned(4) my_msgq_nor[1 * sizeof(struct my_msg)];
 
 
 void initMessageQueue(void){
@@ -60,6 +62,8 @@ void initMessageQueue(void){
     k_msgq_init(&CBaseThread::msgAckClient,&my_msgq_buffer[0], sizeof(struct my_msg), 1);
 
     k_msgq_init(&CBaseThread::blinkQueueMessage,&my_msgq_leds[0], sizeof(struct my_msg), 10);
+
+    k_msgq_init(&CBaseThread::copySdToNor,&my_msgq_nor[0], sizeof(struct my_msg), 1);
 
 }
 
@@ -96,6 +100,8 @@ K_THREAD_STACK_DEFINE(thread_download_client_stack, 8192);
 
 K_THREAD_STACK_DEFINE(thread_sd_card_stack, DEFAULT_THREAD_STACK_SIZE);
 
+K_THREAD_STACK_DEFINE(thread_write_nor, DEFAULT_THREAD_STACK_SIZE);
+
 
 struct k_thread thread_logger_data;
 
@@ -121,9 +127,15 @@ struct k_thread thread_download_client_data;
 
 struct k_thread thread_sd_card_data;
 
+struct k_thread thread_write_nor_data;
+
 #define VERSION_MAJOR 1
 
 #define VERSION_MINOR 0
+
+#define PATCH 0
+
+#define BUILD 0
 
 void initialize(void){
 
@@ -158,9 +170,9 @@ void initialize(void){
     k_tid_t id3 = k_thread_create(&thread_sensor_data,thread_sensor_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pSensorThread, NULL, NULL, 7, 0, K_NO_WAIT);
 
 
-    // CModemSetupThread *pModemThread = new CModemSetupThread();
+    CModemSetupThread *pModemThread = new CModemSetupThread();
 
-    // k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 8196, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 2, 0, K_NO_WAIT);
+    k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 8196, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 2, 0, K_NO_WAIT);
 
 
     CMqttHelperThread *pMqttThread = new CMqttHelperThread();   
@@ -199,6 +211,9 @@ void initialize(void){
     k_tid_t id11 = k_thread_create(&thread_download_client_data,thread_download_client_stack, 8192, &CBaseThread::handlerRun, pDownloadClient, NULL, NULL, 10, 0, K_NO_WAIT);
 
 
+    CWriteOnSdCard *pWriteOnSdCard = new CWriteOnSdCard();
+
+    k_tid_t id12 = k_thread_create(&thread_write_nor_data,thread_write_nor, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pWriteOnSdCard, NULL, NULL, 10, 0, K_NO_WAIT);
 
     // CSdCardThread *pSdCardThread = new CSdCardThread();
     

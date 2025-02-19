@@ -27,5 +27,5 @@ public:
 
     static void exampleMethod();
 
-
+    static int writeDataToNor(size_t address, const void *buffer,void *buffer_read, size_t size);
 };

@@ -37,6 +37,8 @@ k_msgq CBaseThread::msgDownloadClient{};
 
 k_msgq CBaseThread::msgAckClient{};
 
+k_msgq CBaseThread::copySdToNor{};
+
 k_event CBaseThread::lte_event_flags{};
 
 k_event CBaseThread::mqttMessageInQueueFlag{};
