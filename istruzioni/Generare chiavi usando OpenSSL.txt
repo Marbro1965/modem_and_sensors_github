@@ -35,7 +35,7 @@ python3 <NCS_PATH>/bootloader/mcuboot/scripts/imgtool.py sign --key <path_to>/pr
 
 in pratica:
 
-python3 /home/user/ncs/bootloader/mcuboot/scripts/imgtool.py sign --key /path/to/priv.pem --align 4 --version 1.2.3+4 --header-size 0x200 --pad-header --slot-size 0x77000 /path/to/input.bin /path/to/signed_output.bin
+python3 /home/user/ncs/bootloader/mcuboot/scripts/imgtool.py sign --key /path/to/priv.pem --align 4 --version 1.2.3+4 --header-size 0x200 --pad-header --slot-size 0xE0000 /path/to/input.bin /path/to/signed_output.bin
 
 /path/to/priv.pem percorso della mia chiave privata
 
@@ -125,4 +125,34 @@ These configurations ensure that MCUboot only performs upgrades (not downgrades)
 For more detailed information on configuring MCUboot to prevent unnecessary updates, you can refer to the Downgrade prevention documentation.
 MCUboot and NSIB provides additional information on MCUboot's behavior and configuration options in Nordic Semiconductor projects.
 
+Hi,
+
+Usually I create a class from header file
+
+When I jump to cpp file, copilot suggest some code for example
+
+constructor. 
+
+Press tab to accept code.
+
+Add a reference to that class in another file.
+
+Compile.
+
+Linker returns error unknown reference.
+
+Go in edit build configuration.
+
+Build configuration.
+
+Linker error disappear.
+
+If only clean configuration and rebuild, does not help.
+
+Best Regards
+
+
+
+con versione 3
+python C:/ncs/v2.7.0/bootloader/mcuboot/scripts/imgtool.py sign --key C:/ncs/v2.7.0/ZephyrProjects/modem_and_sensor/priv.pem --align 4 --version 1.0.0+0 --header-size 0x200 --pad-header --slot-size 0xE0000 C:\ncs\v2.7.0\ZephyrProjects\modem_and_sensor\build\modem_and_sensor\zephyr\zephyr.bin C:\ncs\v2.7.0\ZephyrProjects\modem_and_sensor\build\modem_and_sensor\zephyr\signed_zephyr.bin
 
