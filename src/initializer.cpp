@@ -102,7 +102,7 @@ K_THREAD_STACK_DEFINE(thread_download_client_stack, 8192);
 
 K_THREAD_STACK_DEFINE(thread_sd_card_stack, DEFAULT_THREAD_STACK_SIZE);
 
-K_THREAD_STACK_DEFINE(thread_write_nor, DEFAULT_THREAD_STACK_SIZE);
+K_THREAD_STACK_DEFINE(thread_write_nor, 8192);
 
 
 struct k_thread thread_logger_data;
@@ -154,6 +154,15 @@ void initialize(void){
     fileIoWrapper->fs_open_write(filename,"Hello World",11,FS_O_CREATE | FS_O_WRITE);
 
 
+	struct my_msg msg; 
+    
+    msg.data = my_msgq_type::COPY_FROM_SD_TO_NOR;
+
+    int ret = k_msgq_put(&CBaseThread::copySdToNor, &msg, K_NO_WAIT);
+
+    if (ret != 0) {
+        CLogger::getInstance()->log("Failed to send message to copy to nor thread");
+    }
 
     CBaseThread::setRelease();
 
@@ -169,31 +178,46 @@ void initialize(void){
  
     k_tid_t id1 = k_thread_create(&thread_logger_data,thread_logger_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pLoggerThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
+    k_thread_name_set(id1,"LoggerThread");
+
 
     CLedsThread *pLedsThread = new CLedsThread();
 
     k_tid_t id2 = k_thread_create(&thread_leds_data,thread_leds_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pLedsThread, NULL, NULL, 6, 0, K_NO_WAIT);
     
+    k_thread_name_set(id2,"LedsThread");
+
+
  
     CSensorThread *pSensorThread = new CSensorThread();
 
     k_tid_t id3 = k_thread_create(&thread_sensor_data,thread_sensor_stack, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pSensorThread, NULL, NULL, 7, 0, K_NO_WAIT);
+
+    k_thread_name_set(id3,"SensorThread");
+
 
 
     CModemSetupThread *pModemThread = new CModemSetupThread();
 
     k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 8196, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 2, 0, K_NO_WAIT);
 
+    k_thread_name_set(id4,"ModemSetup");
+
+
 
     CMqttHelperThread *pMqttThread = new CMqttHelperThread();   
 
     k_tid_t id5 = k_thread_create(&thread_mqtt_data,thread_mqtt_stack, 8196, &CBaseThread::handlerRun, pMqttThread, NULL, NULL, 1, 0, K_NO_WAIT);
+
+    k_thread_name_set(id5,"MqttHelper");
+
 
 
     CDateTimeThread *pDateTimeThread = new CDateTimeThread();
 
     k_tid_t id7 = k_thread_create(&thread_date_time_data,thread_date_time, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pDateTimeThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
+    k_thread_name_set(id7,"DateTimeThread");
 
 
 
@@ -220,10 +244,16 @@ void initialize(void){
 
     k_tid_t id11 = k_thread_create(&thread_download_client_data,thread_download_client_stack, 8192, &CBaseThread::handlerRun, pDownloadClient, NULL, NULL, 10, 0, K_NO_WAIT);
 
+    k_thread_name_set(id11,"DownloadClient");
+
+
 
     CWriteOnSdCard *pWriteOnSdCard = new CWriteOnSdCard();
 
-    k_tid_t id12 = k_thread_create(&thread_write_nor_data,thread_write_nor, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pWriteOnSdCard, NULL, NULL, 10, 0, K_NO_WAIT);
+    k_tid_t id12 = k_thread_create(&thread_write_nor_data,thread_write_nor, 8192, &CBaseThread::handlerRun, pWriteOnSdCard, NULL, NULL, 10, 0, K_NO_WAIT);
+
+    k_thread_name_set(id12,"WriteOnSdCard");
+
 
     // CSdCardThread *pSdCardThread = new CSdCardThread();
     

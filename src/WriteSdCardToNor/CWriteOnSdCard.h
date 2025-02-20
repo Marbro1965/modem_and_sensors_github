@@ -2,6 +2,14 @@
 
 #include "BaseThread/CBaseThread.h"
 
+#include <zephyr/storage/disk_access.h>
+
+#include <zephyr/fs/fs.h>
+
+#include <ff.h>
+
+
+
 class CWriteOnSdCard : public CBaseThread
 {
 
@@ -9,9 +17,11 @@ class CWriteOnSdCard : public CBaseThread
 
     int address ;
 
-    char buffer[4096];
+    static char buffer[4096];
 
-    char compare_buffer[4096];
+    static char compare_buffer[4096];
+
+    fs_file_t file;
 
 public:
 

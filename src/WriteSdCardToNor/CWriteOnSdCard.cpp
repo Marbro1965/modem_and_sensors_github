@@ -12,6 +12,12 @@
 
 #include "NorHelper/CNorHelper.h"
 
+char CWriteOnSdCard::buffer[4096]={};
+
+char CWriteOnSdCard::compare_buffer[4096]={};
+
+
+
 CWriteOnSdCard::CWriteOnSdCard()
 {
     
@@ -53,9 +59,9 @@ void CWriteOnSdCard::runHandler()
 int CWriteOnSdCard::copyFirmwareFromSdToNor()
 {
 
-    const char *filename = "/SD:/signed_firmware.bin";
+    const char *filename = "/SD:/signed.bin";
 
-    struct fs_file_t file;
+    
 
     // Copy the firmware from the SD card to the NOR memory
     CLogger::getInstance()->log("Copying firmware from SD to NOR\n");

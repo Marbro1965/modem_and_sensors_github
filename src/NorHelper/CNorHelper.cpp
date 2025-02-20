@@ -31,19 +31,12 @@ int CNorHelper::writeDataToNor(size_t address, const void *buffer,void *buffer_r
 
     ret = flash_write(flash_dev, address, buffer, 4096);
 
-    ret = flash_read(flash_dev, FLASH_TEST_OFFSET, buffer_read, FLASH_TEST_SIZE);
+    ret = flash_read(flash_dev, address, buffer_read, 4096);
     if (ret) {
         CLogger::getInstance()->log("Flash read failed! %d\n", ret);
         return ret;
     }
 
-    // Verify data
-    for (int i = 0; i < 4096; i++) {
-        if (((uint8_t *)buffer_read)[i] != ((uint8_t *)buffer)[i]) {
-            CLogger::getInstance()->log("Data mismatch at index %d\n", i);
-            return -1;
-        }
-    }
 
 
     return 0;
