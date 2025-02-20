@@ -154,5 +154,6 @@ Best Regards
 
 
 con versione 3
-python C:/ncs/v2.7.0/bootloader/mcuboot/scripts/imgtool.py sign --key C:/ncs/v2.7.0/ZephyrProjects/modem_and_sensor/priv.pem --align 4 --version 1.0.0+0 --header-size 0x200 --pad-header --slot-size 0xE0000 C:\ncs\v2.7.0\ZephyrProjects\modem_and_sensor\build\modem_and_sensor\zephyr\zephyr.bin C:\ncs\v2.7.0\ZephyrProjects\modem_and_sensor\build\modem_and_sensor\zephyr\signed_zephyr.bin
+python C:/ncs/v2.7.0/bootloader/mcuboot/scripts/imgtool.py sign --key C:/ncs/modem_and_sensor/priv.pem --align 4 --version 1.0.0+0 --header-size 0x200 --pad-header --slot-size 0xE0000 C:\ncs\modem_and_sensor\build\modem_and_sensor\zephyr\zephyr.bin C:\ncs\modem_and_sensor\build\modem_and_sensor\zephyr\signed_zephyr.bin
 
+Eseguire da terminale di nrfConnect
