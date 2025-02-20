@@ -20,6 +20,8 @@
 
 #include "SdCard/CSdCardThread.h"
 
+#include "SdCard/CFileIoWrapper.h"
+
 #include "NorHelper/CNorHelper.h"
 
 #include "WriteSdCardToNor/CWriteOnSdCard.h"
@@ -143,6 +145,14 @@ void initialize(void){
     initMessageQueue();
 
     initSemaphore();    
+
+
+    CFileIoWrapper *fileIoWrapper = CFileIoWrapper::GetInstance();
+
+    const char *filename = "/SD:/test.txt";
+
+    fileIoWrapper->fs_open_write(filename,"Hello World",11,FS_O_CREATE | FS_O_WRITE);
+
 
 
     CBaseThread::setRelease();
