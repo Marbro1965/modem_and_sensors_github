@@ -197,11 +197,11 @@ void initialize(void){
 
 
 
-    CModemSetupThread *pModemThread = new CModemSetupThread();
+    // CModemSetupThread *pModemThread = new CModemSetupThread();
 
-    k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 8196, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 2, 0, K_NO_WAIT);
+    // k_tid_t id4 = k_thread_create(&thread_modem_data,thread_modem_stack, 8196, &CBaseThread::handlerRun, pModemThread, NULL, NULL, 2, 0, K_NO_WAIT);
 
-    k_thread_name_set(id4,"ModemSetup");
+    // k_thread_name_set(id4,"ModemSetup");
 
 
 
