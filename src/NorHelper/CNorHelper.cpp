@@ -21,7 +21,7 @@ int CNorHelper::writeDataToNor(size_t address, const void *buffer,void *buffer_r
 {
     int ret;
 
-    flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash1));
+    flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash0));
 
     ret = flash_erase(flash_dev, address, 4096);
     if (ret) {
@@ -48,7 +48,7 @@ void CNorHelper::exampleMethod() {
     int ret;
 
     
-    flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash1));
+    flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash0));
     
 
     if (!device_is_ready(flash_dev)) {
