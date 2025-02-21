@@ -1,7 +1,7 @@
 #ifndef CMQTTHELPERTHREAD_H
 #define CMQTTHELPERTHREAD_H
 
-#include "BaseThread\CBaseThread.h"
+#include "BaseThread/CBaseThread.h"
 
 #include <zephyr/kernel.h>
 

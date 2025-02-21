@@ -1,7 +1,7 @@
 #ifndef CBASECONNECTIONSERVICE_H
 #define CBASECONNECTIONSERVICE_H
 
-#include "BaseThread\CBaseThread.h"
+#include "BaseThread/CBaseThread.h"
 
 class CBaseConnectionService:public CBaseThread
 {

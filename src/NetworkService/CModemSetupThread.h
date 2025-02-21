@@ -1,7 +1,7 @@
 #ifndef CMODEMSETUPTHREAD_H
 #define CMODEMSETUPTHREAD_H
 
-#include "NetworkService\CBaseConnectionService.h"
+#include "NetworkService/CBaseConnectionService.h"
 
 //#include <nrf_modem.h>
 
