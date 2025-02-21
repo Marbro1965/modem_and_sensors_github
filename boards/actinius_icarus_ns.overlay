@@ -1,5 +1,28 @@
 // To get started, press Ctrl+Space to bring up the completion menu and view the available nodes.
 // For more help, browse the DeviceTree documentation at https://docs.zephyrproject.org/latest/guides/dts/index.html
+/ {
+    chosen {
+        nordic,pm-ext-flash = &w25q64;
+    };
+};
+
+&spi3 {
+    compatible = "nordic,nrf-spim";
+    status = "okay";
+    cs-gpios = <&gpio0 25 GPIO_ACTIVE_LOW>,<&gpio0 19 GPIO_ACTIVE_LOW>;
+
+    sdhc0: sdhc@1 {
+        compatible = "zephyr,sdhc-spi-slot";
+        reg = <1>;
+        status = "okay";
+        mmc {
+            compatible = "zephyr,sdmmc-disk";
+            status = "okay";
+        };
+        spi-max-frequency = <8000000>;
+    };
+};
+
 &pinctrl {
     spi3_default: spi3_default {
         group1 {
@@ -19,37 +42,6 @@
     };
 };
 
-//mio overlay
-&spi3 {
-    compatible = "nordic,nrf-spim";
-    status = "okay";
-    pinctrl-0 = <&spi3_default>;
-    pinctrl-1 = <&spi3_sleep>;
-    pinctrl-names = "default", "sleep";
-    cs-gpios = <&gpio0 19 GPIO_ACTIVE_LOW>,<&gpio0 25 GPIO_ACTIVE_LOW>;
-
-    sdhc0: sdhc@0 {
-        compatible = "zephyr,sdhc-spi-slot";
-        reg = <0>;
-        status = "okay";
-        mmc {
-            compatible = "zephyr,sdmmc-disk";
-            status = "okay";
-        };
-        spi-max-frequency = <8000000>;
-    };
-
-    W25Q64_1: w25Q64@1 {
-        compatible = "jedec,spi-nor";
-        reg = <1>;
-        spi-max-frequency = <8000000>;
-        size = <0x4000000>;
-        jedec-id = [ef 40 17];
-        has-dpd;
-        t-enter-dpd = <10000>;
-        t-exit-dpd = <5000>;
-    };
-};
 
 
 
@@ -71,21 +63,5 @@
 };
 
 &wdt0 {
-    status = "okay";
-};
-
-/ {
-    aliases{
-
-        spi-flash1 = &W25Q64_1;
-    };
-};
-
-/ {
-    chosen {
-        nordic,pm-ext-flash = &W25Q64_1;
-    };
-};
-&W25Q64_1 {
     status = "okay";
 };
