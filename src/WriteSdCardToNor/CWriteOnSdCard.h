@@ -21,7 +21,7 @@ class CWriteOnSdCard : public CBaseThread
 
     static char compare_buffer[4096];
 
-    fs_file_t file;
+    struct fs_file_t file;
 
 public:
 

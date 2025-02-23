@@ -61,6 +61,8 @@ public:
 
     static k_event mqttMessageInQueueFlag;
 
+    static k_mutex fileIoMutex;
+
     static int64_t unix_time_ms;
 
     CBaseThread();

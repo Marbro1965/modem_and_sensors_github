@@ -43,6 +43,8 @@ k_event CBaseThread::lte_event_flags{};
 
 k_event CBaseThread::mqttMessageInQueueFlag{};
 
+k_mutex CBaseThread::fileIoMutex{};
+
 k_sem CBaseThread::net_conn_sem{};          // Initialize the static member variable
 
 int64_t CBaseThread::unix_time_ms{};

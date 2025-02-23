@@ -14,6 +14,7 @@
 
 char CWriteOnSdCard::buffer[4096]={};
 
+
 char CWriteOnSdCard::compare_buffer[4096]={};
 
 
@@ -61,10 +62,10 @@ int CWriteOnSdCard::copyFirmwareFromSdToNor()
 
     const char *filename = "/SD:/signed.bin";
 
-    
-
     // Copy the firmware from the SD card to the NOR memory
     CLogger::getInstance()->log("Copying firmware from SD to NOR\n");
+
+    CFileIoWrapper *fileIoWrapper = CFileIoWrapper::GetInstance();
 
     int res = CFileIoWrapper::mount();
 
@@ -111,7 +112,8 @@ int CWriteOnSdCard::copyFirmwareFromSdToNor()
 
     res = CFileIoWrapper::unmount();
 
-
-
     CLogger::getInstance()->log("Firmware copied from SD to NOR\n");
+
+    return 0;
+
 }

@@ -75,6 +75,8 @@ void initSemaphore(void){
     k_event_init(&CBaseThread::lte_event_flags);
 
     k_event_init(&CBaseThread::mqttMessageInQueueFlag);
+
+    k_mutex_init(&CBaseThread::fileIoMutex);
     
 }
 
@@ -133,9 +135,9 @@ struct k_thread thread_write_nor_data;
 
 #define VERSION_MAJOR 1
 
-#define VERSION_MINOR 1
+#define VERSION_MINOR 0
 
-#define PATCH 1
+#define PATCH 0
 
 #define BUILD 0
 
@@ -147,22 +149,22 @@ void initialize(void){
     initSemaphore();    
 
 
-    CFileIoWrapper *fileIoWrapper = CFileIoWrapper::GetInstance();
+    // CFileIoWrapper *fileIoWrapper = CFileIoWrapper::GetInstance();
 
-    const char *filename = "/SD:/test.txt";
+    // const char *filename = "/SD:/test.txt";
 
-    fileIoWrapper->fs_open_write(filename,"Hello World",11,FS_O_CREATE | FS_O_WRITE);
+    // fileIoWrapper->fs_open_write(filename,"Hello World",11,FS_O_CREATE | FS_O_WRITE);
 
 
-	struct my_msg msg; 
+	// struct my_msg msg; 
     
-    msg.data = my_msgq_type::COPY_FROM_SD_TO_NOR;
+    // msg.data = my_msgq_type::COPY_FROM_SD_TO_NOR;
 
-    int ret = k_msgq_put(&CBaseThread::copySdToNor, &msg, K_NO_WAIT);
+    // int ret = k_msgq_put(&CBaseThread::copySdToNor, &msg, K_NO_WAIT);
 
-    if (ret != 0) {
-        CLogger::getInstance()->log("Failed to send message to copy to nor thread");
-    }
+    // if (ret != 0) {
+    //     CLogger::getInstance()->log("Failed to send message to copy to nor thread");
+    // }
 
     CBaseThread::setRelease();
 
@@ -170,8 +172,6 @@ void initialize(void){
 
     CBaseThread::read_otp_value();
     
-    CNorHelper::exampleMethod();
-
     CLogger::getInstance()->log("Creazione dei threads\n");
 
     CLoggerThread *pLoggerThread = new CLoggerThread();

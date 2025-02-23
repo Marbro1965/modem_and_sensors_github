@@ -36,7 +36,7 @@ private:
 
     static CFileIoWrapper* m_instance;
 
-    struct k_mutex my_mutex;
+    
 
     static FATFS fat_fs;
 

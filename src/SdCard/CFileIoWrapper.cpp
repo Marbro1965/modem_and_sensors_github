@@ -2,6 +2,8 @@
 
 #include "Logger/CLogger.h"
 
+#include "BaseThread/CBaseThread.h"
+
 CFileIoWrapper* CFileIoWrapper::m_instance = nullptr;
 
 FATFS CFileIoWrapper::fat_fs = {};
@@ -12,7 +14,7 @@ char CFileIoWrapper::buffer[1024] = {};
 
 CFileIoWrapper::CFileIoWrapper()
 {
-    k_mutex_init(&my_mutex);
+    
 
     /* mounting info */
     mp.type = FS_FATFS;
@@ -25,7 +27,7 @@ int CFileIoWrapper::acquire_mutex(void)
 {
     int ret;
 
-    ret = k_mutex_lock(&my_mutex, K_FOREVER); // Wait indefinitely
+    ret = k_mutex_lock(&CBaseThread::fileIoMutex, K_FOREVER); // Wait indefinitely
     if (ret == 0) {
         CLogger::getInstance()->log("Mutex acquired");
     } else {
@@ -37,7 +39,8 @@ int CFileIoWrapper::acquire_mutex(void)
 
 void CFileIoWrapper::release_mutex(void)
 {
-    k_mutex_unlock(&my_mutex);
+    k_mutex_unlock(&CBaseThread::fileIoMutex);
+
     CLogger::getInstance()->log("Mutex released");
 }
 
