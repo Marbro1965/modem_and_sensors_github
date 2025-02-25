@@ -62,6 +62,8 @@ int CWriteOnSdCard::copyFirmwareFromSdToNor()
 
     const char *filename = "/SD:/signed.bin";
 
+    int err = 0;
+
     // Copy the firmware from the SD card to the NOR memory
     CLogger::getInstance()->log("Copying firmware from SD to NOR\n");
 
@@ -101,7 +103,12 @@ int CWriteOnSdCard::copyFirmwareFromSdToNor()
         CLogger::getInstance()->log("Read %d bytes from file\n", res);
 
         // Process buffer here if needed...
-        CNorHelper::writeDataToNor(address, buffer, compare_buffer, 4096);
+        err = CNorHelper::writeDataToNor(address, buffer, compare_buffer, 4096);
+
+        if (err < 0) {
+            CLogger::getInstance()->log("Error writing nor, error code: %d\n", err);
+            break;  // Error case
+        }
 
         address += 4096;
         // If res < CHUNK_SIZE, the remaining bytes are already 0xFF

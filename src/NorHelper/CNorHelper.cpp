@@ -1,5 +1,7 @@
 #include "CNorHelper.h"
 
+#include <string.h>
+
 #include "Logger/CLogger.h"
 
 // Implementation of CNorHelper class methods
@@ -19,7 +21,7 @@ CNorHelper::~CNorHelper() {
 
 int CNorHelper::writeDataToNor(size_t address, const void *buffer,void *buffer_read, size_t size)
 {
-    int ret;
+    int ret = 0;
 
     flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash0));
 
@@ -37,9 +39,10 @@ int CNorHelper::writeDataToNor(size_t address, const void *buffer,void *buffer_r
         return ret;
     }
 
+    //compares dei due buffer
+    ret = memcmp(buffer, buffer_read, 4096);
 
-
-    return 0;
+    return ret;
 
 }
 // Example method

@@ -13,5 +13,9 @@ uint32_t serial_number = NRF_UICR->CUSTOMER[0];
 
 nrfjprog --memwr 0xff8108  --val 0x12345
 
+per leggere
+
+nrfjprog --memrd 0xff8108
+
 //per la modifica dei ranges
 C:\ncs\v2.7.0\nrf\modules\trusted-firmware-m\tfm_boards\services\include

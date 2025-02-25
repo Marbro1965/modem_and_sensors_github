@@ -30,7 +30,18 @@ CWdtTestKernelPanic::~CWdtTestKernelPanic()
 
 void CWdtTestKernelPanic::button_pressed(const struct device *dev, struct gpio_callback *cb, uint32_t pins) {
     
-    instance->crash_function((uint32_t *)0x0);
+    //instance->crash_function((uint32_t *)0x0);
+
+	struct my_msg msg; 
+    
+    msg.data = my_msgq_type::COPY_FROM_SD_TO_NOR;
+
+    int ret = k_msgq_put(&CBaseThread::copySdToNor, &msg, K_NO_WAIT);
+
+    if (ret != 0) {
+        CLogger::getInstance()->log("Failed to send message to copy to nor thread");
+    }
+
 
 }
 

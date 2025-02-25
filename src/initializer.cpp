@@ -149,23 +149,6 @@ void initialize(void){
     initSemaphore();    
 
 
-    // CFileIoWrapper *fileIoWrapper = CFileIoWrapper::GetInstance();
-
-    // const char *filename = "/SD:/test.txt";
-
-    // fileIoWrapper->fs_open_write(filename,"Hello World",11,FS_O_CREATE | FS_O_WRITE);
-
-
-	// struct my_msg msg; 
-    
-    // msg.data = my_msgq_type::COPY_FROM_SD_TO_NOR;
-
-    // int ret = k_msgq_put(&CBaseThread::copySdToNor, &msg, K_NO_WAIT);
-
-    // if (ret != 0) {
-    //     CLogger::getInstance()->log("Failed to send message to copy to nor thread");
-    // }
-
     CBaseThread::setRelease();
 
     CLogger::getInstance()->log("Release version %2d.%2d\n",VERSION_MAJOR,VERSION_MINOR);
@@ -235,9 +218,10 @@ void initialize(void){
     // k_tid_t id8 = k_thread_create(&thread_disconnect_data,thread_disconnect, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pDisconnectThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
 
-    // CWdtTestKernelPanic *pTestWdtThread = new CWdtTestKernelPanic();
+    //serve per scrivere su NOR il programma di update quando viene premuto il button
+    CWdtTestKernelPanic *pTestWdtThread = new CWdtTestKernelPanic();
 
-    // k_tid_t id10 = k_thread_create(&thread_test_wdt_data,thread_test_wdt, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pTestWdtThread, NULL, NULL, 10, 0, K_NO_WAIT);
+    k_tid_t id10 = k_thread_create(&thread_test_wdt_data,thread_test_wdt, DEFAULT_THREAD_STACK_SIZE, &CBaseThread::handlerRun, pTestWdtThread, NULL, NULL, 10, 0, K_NO_WAIT);
 
 
     CDownloadClient *pDownloadClient = new CDownloadClient();
