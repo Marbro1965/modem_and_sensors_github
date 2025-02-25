@@ -17,6 +17,8 @@ class CWriteOnSdCard : public CBaseThread
 
     int address ;
 
+    int finalAddress;
+
     static char buffer[4096];
 
     static char compare_buffer[4096];

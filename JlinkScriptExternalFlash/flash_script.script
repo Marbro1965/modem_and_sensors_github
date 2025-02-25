@@ -1,0 +1,8 @@
+r
+h
+loadbin zephyr.signed.bin, 0x000E8000
+
+verifybin zephyr.signed.bin, 0x000E8000
+r
+g
+exit

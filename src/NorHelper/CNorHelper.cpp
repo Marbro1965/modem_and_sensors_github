@@ -34,7 +34,7 @@ int CNorHelper::writeDataToNor(size_t address, const void *buffer,void *buffer_r
     ret = flash_write(flash_dev, address, buffer, 4096);
 
     ret = flash_read(flash_dev, address, buffer_read, 4096);
-    if (ret) {
+    if (ret!=0) {
         CLogger::getInstance()->log("Flash read failed! %d\n", ret);
         return ret;
     }
@@ -44,6 +44,21 @@ int CNorHelper::writeDataToNor(size_t address, const void *buffer,void *buffer_r
 
     return ret;
 
+}
+
+int CNorHelper::readDataFromNor(size_t address, void *buffer, size_t size)
+{
+    int ret = 0;
+
+    //flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash0));
+
+    ret = flash_read(flash_dev, address, buffer, 4096);
+    if (ret!=0) {
+        CLogger::getInstance()->log("Flash read failed! %d\n", ret);
+        return ret;
+    }
+
+    return ret;
 }
 // Example method
 void CNorHelper::exampleMethod() {

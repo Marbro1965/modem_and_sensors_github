@@ -86,11 +86,13 @@ int CWriteOnSdCard::copyFirmwareFromSdToNor()
     } else {
         CLogger::getInstance()->log("Error opening file.\n");
     }
-    address = 0;
+    address = 0xE8000;
+    finalAddress = address;
     while (true) {
         memset(buffer, 0xFF, 4096);  // Fill buffer with 0xFF initially
         memset(compare_buffer, 0xFF, 4096);  // Fill buffer with 0xFF initially
         res = fs_read(&file, buffer, 4096);  // Read up to 4096 bytes
+        finalAddress += res;
         if (res == 0) {
             CLogger::getInstance()->log("End of file reached\n");
             break;  // EOF
@@ -114,6 +116,39 @@ int CWriteOnSdCard::copyFirmwareFromSdToNor()
         // If res < CHUNK_SIZE, the remaining bytes are already 0xFF
     }
 
+
+    fs_close(&file);
+
+    res = CFileIoWrapper::unmount();
+
+    res = CFileIoWrapper::mount();
+
+    //make a dump of the firrmware:
+    //res = fs_unlink("/SD:/dump.bin");
+
+    fs_file_t_init(&file);
+
+    res = fs_open(&file, "/SD:/dump.bin", FS_O_CREATE | FS_O_WRITE);
+
+    if (res == FR_OK) {
+        CLogger::getInstance()->log("File opened.\n");
+    } else {
+        CLogger::getInstance()->log("Error opening file.\n");
+    }
+    address = 0xE8000;
+
+    while (address < finalAddress) {
+        size_t bytesToRead = (address + 4096 <= finalAddress) ? 4096 : (finalAddress - address);
+
+        // Read a chunk of data from the NOR flash
+        if (CNorHelper::readDataFromNor(address, buffer, bytesToRead) == 0) {
+            
+            //write to file
+            res = fs_write(&file, buffer, bytesToRead);
+        }
+        // Move to the next chunk
+        address += res;
+    }
 
     fs_close(&file);
 

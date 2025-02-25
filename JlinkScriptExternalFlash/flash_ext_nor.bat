@@ -1,0 +1,1 @@
+C:/Program Files/SEGGER/JLink_V794i/JLinkExe -device nRF9160 -if swd -speed 4000 -CommanderScript flash_script.jlink
