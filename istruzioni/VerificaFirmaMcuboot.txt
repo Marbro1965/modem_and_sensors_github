@@ -1,0 +1,39 @@
+Creazione della chiave privata (gia' fatto)
+
+1. openssl ecparam -name prime256v1 -genkey -noout -out priv.pem
+
+Verifica della chiave privata, se si trova una chiave nella directory e non si sa cosa e'
+
+2. openssl ec -in priv.pem -text -noout sul file deve dare un output come:
+
+Microsoft Windows [Versione 10.0.19045.5487]
+(c) Microsoft Corporation. Tutti i diritti sono riservati.
+
+C:\ncs\modem_and_sensor>openssl ec -in priv.pem -text -noout
+read EC key
+Private-Key: (256 bit)
+priv:
+    9f:4c:b0:75:eb:5a:a5:cf:c1:7b:69:12:d2:9e:fc:
+    e5:3c:2d:90:37:d6:7a:bd:5f:ad:6c:18:65:66:b2:
+    f5:08
+pub:
+    04:ea:66:0b:79:d6:ca:6f:ad:8e:f2:1d:d4:04:e9:
+    ac:dc:f0:63:fd:a8:0f:2c:6d:ea:f7:99:c7:54:fe:
+    e5:65:b4:92:30:1f:0c:09:29:7b:b2:5a:e9:67:6f:
+    03:4f:4d:87:31:8a:39:1d:55:e6:b7:14:69:e4:81:
+    92:00:03:58:1a
+ASN1 OID: prime256v1
+NIST CURVE: P-256
+
+3. in c:\ncs\v2.7.0 cioe' nella directory dell'sdk eseguire
+
+pip install -r bootloader/mcuboot/scripts/requirements.txt
+
+4. Aprire un terminale di comando Eseguire C:\ncs\v2.7.0\bootloader\mcuboot\scripts\imgtool.py verify --key priv.pem C:\ncs\modem_and_sensor\build\modem_and_sensor\zephyr\zephyr.signed.bin
+
+Se e' stato firmato in maniera corretta abbiamo un uscita tipo
+
+Image was correctly validated
+Image version: 0.0.0+0
+Image digest: a7dedcf6778beebf4ed2a59ac79a68153039b4eeab70a9122dfd207f62d8930a
+
