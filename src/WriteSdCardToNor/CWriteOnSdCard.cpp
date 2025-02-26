@@ -86,7 +86,7 @@ int CWriteOnSdCard::copyFirmwareFromSdToNor()
     } else {
         CLogger::getInstance()->log("Error opening file.\n");
     }
-    address = 0xE8000;
+    address = 0x0000;
     finalAddress = address;
     while (true) {
         memset(buffer, 0xFF, 4096);  // Fill buffer with 0xFF initially
@@ -135,7 +135,7 @@ int CWriteOnSdCard::copyFirmwareFromSdToNor()
     } else {
         CLogger::getInstance()->log("Error opening file.\n");
     }
-    address = 0xE8000;
+    address = 0x0000;
 
     while (address < finalAddress) {
         size_t bytesToRead = (address + 4096 <= finalAddress) ? 4096 : (finalAddress - address);
