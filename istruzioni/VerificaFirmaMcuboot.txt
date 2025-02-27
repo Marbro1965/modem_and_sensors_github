@@ -40,7 +40,12 @@ Image digest: a7dedcf6778beebf4ed2a59ac79a68153039b4eeab70a9122dfd207f62d8930a
 
 Generare in maniera diversa l'immagine
 
-imgtool pad --align 4 --slot-size 0x77000 --pad-header --pad zephyr.signed.bin output.bin
+imgtool.py pad --pad-header --slot-size 0xE8000 --align 4 --pad C:\ncs\modem_and_sensor\build\modem_and_sensor\zephyr\zephyr.signed.bin C:\ncs\modem_and_sensor\build\modem_and_sensor\zephyr\zephyr.signed_with_trailer.bin
+
+imgtool.py sign --pad-header --slot-size 0xE8000 --align 4 --pad --pad-sig --version 0.0.0+0 C:\ncs\modem_and_sensor\build\modem_and_sensor\zephyr\zephyr.signed.bin C:\ncs\modem_and_sensor\build\modem_and_sensor\zephyr\zephyr.signed_with_trailer.bin
+
+imgtool.py sign --header-size 0x200 --pad-header --slot-size 0xE8000 --align 4 --pad --pad-sig --version 0.0.0+0 C:\ncs\modem_and_sensor\build\modem_and_sensor\zephyr\zephyr.signed.bin C:\ncs\modem_and_sensor\build\modem_and_sensor\zephyr\zephyr.signed_with_trailer.bin
+
 
 
 

@@ -1,5 +1,5 @@
 /* Add external flash to application */
-&mx25r64 {
+&w25q64 {
     status = "okay";
 };
 
