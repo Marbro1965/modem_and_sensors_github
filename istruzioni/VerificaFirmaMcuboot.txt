@@ -37,3 +37,10 @@ Image was correctly validated
 Image version: 0.0.0+0
 Image digest: a7dedcf6778beebf4ed2a59ac79a68153039b4eeab70a9122dfd207f62d8930a
 
+
+Generare in maniera diversa l'immagine
+
+imgtool pad --align 4 --slot-size 0x77000 --pad-header --pad zephyr.signed.bin output.bin
+
+
+
