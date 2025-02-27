@@ -2,10 +2,10 @@
 // For more help, browse the DeviceTree documentation at https://docs.zephyrproject.org/latest/guides/dts/index.html
 
 /* Add external flash to application */
-&mx25r64 {
+
+&w25q64 {
     status = "okay";
 };
-
 
 / {
     chosen {

@@ -1,13 +1,16 @@
 /* Add external flash to application */
-&mx25r64 {
-    status = "okay";
+&w25q64 {
+	status = "okay";
 };
+
 
 / {
     chosen {
         nordic,pm-ext-flash = &w25q64;
     };
 };
+
+
 
 &spi3 {
     compatible = "nordic,nrf-spim";
