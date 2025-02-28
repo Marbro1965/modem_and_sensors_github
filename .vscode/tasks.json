@@ -24,6 +24,24 @@
             },
             "problemMatcher": [],
             "detail": "Generated task for padding the signed binary"
+        },
+        {
+            "type": "process",
+            "label": "Flash signed image with nrfjprog",
+            "command": "nrfjprog",
+            "args": [
+                "--program",
+                "${workspaceFolder}/build/modem_and_sensor/zephyr/signed.bin",
+                "--sectorerase",
+                "--verify",
+                "--startaddress", "0x10000"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": [],
+            "detail": "Task to flash the signed and padded image on primary using nrfjprog"
         }
     ],
     "inputs": [
