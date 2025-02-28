@@ -1,6 +1,6 @@
 /* Add external flash to application */
 &w25q64 {
-	status = "okay";
+    status = "okay";
 };
 
 
