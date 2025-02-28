@@ -121,40 +121,39 @@ int CWriteOnSdCard::copyFirmwareFromSdToNor()
 
     res = CFileIoWrapper::unmount();
 
-    res = CFileIoWrapper::mount();
+    // res = CFileIoWrapper::mount();
 
-    //make a dump of the firrmware:
-    //res = fs_unlink("/SD:/dump.bin");
+    // fs_file_t_init(&file);
 
-    fs_file_t_init(&file);
+    // res = fs_open(&file, "/SD:/dump.bin", FS_O_CREATE | FS_O_WRITE);
 
-    res = fs_open(&file, "/SD:/dump.bin", FS_O_CREATE | FS_O_WRITE);
+    // if (res == FR_OK) {
+    //     CLogger::getInstance()->log("File opened.\n");
+    // } else {
+    //     CLogger::getInstance()->log("Error opening file.\n");
+    // }
+    // address = 0x0000;
 
-    if (res == FR_OK) {
-        CLogger::getInstance()->log("File opened.\n");
-    } else {
-        CLogger::getInstance()->log("Error opening file.\n");
-    }
-    address = 0x0000;
+    // while (address < finalAddress) {
+    //     size_t bytesToRead = (address + 4096 <= finalAddress) ? 4096 : (finalAddress - address);
 
-    while (address < finalAddress) {
-        size_t bytesToRead = (address + 4096 <= finalAddress) ? 4096 : (finalAddress - address);
-
-        // Read a chunk of data from the NOR flash
-        if (CNorHelper::readDataFromNor(address, buffer, bytesToRead) == 0) {
+    //     // Read a chunk of data from the NOR flash
+    //     if (CNorHelper::readDataFromNor(address, buffer, bytesToRead) == 0) {
             
-            //write to file
-            res = fs_write(&file, buffer, bytesToRead);
-        }
-        // Move to the next chunk
-        address += res;
-    }
+    //         //write to file
+    //         res = fs_write(&file, buffer, bytesToRead);
+    //     }
+    //     // Move to the next chunk
+    //     address += res;
+    // }
 
-    fs_close(&file);
+    // fs_close(&file);
 
-    res = CFileIoWrapper::unmount();
+    // res = CFileIoWrapper::unmount();
 
     CLogger::getInstance()->log("Firmware copied from SD to NOR\n");
+
+    //boot_set_pending_multi(0, 1);
 
     return 0;
 

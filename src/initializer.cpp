@@ -133,7 +133,7 @@ struct k_thread thread_sd_card_data;
 
 struct k_thread thread_write_nor_data;
 
-#define VERSION_MAJOR 1
+#define VERSION_MAJOR 0
 
 #define VERSION_MINOR 0
 

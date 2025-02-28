@@ -29,7 +29,9 @@ NIST CURVE: P-256
 
 pip install -r bootloader/mcuboot/scripts/requirements.txt
 
-4. Aprire un terminale di comando Eseguire C:\ncs\v2.7.0\bootloader\mcuboot\scripts\imgtool.py verify --key priv.pem C:\ncs\modem_and_sensor\build\modem_and_sensor\zephyr\zephyr.signed.bin
+4. Aprire un terminale di comando Eseguire C:\ncs\v2.7.0\bootloader\mcuboot\scripts\imgtool.py verify --key priv.pem C:\ncs\modem_and_sensor\build\modem_and_sensor\zephyr\signed.bin
+
+imgtool verify --key priv.pem C:\ncs\modem_and_sensor\build\modem_and_sensor\zephyr\signed.bin
 
 Se e' stato firmato in maniera corretta abbiamo un uscita tipo
 

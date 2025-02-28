@@ -8,6 +8,7 @@
             "args": [
                 "C:/ncs/v2.7.0/bootloader/mcuboot/scripts/imgtool.py",
                 "sign",
+                "--key", "${workspaceFolder}/priv.pem",
                 "--header-size","0x200",
                 "--pad-header",
                 "--slot-size","0xE8000",
@@ -16,6 +17,11 @@
                 "--pad-sig",
                 "--version","${input:version}",
                 "${workspaceFolder}/build/modem_and_sensor/zephyr/zephyr.signed.bin",
+                "${workspaceFolder}/build/modem_and_sensor/zephyr/signed.bin",
+                "&&",
+                "C:/ncs/v2.7.0/bootloader/mcuboot/scripts/imgtool.py",
+                "verify",
+                "--key", "${workspaceFolder}/priv.pem",
                 "${workspaceFolder}/build/modem_and_sensor/zephyr/signed.bin"
             ],
             "group": {
@@ -33,8 +39,8 @@
                 "--program",
                 "${workspaceFolder}/build/modem_and_sensor/zephyr/signed.bin",
                 "--sectorerase",
-                "--verify",
-                "--startaddress", "0x10000"
+                "--verify"
+                
             ],
             "group": {
                 "kind": "build",
