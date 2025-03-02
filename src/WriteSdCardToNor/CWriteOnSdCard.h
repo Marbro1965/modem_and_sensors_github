@@ -15,9 +15,20 @@ class CWriteOnSdCard : public CBaseThread
 
     int copyFirmwareFromSdToNor();
 
+    void dump();
+
+
+    int readMagicNumber();
+
+    int writeMagicNumberToNor();
+
+    int processCommand();
+
     int address ;
 
     int finalAddress;
+
+    static char magicBuffer[16];
 
     static char buffer[4096];
 

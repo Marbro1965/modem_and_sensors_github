@@ -30,4 +30,6 @@ public:
     static int writeDataToNor(size_t address, const void *buffer,void *buffer_read, size_t size);
 
     static int readDataFromNor(size_t address, void *buffer, size_t size);
+
+    static int eraseAllMemorySecondarySlot();
 };

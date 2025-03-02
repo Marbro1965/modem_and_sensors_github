@@ -18,17 +18,30 @@ CNorHelper::~CNorHelper() {
     // Cleanup code here
 }
 
+int CNorHelper::eraseAllMemorySecondarySlot(){
+
+    int ret = 0;
+
+    if (flash_dev == nullptr) {
+        flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash0));
+    }
+
+    ret = flash_erase(flash_dev, 0, 0x0E8000);
+    if (ret) {
+        CLogger::getInstance()->log("Flash erase failed! %d\n", ret);
+        return ret;
+    }
+
+    return ret;
+
+}
 
 int CNorHelper::writeDataToNor(size_t address, const void *buffer,void *buffer_read, size_t size)
 {
     int ret = 0;
 
-    flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash0));
-
-    ret = flash_erase(flash_dev, address, 4096);
-    if (ret) {
-        CLogger::getInstance()->log("Flash erase failed! %d\n", ret);
-        return ret;
+    if (flash_dev == nullptr) {
+        flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash0));
     }
 
     ret = flash_write(flash_dev, address, buffer, 4096);
@@ -50,7 +63,9 @@ int CNorHelper::readDataFromNor(size_t address, void *buffer, size_t size)
 {
     int ret = 0;
 
-    //flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash0));
+    if (flash_dev == nullptr) {
+        flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash0));
+    }
 
     ret = flash_read(flash_dev, address, buffer, 4096);
     if (ret!=0) {
@@ -66,7 +81,9 @@ void CNorHelper::exampleMethod() {
     int ret;
 
     
-    flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash0));
+    if (flash_dev == nullptr) {
+        flash_dev = DEVICE_DT_GET(DT_ALIAS(spi_flash0));
+    }
     
 
     if (!device_is_ready(flash_dev)) {

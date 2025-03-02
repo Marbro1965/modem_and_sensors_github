@@ -19,6 +19,8 @@ extern "C" {
 
 void initMessageQueue(void);
 
+void initMutex(void);
+
 void initSemaphore(void);
 
 void initialize(void);

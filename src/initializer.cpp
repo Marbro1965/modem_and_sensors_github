@@ -76,8 +76,15 @@ void initSemaphore(void){
 
     k_event_init(&CBaseThread::mqttMessageInQueueFlag);
 
-    k_mutex_init(&CBaseThread::fileIoMutex);
+   
     
+}
+
+void initMutex(void){
+
+    k_mutex_init(&CBaseThread::fileIoMutex);
+
+    k_mutex_init(&CBaseThread::firmwareUpgradeMutex);
 }
 
 K_THREAD_STACK_DEFINE(thread_logger_stack, DEFAULT_THREAD_STACK_SIZE);
@@ -133,9 +140,9 @@ struct k_thread thread_sd_card_data;
 
 struct k_thread thread_write_nor_data;
 
-#define VERSION_MAJOR 0
+#define VERSION_MAJOR 1
 
-#define VERSION_MINOR 0
+#define VERSION_MINOR 3
 
 #define PATCH 0
 
@@ -147,6 +154,8 @@ void initialize(void){
     initMessageQueue();
 
     initSemaphore();    
+
+    initMutex();
 
 
     CBaseThread::setRelease();

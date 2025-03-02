@@ -3,26 +3,22 @@
     "tasks": [
         {
             "type": "process",
-            "label": "Run imgtool.py script",
+            "label": "Sign bin",
             "command": "python",          
             "args": [
                 "C:/ncs/v2.7.0/bootloader/mcuboot/scripts/imgtool.py",
                 "sign",
-                "--key", "${workspaceFolder}/priv.pem",
+                //"--key", "${workspaceFolder}/priv.pem",
                 "--header-size","0x200",
+                "--pad",
                 "--pad-header",
                 "--slot-size","0xE8000",
                 "--align","4",
-                "--pad",
-                "--pad-sig",
+                //"--pad",
+                //"--pad-sig",
                 "--version","${input:version}",
                 "${workspaceFolder}/build/modem_and_sensor/zephyr/zephyr.signed.bin",
                 "${workspaceFolder}/build/modem_and_sensor/zephyr/signed.bin",
-                "&&",
-                "C:/ncs/v2.7.0/bootloader/mcuboot/scripts/imgtool.py",
-                "verify",
-                "--key", "${workspaceFolder}/priv.pem",
-                "${workspaceFolder}/build/modem_and_sensor/zephyr/signed.bin"
             ],
             "group": {
                 "kind": "build",
@@ -33,21 +29,20 @@
         },
         {
             "type": "process",
-            "label": "Flash signed image with nrfjprog",
-            "command": "nrfjprog",
+            "label": "Verify bin",
+            "command": "python",          
             "args": [
-                "--program",
-                "${workspaceFolder}/build/modem_and_sensor/zephyr/signed.bin",
-                "--sectorerase",
-                "--verify"
-                
+                "C:/ncs/v2.7.0/bootloader/mcuboot/scripts/imgtool.py",
+                "verify",
+                "--key", "${workspaceFolder}/priv.pem",
+                "${workspaceFolder}/build/modem_and_sensor/zephyr/signed.bin"
             ],
             "group": {
                 "kind": "build",
-                "isDefault": false
+                "isDefault": true
             },
             "problemMatcher": [],
-            "detail": "Task to flash the signed and padded image on primary using nrfjprog"
+            "detail": "Generated task for verify the signed binary"
         }
     ],
     "inputs": [

@@ -63,6 +63,8 @@ public:
 
     static k_mutex fileIoMutex;
 
+    static k_mutex firmwareUpgradeMutex;
+
     static int64_t unix_time_ms;
 
     CBaseThread();
