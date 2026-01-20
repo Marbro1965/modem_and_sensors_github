@@ -71,7 +71,7 @@ int CWriteOnSdCard::processCommand()
 
     writeMagicNumberToNor();
 
-    //dump();
+    dump();
 
     k_mutex_unlock(&CBaseThread::firmwareUpgradeMutex);
 
